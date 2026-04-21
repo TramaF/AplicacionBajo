@@ -3,63 +3,203 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mis Apps Musicales - R. Raíndo</title>
-  <style>
-    body { font-family: 'DM Sans', sans-serif; background: #0f1117; color: #ecedf0; margin: 0; padding: 40px 20px; text-align: center; }
-    h1 { color: #c9a84c; font-family: 'Playfair Display', serif; }
-    .categoria { margin: 40px 0; }
-    .categoria h2 { background: #1e2230; padding: 15px; border-radius: 12px; color: #c9a84c; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
-    .card { 
-      background: #181b24; border: 1px solid #2a2f3a; border-radius: 12px; 
-      padding: 20px; transition: all 0.3s; text-align: left;
+  <title>Mis Apps de Música</title>
+  
+  <!-- Tailwind CSS v4 via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  
+  <style type="text/tailwindcss">
+    @theme {
+      --color-primary: #1e40af;
+      --color-accent: #eab308;
     }
-    .card:hover { transform: translateY(-6px); border-color: #c9a84c; box-shadow: 0 10px 25px rgba(201,168,76,0.15); }
-    .card h3 { margin: 0 0 10px 0; color: #c9a84c; }
-    a { text-decoration: none; color: inherit; }
   </style>
 </head>
-<body>
-  <h1>🎵 Mis Aplicaciones Musicales</h1>
-  <p>by R. Raíndo — Elige una categoría</p>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen pb-12">
+  
+  <div class="max-w-7xl mx-auto px-4 py-12">
+    
+    <!-- Header -->
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-4 mb-4">
+        <span class="text-6xl">🎸</span>
+        <h1 class="text-5xl md:text-6xl font-bold tracking-tighter">
+          Mis Apps de Música
+        </h1>
+      </div>
+      <p class="text-xl text-zinc-400 max-w-2xl mx-auto">
+        Colección de herramientas, tests y juegos interactivos para practicar teoría musical, oído y más.
+      </p>
+    </div>
 
-  <div class="categoria">
-    <h2>📚 Tests y Exámenes</h2>
-    <div class="grid">
-      <a href="apps/teoria/Test_teoria_I-IV.html" class="card"><h3>Test Teoría I-IV</h3></a>
-      <a href="apps/teoria/Test_de_teoria.html" class="card"><h3>Test de Teoría</h3></a>
-      <a href="apps/teoria/tetradas_exam.html" class="card"><h3>Examen de Tétradas</h3></a>
-      <a href="apps/teoria/Test_de_Armonia_Moderna.html" class="card"><h3>Armonía Moderna</h3></a>
-      <a href="apps/teoria/Intervalos.html" class="card"><h3>Examen de Intervalos</h3></a>
-      <a href="apps/teoria/Dictado_Simple.html" class="card"><h3>Dictado Básico</h3></a>
-      <a href="apps/teoria/nota_musical_v2.html" class="card"><h3>Identifica la Nota</h3></a>
+    <div class="space-y-20">
+
+      <!-- ==================== TEORÍA Y TESTS ==================== -->
+      <div>
+        <h2 class="text-3xl font-semibold mb-8 flex items-center gap-3 border-b border-zinc-800 pb-4">
+          📚 <span>Teoría y Tests</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          <a href="apps/teoria/Test_teoria_I-IV.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">📝</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Test Teoría I-IV</h3>
+            <p class="text-zinc-400">Tests completos de los cuatro niveles</p>
+          </a>
+
+          <a href="apps/teoria/Test_de_teoria.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🧠</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Test de Teoría</h3>
+            <p class="text-zinc-400">Test general de teoría musical</p>
+          </a>
+
+          <a href="apps/teoria/tetradas_exam.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🎵</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Examen de Tétradas</h3>
+            <p class="text-zinc-400">Acordes de séptima</p>
+          </a>
+
+          <a href="apps/teoria/Test_de_Armonia_Moderna.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🌌</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Armonía Moderna</h3>
+            <p class="text-zinc-400">Modos, tensiones y armonía contemporánea</p>
+          </a>
+
+          <a href="apps/teoria/Intervalos.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">📏</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Intervalos</h3>
+            <p class="text-zinc-400">Entrenamiento de intervalos</p>
+          </a>
+
+          <a href="apps/teoria/Dictado_Simple.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">👂</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Dictado Simple</h3>
+            <p class="text-zinc-400">Entrenamiento de oído</p>
+          </a>
+
+          <a href="apps/teoria/nota_musical_v2.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🎼</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Nota Musical v2</h3>
+            <p class="text-zinc-400">Identificación de notas en pentagrama</p>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- ==================== JUEGOS INTERACTIVOS ==================== -->
+      <div>
+        <h2 class="text-3xl font-semibold mb-8 flex items-center gap-3 border-b border-zinc-800 pb-4">
+          🎮 <span>Juegos Interactivos</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          <a href="apps/juegos/GuitarGrid_Quest-2.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🧩</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">GuitarGrid Quest</h3>
+            <p class="text-zinc-400">Juego de reconocimiento de acordes</p>
+          </a>
+
+          <a href="apps/juegos/Simon_guitarra.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🎸</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Simon Guitarra</h3>
+            <p class="text-zinc-400">Versión guitarra del Simon Says</p>
+          </a>
+
+          <a href="apps/juegos/Simon_musical.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🎵</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Simon Musical</h3>
+            <p class="text-zinc-400">Simon con notas musicales</p>
+          </a>
+
+          <a href="apps/juegos/Pulso_Fantasma.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">👻</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Pulso Fantasma</h3>
+            <p class="text-zinc-400">Entrenamiento de pulso rítmico</p>
+          </a>
+
+          <a href="apps/juegos/impostor_musical.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🕵️</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Impostor Musical</h3>
+            <p class="text-zinc-400">Encuentra la nota impostora</p>
+          </a>
+
+          <a href="apps/juegos/Mario_music_v24_mobile.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🍄</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Mario Music Quest</h3>
+            <p class="text-zinc-400">Plataformer musical</p>
+          </a>
+
+          <a href="apps/juegos/guitar-soccer-game-7.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">⚽</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Guitar Soccer</h3>
+            <p class="text-zinc-400">Fútbol con acordes de guitarra</p>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- ==================== HERRAMIENTAS ==================== -->
+      <div>
+        <h2 class="text-3xl font-semibold mb-8 flex items-center gap-3 border-b border-zinc-800 pb-4">
+          🛠️ <span>Herramientas</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          <a href="apps/herramientas/metronomo.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">⏱️</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Metrónomo</h3>
+            <p class="text-zinc-400">Metronomo clásico</p>
+          </a>
+
+          <a href="apps/herramientas/Mástil.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🎸</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Mástil Interactivo</h3>
+            <p class="text-zinc-400">Aprende las notas en el diapasón</p>
+          </a>
+
+          <a href="apps/herramientas/Oído-Armónico.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">👂</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Oído Armónico</h3>
+            <p class="text-zinc-400">Entrenamiento de armonía</p>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- ==================== DAW Y SECUENCIADORES ==================== -->
+      <div>
+        <h2 class="text-3xl font-semibold mb-8 flex items-center gap-3 border-b border-zinc-800 pb-4">
+          🎛️ <span>DAW y Secuenciadores</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          <a href="apps/daw/sequencer_v9-3.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🔊</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Sequencer v9</h3>
+            <p class="text-zinc-400">Secuenciador avanzado</p>
+          </a>
+
+          <a href="apps/daw/movildaw_v5.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">📱</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">MovilDAW v5</h3>
+            <p class="text-zinc-400">DAW móvil completo</p>
+          </a>
+
+          <a href="apps/daw/swing-band-fixed-2.html" class="group bg-zinc-900 rounded-3xl p-8 hover:bg-zinc-800 transition-all border border-zinc-800 hover:border-yellow-400">
+            <div class="text-5xl mb-6">🎷</div>
+            <h3 class="text-2xl font-semibold mb-2 group-hover:text-yellow-400">Swing Band</h3>
+            <p class="text-zinc-400">Simulador de banda swing</p>
+          </a>
+
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <div class="categoria">
-    <h2>🎮 Juegos Interactivos</h2>
-    <div class="grid">
-      <a href="apps/juegos/GuitarGrid_Quest-2.html" class="card"><h3>GuitarGrid Quest</h3></a>
-      <a href="apps/juegos/Simon_guitarra.html" class="card"><h3>Simón Dice Guitarra</h3></a>
-      <a href="apps/juegos/Simon_musical.html" class="card"><h3>Simón Musical</h3></a>
-      <a href="apps/juegos/Pulso_Fantasma.html" class="card"><h3>Pulso Fantasma</h3></a>
-      <a href="apps/juegos/impostor_musical.html" class="card"><h3>El Impostor Musical</h3></a>
-      <a href="apps/juegos/Mario_music_v24_mobile.html" class="card"><h3>Mario Music Quest</h3></a>
-    </div>
-  </div>
-
-  <div class="categoria">
-    <h2>🛠️ Herramientas y DAW</h2>
-    <div class="grid">
-      <a href="apps/herramientas/metronomo.html" class="card"><h3>Metrónomo</h3></a>
-      <a href="apps/herramientas/sequencer_v9-3.html" class="card"><h3>Sequencer Studio</h3></a>
-      <a href="apps/herramientas/swing-band-fixed-2.html" class="card"><h3>Swing Band</h3></a>
-      <a href="apps/daw/movildaw_v5.html" class="card"><h3>Movil DAW</h3></a>
-    </div>
-  </div>
-
-  <footer style="margin-top:60px;color:#4f5462;font-size:0.8em;">
-    Hecho con ❤️ para estudiantes y amantes de la música • Todas las apps son 100% offline
+  <footer class="text-center text-zinc-500 text-sm mt-20">
+    Hecho con ❤️ para practicar y disfrutar de la música
   </footer>
+
 </body>
 </html>
