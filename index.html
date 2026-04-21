@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Apps Musicales - R. Raíndo</title>
+  <style>
+    body { font-family: 'DM Sans', sans-serif; background: #0f1117; color: #ecedf0; margin: 0; padding: 40px 20px; text-align: center; }
+    h1 { color: #c9a84c; font-family: 'Playfair Display', serif; }
+    .categoria { margin: 40px 0; }
+    .categoria h2 { background: #1e2230; padding: 15px; border-radius: 12px; color: #c9a84c; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
+    .card { 
+      background: #181b24; border: 1px solid #2a2f3a; border-radius: 12px; 
+      padding: 20px; transition: all 0.3s; text-align: left;
+    }
+    .card:hover { transform: translateY(-6px); border-color: #c9a84c; box-shadow: 0 10px 25px rgba(201,168,76,0.15); }
+    .card h3 { margin: 0 0 10px 0; color: #c9a84c; }
+    a { text-decoration: none; color: inherit; }
+  </style>
+</head>
+<body>
+  <h1>🎵 Mis Aplicaciones Musicales</h1>
+  <p>by R. Raíndo — Elige una categoría</p>
+
+  <div class="categoria">
+    <h2>📚 Tests y Exámenes</h2>
+    <div class="grid">
+      <a href="apps/teoria/Test_teoria_I-IV.html" class="card"><h3>Test Teoría I-IV</h3></a>
+      <a href="apps/teoria/Test_de_teoria.html" class="card"><h3>Test de Teoría</h3></a>
+      <a href="apps/teoria/tetradas_exam.html" class="card"><h3>Examen de Tétradas</h3></a>
+      <a href="apps/teoria/Test_de_Armonia_Moderna.html" class="card"><h3>Armonía Moderna</h3></a>
+      <a href="apps/teoria/Intervalos.html" class="card"><h3>Examen de Intervalos</h3></a>
+      <a href="apps/teoria/Dictado_Simple.html" class="card"><h3>Dictado Básico</h3></a>
+      <a href="apps/teoria/nota_musical_v2.html" class="card"><h3>Identifica la Nota</h3></a>
+    </div>
+  </div>
+
+  <div class="categoria">
+    <h2>🎮 Juegos Interactivos</h2>
+    <div class="grid">
+      <a href="apps/juegos/GuitarGrid_Quest-2.html" class="card"><h3>GuitarGrid Quest</h3></a>
+      <a href="apps/juegos/Simon_guitarra.html" class="card"><h3>Simón Dice Guitarra</h3></a>
+      <a href="apps/juegos/Simon_musical.html" class="card"><h3>Simón Musical</h3></a>
+      <a href="apps/juegos/Pulso_Fantasma.html" class="card"><h3>Pulso Fantasma</h3></a>
+      <a href="apps/juegos/impostor_musical.html" class="card"><h3>El Impostor Musical</h3></a>
+      <a href="apps/juegos/Mario_music_v24_mobile.html" class="card"><h3>Mario Music Quest</h3></a>
+    </div>
+  </div>
+
+  <div class="categoria">
+    <h2>🛠️ Herramientas y DAW</h2>
+    <div class="grid">
+      <a href="apps/herramientas/metronomo.html" class="card"><h3>Metrónomo</h3></a>
+      <a href="apps/herramientas/sequencer_v9-3.html" class="card"><h3>Sequencer Studio</h3></a>
+      <a href="apps/herramientas/swing-band-fixed-2.html" class="card"><h3>Swing Band</h3></a>
+      <a href="apps/daw/movildaw_v5.html" class="card"><h3>Movil DAW</h3></a>
+    </div>
+  </div>
+
+  <footer style="margin-top:60px;color:#4f5462;font-size:0.8em;">
+    Hecho con ❤️ para estudiantes y amantes de la música • Todas las apps son 100% offline
+  </footer>
+</body>
+</html>

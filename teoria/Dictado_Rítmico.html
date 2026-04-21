@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Dictado Rítmico Musical</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet">
+<style>
+/* ── Tokens (mirrored from Adivina acordes) ── */
+:root {
+    --bg-deep:#0f1117;
+    --bg-card:#181b24;
+    --bg-card-hover:#1e2230;
+    --bg-input:#141720;
+    --accent:#c9a84c;
+    --accent-dim:rgba(201,168,76,0.15);
+    --accent-glow:rgba(201,168,76,0.35);
+    --text-primary:#ecedf0;
+    --text-secondary:#7a7f8e;
+    --text-muted:#4f5462;
+    --green:#5eead4;
+    --green-dim:rgba(94,234,212,0.12);
+    --red:#fb7185;
+    --red-dim:rgba(251,113,133,0.12);
+    --blue:#60a5fa;
+    --blue-dim:rgba(96,165,250,0.12);
+    --radius:14px;
+    --radius-sm:10px;
+    --radius-lg:20px;
+}
+
+/* ── Reset ── */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+/* ── Music-symbol font ── */
+.music-symbol{font-family:'Noto Music','Arial Unicode MS',sans-serif;font-weight:normal}
+
+/* ── Body ── */
+body{
+    font-family:'DM Sans',sans-serif;
+    font-weight:400;
+    background:var(--bg-deep);
+    color:var(--text-primary);
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+}
+
+/* ── Ambient glow (same as Adivina) ── */
+body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(ellipse 80% 50% at 50% 0%,rgba(201,168,76,0.06) 0%,transparent 60%),
+        radial-gradient(ellipse 60% 40% at 20% 100%,rgba(94,234,212,0.04) 0%,transparent 60%);
+    pointer-events:none;
+    z-index:0;
+}
+
+/* ── Background floating notes (kept from original, retoned) ── */
+.bg-note{
+    position:fixed;
+    font-size:120px;
+    opacity:0.03;
+    color:var(--accent);
+    z-index:0;
+    pointer-events:none;
+}
+.bg-note:nth-child(1){top:10%;left:5%;transform:rotate(-15deg)}
+.bg-note:nth-child(2){top:30%;right:10%;transform:rotate(25deg)}
+.bg-note:nth-child(3){bottom:20%;left:15%;transform:rotate(10deg)}
+.bg-note:nth-child(4){top:60%;right:5%;transform:rotate(-20deg)}
+
+/* ── Layout ── */
+.container{
+    max-width:600px;
+    margin:0 auto;
+    padding:10px;
+    position:relative;
+    z-index:1;
+    height:100vh;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+}
+
+/* ── Name / start screen ── */
+#nameScreen{
+    text-align:center;
+    padding:60px 20px 40px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+#nameScreen h1{
+    font-family:'Playfair Display',serif;
+    font-weight:600;
+    font-size:1.9em;
+    color:var(--text-primary);
+    margin-bottom:10px;
+    letter-spacing:0.3px;
+}
+#nameScreen > p {
+    color:var(--text-secondary);
+    font-size:0.93em;
+    font-weight:300;
+    margin-bottom:28px;
+}
+.author-tag{
+    font-size:0.7em;
+    color:var(--text-muted);
+    letter-spacing:0.8px;
+    text-transform:uppercase;
+    margin-top:32px;
+}
+
+/* ── Buttons (base) ── */
+.btn{
+    min-height:40px;
+    min-width:48px;
+    padding:10px 20px;
+    font-size:0.82em;
+    font-weight:500;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:var(--radius-sm);
+    cursor:pointer;
+    transition:all 0.2s cubic-bezier(0.22,1,0.36,1);
+    font-family:'DM Sans',sans-serif;
+    color:var(--text-primary);
+    background:var(--bg-card-hover);
+    letter-spacing:0.3px;
+    position:relative;
+    overflow:hidden;
+}
+.btn::after{
+    content:'';
+    position:absolute;inset:0;
+    background:rgba(255,255,255,0);
+    transition:background 0.2s;
+}
+.btn:hover::after{background:rgba(255,255,255,0.04)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:0.3;cursor:not-allowed}
+.btn:disabled:hover::after{background:transparent}
+
+/* ── btn-primary → green-border treatment ── */
+.btn-primary{
+    border-color:rgba(94,234,212,0.25);
+    background:var(--bg-card-hover);
+}
+.btn-primary:hover:not(:disabled){
+    border-color:rgba(94,234,212,0.45);
+    box-shadow:0 0 14px rgba(94,234,212,0.18);
+}
+
+/* ── btn-secondary → blue-border treatment ── */
+.btn-secondary{
+    border-color:rgba(96,165,250,0.25);
+    background:var(--bg-card-hover);
+}
+.btn-secondary:hover:not(:disabled){
+    border-color:rgba(96,165,250,0.45);
+    box-shadow:0 0 14px rgba(96,165,250,0.18);
+}
+
+/* ── Start-screen CTA (accent gold) ── */
+.btn-start{
+    border-color:rgba(201,168,76,0.35);
+    background:var(--accent-dim);
+    color:var(--accent);
+    font-size:0.93em;
+    padding:13px 40px;
+    font-weight:500;
+}
+.btn-start:hover{
+    border-color:rgba(201,168,76,0.55);
+    box-shadow:0 0 18px var(--accent-glow);
+    background:rgba(201,168,76,0.22);
+}
+
+/* ── Game screen ── */
+#gameScreen{display:none}
+
+/* ── Header / stats bar ── */
+.header{
+    background:var(--bg-card);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:var(--radius);
+    padding:8px 10px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);
+    margin-bottom:8px;
+}
+.stats{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:6px;
+    font-size:0.72em;
+    font-weight:400;
+    color:var(--text-secondary);
+}
+.stat-value{
+    color:var(--accent);
+    font-family:'Playfair Display',serif;
+    font-size:1.35em;
+    font-weight:600;
+}
+#timeSignatureDisplay{
+    color:var(--accent);
+    font-size:1.6em !important;
+    font-weight:600 !important;
+    font-family:'Playfair Display',serif;
+}
+
+/* ── Display area (user notes) ── */
+.display-area{
+    background:var(--bg-card);
+    border:1px solid rgba(201,168,76,0.2);
+    border-radius:var(--radius);
+    min-height:80px;
+    max-height:100px;
+    padding:10px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);
+    margin-bottom:8px;
+    text-align:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:6px;
+    overflow-y:auto;
+}
+.user-note{
+    font-size:28px;
+    display:inline-block;
+    animation:fadeIn 0.3s ease;
+    position:relative;
+    color:var(--text-primary);
+}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+
+/* ── Controls panel ── */
+.controls{
+    background:var(--bg-card);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:var(--radius);
+    padding:8px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);
+    margin-bottom:8px;
+}
+.control-row{display:flex;gap:6px;margin-bottom:0;flex-wrap:wrap}
+
+/* ── Figures panel ── */
+.figure-section{
+    background:var(--bg-card);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:var(--radius);
+    padding:10px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);
+    margin-bottom:8px;
+}
+.figure-section h3{
+    font-family:'Playfair Display',serif;
+    font-size:0.78em;
+    margin-bottom:8px;
+    color:var(--text-secondary);
+    text-align:center;
+    font-weight:500;
+    letter-spacing:0.4px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    padding-bottom:5px;
+}
+.figure-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:6px;
+    margin-bottom:6px;
+}
+
+/* ── Figure buttons ── */
+.figure-btn{
+    min-height:54px;
+    background:var(--bg-card-hover);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:var(--radius-sm);
+    font-size:24px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:all 0.2s cubic-bezier(0.22,1,0.36,1);
+    color:var(--text-primary);
+    position:relative;
+    overflow:hidden;
+}
+.figure-btn::after{
+    content:'';
+    position:absolute;inset:0;
+    background:rgba(255,255,255,0);
+    transition:background 0.2s;
+}
+.figure-btn:hover{
+    border-color:rgba(201,168,76,0.3);
+    box-shadow:0 0 12px var(--accent-glow);
+}
+.figure-btn:hover::after{background:rgba(255,255,255,0.04)}
+.figure-btn:active{transform:translateY(1px)}
+.figure-btn span{
+    font-size:0.62em;
+    font-family:'DM Sans',sans-serif;
+    font-weight:500;
+    margin-top:2px;
+    color:var(--text-muted);
+    position:relative;z-index:1;
+    letter-spacing:0.3px;
+}
+.figure-btn > .music-symbol{position:relative;z-index:1}
+
+/* ── Action buttons row ── */
+.action-buttons{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin-top:10px;
+}
+/* Borrar → red tint */
+.action-buttons .btn:nth-child(1){border-color:rgba(251,113,133,0.25)}
+.action-buttons .btn:nth-child(1):hover:not(:disabled){border-color:rgba(251,113,133,0.45);box-shadow:0 0 14px rgba(251,113,133,0.18)}
+
+/* ── Feedback overlay ── */
+.feedback{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-size:2.2em;
+    font-weight:600;
+    font-family:'Playfair Display',serif;
+    padding:24px 44px;
+    border-radius:var(--radius-lg);
+    z-index:1000;
+    animation:feedbackPop 0.5s ease;
+    pointer-events:none;
+    border:1px solid rgba(255,255,255,0.1);
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.feedback.success{
+    background:rgba(94,234,212,0.18);
+    color:var(--green);
+    border-color:rgba(94,234,212,0.3);
+}
+.feedback.error{
+    background:rgba(251,113,133,0.18);
+    color:var(--red);
+    border-color:rgba(251,113,133,0.3);
+}
+@keyframes feedbackPop{
+    0%{transform:translate(-50%,-50%) scale(0);opacity:0}
+    50%{transform:translate(-50%,-50%) scale(1.1);opacity:1}
+    100%{transform:translate(-50%,-50%) scale(1);opacity:0}
+}
+
+/* ── Final / end screen ── */
+#finalScreen{
+    display:none;
+    text-align:center;
+    padding:60px 20px 40px;
+    flex:1;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+#finalScreen h2{
+    font-family:'Playfair Display',serif;
+    font-weight:600;
+    font-size:1.7em;
+    color:var(--accent);
+    margin-bottom:18px;
+    letter-spacing:0.3px;
+}
+#finalScreen .score{
+    font-family:'Playfair Display',serif;
+    font-size:3em;
+    font-weight:700;
+    color:var(--accent);
+    margin:16px 0;
+    line-height:1;
+}
+#finalScreen > p {
+    color:var(--text-secondary);
+    font-size:0.93em;
+    font-weight:300;
+    margin-bottom:6px;
+}
+#finalScreen #finalMessage{
+    color:var(--text-secondary);
+    font-size:0.93em;
+    font-weight:400;
+    margin:12px 0 24px;
+    max-width:340px;
+    margin-left:auto;
+    margin-right:auto;
+}
+#finalScreen #finalName{
+    color:var(--text-primary);
+    font-weight:600;
+}
+
+/* ── Scrollbar (dark) ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-deep)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.18)}
+</style>
+</head>
+<body>
+<div class="bg-note">♪</div><div class="bg-note">♫</div><div class="bg-note">♬</div><div class="bg-note">♩</div>
+<div class="container">
+
+<!-- ── Name / start screen ── -->
+<div id="nameScreen">
+<h1>🎵 Dictado Rítmico</h1>
+<p>Practica tu percepción rítmica</p>
+<button class="btn btn-start" onclick="startGame()">Comenzar</button>
+<p class="author-tag">Creado por R.Raíndo</p>
+</div>
+
+<!-- ── Game screen ── -->
+<div id="gameScreen">
+<div class="header">
+<div class="stats">
+<div>👤 <span id="displayName">Estudiante</span></div>
+<div>📊 <span class="stat-value" id="questionNum">1/10</span></div>
+<div>✅ <span class="stat-value" id="scoreDisplay">0</span></div>
+<div>🎼 <span class="stat-value" id="timeSignatureDisplay">4/4</span></div>
+</div>
+</div>
+
+<div class="display-area" id="displayArea"><span style="opacity:0.4;font-size:14px;color:var(--text-muted)">Escucha y escribe el ritmo…</span></div>
+
+<div class="controls">
+<div class="control-row">
+<button class="btn btn-primary" onclick="playPattern()" id="playBtn" style="flex:1">▶️ Reproducir</button>
+<button class="btn btn-secondary" onclick="replayPattern()" id="replayBtn" disabled style="flex:1">🔁 Repetir</button>
+</div>
+</div>
+
+<div class="figure-section">
+<h3>📝 Figuras disponibles</h3>
+<div class="figure-grid">
+<button class="figure-btn" onclick="addNote('whole')"><div class="music-symbol" style="font-size:36px">𝅝</div><span>Redonda</span></button>
+<button class="figure-btn" onclick="addNote('half')"><div class="music-symbol" style="font-size:36px">𝅗𝅥</div><span>Blanca</span></button>
+<button class="figure-btn" onclick="addNote('quarter')"><div class="music-symbol" style="font-size:36px">𝅘𝅥</div><span>Negra</span></button>
+<button class="figure-btn" onclick="addNote('eighth')"><div class="music-symbol" style="font-size:36px">𝅘𝅥𝅮</div><span>Corchea</span></button>
+</div>
+<div class="figure-grid">
+<button class="figure-btn" onclick="addNote('dot')"><div class="music-symbol" style="font-size:36px">𝅭</div><span>Puntillo</span></button>
+<button class="figure-btn" onclick="addNote('restQuarter')"><div class="music-symbol" style="font-size:36px">𝄽</div><span>Sil. ♩</span></button>
+<button class="figure-btn" onclick="addNote('restEighth')"><div class="music-symbol" style="font-size:36px">𝄾</div><span>Sil. ♪</span></button>
+<button class="figure-btn" onclick="addNote('restHalf')"><div class="music-symbol" style="font-size:36px">𝄻</div><span>Sil. 𝅗𝅥</span></button>
+</div>
+<div class="action-buttons">
+<button class="btn btn-secondary" onclick="clearAnswer()">🗑️ Borrar</button>
+<button class="btn btn-secondary" onclick="undoLast()">↶ Deshacer</button>
+<button class="btn btn-primary" onclick="submitAnswer()" id="submitBtn" disabled>✓ Verificar</button>
+</div>
+</div>
+</div>
+
+<!-- ── Final screen ── -->
+<div id="finalScreen">
+<h2>🎉 ¡Juego Terminado!</h2>
+<p><strong id="finalName">Estudiante</strong></p>
+<div class="score" id="finalScore">0/10</div>
+<p id="finalMessage"></p>
+<button class="btn btn-start" onclick="location.reload()">🔄 Jugar de nuevo</button>
+<p class="author-tag">Creado por R.Raíndo</p>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ── All original game logic, completely untouched ── //
+const DUR={whole:4,half:2,quarter:1,eighth:.5,restWhole:4,restHalf:2,restQuarter:1,restEighth:.5};
+const SYM={whole:'𝅝',half:'𝅗𝅥',quarter:'𝅘𝅥',eighth:'𝅘𝅥𝅮',dot:'𝅭',restWhole:'𝄺',restHalf:'𝄻',restQuarter:'𝄽',restEighth:'𝄾'};
+const MAX=10;
+let gs={playerName:'Estudiante',currentQuestion:0,score:0,currentPattern:null,userAnswer:[],isPlaying:false,usedPatterns:[]};
+let ac;
+function initAC(){try{const A=window.AudioContext||window.webkitAudioContext;ac=new A();if(ac.state==='suspended')ac.resume();return true}catch(e){alert('Tu navegador no soporta Web Audio API.');return false}}
+document.addEventListener('click',()=>{if(ac&&ac.state==='suspended')ac.resume()},{once:false});
+function metClick(st,acc=false){const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=acc?1200:800;g.gain.setValueAtTime(.3,st);g.gain.exponentialRampToValueAtTime(.01,st+.05);o.connect(g);g.connect(ac.destination);o.start(st);o.stop(st+.05)}
+function rhythmNote(st,dur){const o1=ac.createOscillator(),o2=ac.createOscillator(),o3=ac.createOscillator(),g=ac.createGain();const f=523.25;o1.type='sine';o1.frequency.value=f;o2.type='sine';o2.frequency.value=f*1.26;o3.type='sine';o3.frequency.value=f*1.5;const at=.001,dt=.04,sl=.08,rt=.03;const msd=Math.min(dur*.4,.3);const pt=st+at,det=st+at+dt,net=st+msd-rt;g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(.6,pt);g.gain.exponentialRampToValueAtTime(sl,det);g.gain.setValueAtTime(sl,net);g.gain.linearRampToValueAtTime(0,net+rt);o1.connect(g);o2.connect(g);o3.connect(g);g.connect(ac.destination);o1.start(st);o2.start(st);o3.start(st);const spt=net+rt;o1.stop(spt);o2.stop(spt);o3.stop(spt)}
+function errSound(){const n=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type='sawtooth';o.frequency.setValueAtTime(200,n);o.frequency.linearRampToValueAtTime(100,n+.3);g.gain.setValueAtTime(.2,n);g.gain.exponentialRampToValueAtTime(.01,n+.3);o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+.3)}
+function succSound(){const n=ac.currentTime;[0,.1,.2].forEach((off,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=[523,659,784][i];g.gain.setValueAtTime(.15,n+off);g.gain.exponentialRampToValueAtTime(.01,n+off+.2);o.connect(g);g.connect(ac.destination);o.start(n+off);o.stop(n+off+.2)})}
+function selTS(){const ts=['2/4','3/4','4/4'];const r=ts[Math.floor(Math.random()*ts.length)];document.getElementById('timeSignatureDisplay').textContent=r;return r}
+function genPat(ts){const[b]=ts.split('/').map(Number);let pat,att=0;do{pat={notes:[],totalDuration:0};let cb=0;while(cb<b){const rb=b-cb;const vf=[];if(rb>=4&&cb===0&&ts==='4/4')vf.push('whole');if(rb>=2&&cb%2===0)vf.push('half','restHalf');if(rb>=1)vf.push('quarter','restQuarter');if(rb>=.5)vf.push('eighth','restEighth');if(vf.length===0)break;const ch=vf[Math.floor(Math.random()*vf.length)];const bd=DUR[ch];pat.notes.push({type:ch,time:cb,duration:bd,hasDot:false});cb+=bd}pat.totalDuration=cb;att++;if(att>=50){gs.usedPatterns=[];break}}while(isPatUsed(pat));gs.usedPatterns.push(patToStr(pat));return pat}
+function patToStr(p){return p.notes.map(n=>{let s=n.type;if(n.hasDot)s+='-dot';return s}).join('-')}
+function isPatUsed(p){return gs.usedPatterns.includes(patToStr(p))}
+function schedMet(st,ts){const[b]=ts.split('/').map(Number);const bd=1;for(let i=0;i<b;i++)metClick(st+(i*bd),i===0);return b*bd}
+function schedPat(st,pat){pat.notes.forEach(n=>{if(!n.type.startsWith('rest'))rhythmNote(st+n.time,n.duration)})}
+function playPattern(){if(gs.isPlaying)return;if(ac.state==='suspended')ac.resume();const ts=selTS();const pat=genPat(ts);gs.currentPattern=pat;gs.currentTimeSignature=ts;gs.isPlaying=true;document.getElementById('playBtn').disabled=true;document.getElementById('replayBtn').disabled=true;const n=ac.currentTime;const pcd=schedMet(n+.1,ts);const pst=n+.1+pcd;schedMet(pst,ts);schedPat(pst,pat);const td=(pcd*2+pat.totalDuration+.3)*1000;setTimeout(()=>{gs.isPlaying=false;document.getElementById('playBtn').disabled=false;document.getElementById('replayBtn').disabled=false;if(gs.userAnswer.length>0)document.getElementById('submitBtn').disabled=false},td)}
+function replayPattern(){if(!gs.currentPattern||gs.isPlaying)return;if(ac.state==='suspended')ac.resume();gs.isPlaying=true;document.getElementById('playBtn').disabled=true;document.getElementById('replayBtn').disabled=true;document.getElementById('submitBtn').disabled=true;const ts=gs.currentTimeSignature;const n=ac.currentTime;const pcd=schedMet(n+.1,ts);const pst=n+.1+pcd;schedMet(pst,ts);schedPat(pst,gs.currentPattern);const td=(pcd*2+gs.currentPattern.totalDuration+.3)*1000;setTimeout(()=>{gs.isPlaying=false;document.getElementById('playBtn').disabled=false;document.getElementById('replayBtn').disabled=false;if(gs.userAnswer.length>0)document.getElementById('submitBtn').disabled=false},td)}
+function addNote(nt){const nn={type:nt,duration:DUR[nt],hasDot:false};if(nt==='dot'&&gs.userAnswer.length>0){const ln=gs.userAnswer[gs.userAnswer.length-1];if(!ln.type.startsWith('rest')&&!ln.hasDot){ln.hasDot=true;ln.duration+=ln.duration*.5;updDisp();enaSub();return}}gs.userAnswer.push(nn);updDisp();enaSub()}
+function enaSub(){if(gs.userAnswer.length>0&&gs.currentPattern)document.getElementById('submitBtn').disabled=false}
+function updDisp(){const d=document.getElementById('displayArea');d.innerHTML='';if(gs.userAnswer.length===0){d.innerHTML='<span style="opacity:0.4;font-size:14px;color:var(--text-muted)">Escucha y escribe el ritmo…</span>';return}gs.userAnswer.forEach(n=>{const ne=document.createElement('div');ne.className='user-note music-symbol';ne.textContent=SYM[n.type]||'?';ne.style.fontSize='32px';if(n.hasDot){const de=document.createElement('span');de.textContent=SYM.dot;de.className='music-symbol';de.style.fontSize='24px';de.style.marginLeft='-5px';ne.appendChild(de)}d.appendChild(ne)})}
+function clearAnswer(){gs.userAnswer=[];updDisp()}
+function undoLast(){if(gs.userAnswer.length>0){gs.userAnswer.pop();updDisp()}}
+function submitAnswer(){if(!gs.currentPattern||gs.userAnswer.length===0){alert('Por favor, escribe tu respuesta antes de verificar.');return}const cor=checkAns();if(cor){gs.score++;showFB('success','✓ ¡Correcto!');succSound();setTimeout(()=>nextQ(),800)}else{showFB('error','✗ Error');errSound();setTimeout(()=>showCorAns(),400)}updStats()}
+function checkAns(){const uDurs=patToDurs(gs.userAnswer);const cDurs=patToDurs(gs.currentPattern.notes);const uTD=uDurs.reduce((s,n)=>s+n.duration,0);const cTD=cDurs.reduce((s,n)=>s+n.duration,0);if(Math.abs(uTD-cTD)>.01)return false;const uAtt=getAttSeq(gs.userAnswer);const cAtt=getAttSeq(gs.currentPattern.notes);if(uAtt.length!==cAtt.length)return false;for(let i=0;i<uAtt.length;i++)if(Math.abs(uAtt[i]-cAtt[i])>.01)return false;return true}
+function getAttSeq(pat){const att=[];let ct=0;for(let n of pat){if(!n.type.startsWith('rest'))att.push(ct);ct+=n.duration}return att}
+function patToDurs(pat){const res=[];let i=0;while(i<pat.length){const n=pat[i];if(n.type&&n.type.startsWith('rest')){let trd=n.duration||DUR[n.type];let rc=1;while(i+rc<pat.length){const nn=pat[i+rc];if(nn.type&&nn.type.startsWith('rest')){trd+=nn.duration||DUR[nn.type];rc++}else break}res.push({isRest:true,duration:trd,count:rc});i+=rc}else{res.push({isRest:false,type:n.type,duration:n.duration||DUR[n.type]||1,hasDot:n.hasDot||false});i++}}return res}
+
+// ── showCorAns: modal restyled inline to match dark theme ── //
+function showCorAns(){
+    const m=document.createElement('div');
+    m.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:2000;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease';
+    const c=document.createElement('div');
+    c.style.cssText='background:#181b24;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:24px 20px;max-width:90%;max-height:80%;overflow-y:auto;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.45)';
+    const t=document.createElement('h3');
+    t.textContent='❌ Respuesta incorrecta';
+    t.style.cssText='color:#fb7185;font-family:"Playfair Display",serif;font-size:1.3em;margin-bottom:18px;font-weight:600;letter-spacing:0.3px';
+    c.appendChild(t);
+    // "Tu respuesta"
+    const yal=document.createElement('p');
+    yal.textContent='Tu respuesta:';
+    yal.style.cssText='font-weight:500;font-size:0.82em;margin-bottom:8px;color:#fb7185;letter-spacing:0.3px';
+    c.appendChild(yal);
+    const yad=document.createElement('div');
+    yad.style.cssText='background:rgba(251,113,133,0.1);border:1px solid rgba(251,113,133,0.2);padding:12px;border-radius:10px;margin-bottom:18px;min-height:50px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px';
+    gs.userAnswer.forEach(n=>{const ne=document.createElement('span');ne.className='music-symbol';ne.textContent=SYM[n.type]||'?';ne.style.cssText='font-size:32px;color:#ecedf0';if(n.hasDot){const de=document.createElement('span');de.textContent=SYM.dot;de.className='music-symbol';de.style.cssText='font-size:20px;margin-left:-3px;color:#ecedf0';ne.appendChild(de)}yad.appendChild(ne)});
+    c.appendChild(yad);
+    // "Respuesta correcta"
+    const cal=document.createElement('p');
+    cal.textContent='Respuesta correcta:';
+    cal.style.cssText='font-weight:500;font-size:0.82em;margin-bottom:8px;color:#5eead4;letter-spacing:0.3px';
+    c.appendChild(cal);
+    const cad=document.createElement('div');
+    cad.style.cssText='background:rgba(94,234,212,0.1);border:1px solid rgba(94,234,212,0.2);padding:12px;border-radius:10px;margin-bottom:18px;min-height:50px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px';
+    gs.currentPattern.notes.forEach(n=>{const ne=document.createElement('span');ne.className='music-symbol';ne.textContent=SYM[n.type]||'?';ne.style.cssText='font-size:32px;color:#ecedf0';if(n.hasDot){const de=document.createElement('span');de.textContent=SYM.dot;de.className='music-symbol';de.style.cssText='font-size:20px;margin-left:-3px;color:#ecedf0';ne.appendChild(de)}cad.appendChild(ne)});
+    c.appendChild(cad);
+    // continue button
+    const cb=document.createElement('button');
+    cb.textContent='➡️ Continuar';
+    cb.className='btn btn-primary';
+    cb.style.cssText='margin-top:8px;font-size:0.88em;padding:11px 28px;font-weight:500';
+    cb.onclick=()=>{m.remove();nextQ()};
+    c.appendChild(cb);
+    m.appendChild(c);
+    document.body.appendChild(m);
+}
+
+function showFB(typ,msg){const fb=document.createElement('div');fb.className=`feedback ${typ}`;fb.textContent=msg;document.body.appendChild(fb);setTimeout(()=>fb.remove(),500)}
+function startGame(){if(!initAC())return;gs.playerName='Estudiante';gs.currentQuestion=1;gs.score=0;gs.userAnswer=[];gs.usedPatterns=[];document.getElementById('nameScreen').style.display='none';document.getElementById('gameScreen').style.display='block';document.getElementById('displayName').textContent='Estudiante';updStats()}
+function updStats(){document.getElementById('questionNum').textContent=`${gs.currentQuestion}/${MAX}`;document.getElementById('scoreDisplay').textContent=gs.score}
+function nextQ(){gs.currentQuestion++;if(gs.currentQuestion>MAX){endGame();return}gs.currentPattern=null;gs.userAnswer=[];document.getElementById('replayBtn').disabled=true;document.getElementById('submitBtn').disabled=true;updDisp();updStats()}
+function endGame(){document.getElementById('gameScreen').style.display='none';const fs=document.getElementById('finalScreen');fs.style.display='flex';document.getElementById('finalName').textContent=gs.playerName;document.getElementById('finalScore').textContent=`${gs.score}/${MAX}`;const p=(gs.score/MAX)*100;let msg='';if(p===100)msg='🏆 ¡Perfecto! ¡Dominaste todos los ritmos!';else if(p>=80)msg='🎉 ¡Excelente trabajo! Sigue practicando.';else if(p>=60)msg='👍 ¡Buen intento! Con más práctica mejorarás.';else msg='💪 Sigue practicando. ¡Tú puedes!';document.getElementById('finalMessage').textContent=msg}
+</script>
+</body>
+</html>

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Examen de Tríadas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f1117;
+            --bg-card: #181b24;
+            --bg-card-hover: #1e2230;
+            --bg-input: #141720;
+            --accent: #c9a84c;
+            --accent-dim: rgba(201,168,76,0.15);
+            --accent-glow: rgba(201,168,76,0.35);
+            --text-primary: #ecedf0;
+            --text-secondary: #7a7f8e;
+            --text-muted: #4f5462;
+            --green: #5eead4;
+            --green-dim: rgba(94,234,212,0.12);
+            --red: #fb7185;
+            --radius: 14px;
+            --radius-sm: 10px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            background: var(--bg-deep);
+            height: 100vh;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-primary);
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 20% 100%, rgba(94,234,212,0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        .header {
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+        .header h1 { 
+            font-family: 'Playfair Display', serif;
+            color: var(--accent); 
+            font-size: 15px; 
+            font-weight: 700;
+        }
+        .screen { display: none; flex: 1; flex-direction: column; }
+        .screen.active { display: flex; }
+        .start-screen { justify-content: center; align-items: center; gap: 10px; }
+        .config-box {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            width: 100%;
+        }
+        .config-box label { 
+            display: block; 
+            color: var(--accent); 
+            font-weight: 600; 
+            margin-bottom: 5px; 
+            font-size: 13px; 
+        }
+        .config-box select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 12px 25px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: rgba(201,168,76,0.22);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .btn:active { transform: scale(0.97); }
+        .exam-screen { gap: 5px; }
+        .progress-bar {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 5px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+        .progress-text { color: var(--accent); font-weight: 600; font-size: 13px; text-align: center; }
+        .chord-display {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .chord-name { 
+            font-family: 'Playfair Display', serif;
+            font-size: 22px; 
+            color: var(--accent); 
+            font-weight: 700; 
+            margin-bottom: 6px; 
+        }
+        .chord-diagram { display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .note-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+        .note-circle.visible { 
+            background: linear-gradient(135deg, var(--green), #2dd4bf); 
+            color: var(--bg-deep); 
+        }
+        .note-circle.hidden { 
+            background: var(--bg-input); 
+            border: 2px dashed var(--text-muted); 
+            color: var(--text-muted); 
+            font-size: 20px; 
+        }
+        .selection-area {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 0;
+        }
+        .selected-display {
+            background: var(--bg-input);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        .selected-note { 
+            font-family: 'Playfair Display', serif;
+            font-size: 20px; 
+            font-weight: 700; 
+            color: var(--accent); 
+        }
+        .notes-row { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
+        .note-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+        .note-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+        .note-btn:active, .note-btn.selected { 
+            background: var(--accent-dim); 
+            color: var(--accent); 
+            border-color: var(--accent);
+        }
+        .accidentals-row { display: flex; justify-content: center; gap: 8px; }
+        .accidental-btn {
+            width: 44px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+        .accidental-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+        .accidental-btn:active, .accidental-btn.selected { 
+            background: var(--accent-dim); 
+            color: var(--accent); 
+            border-color: var(--accent);
+        }
+        .submit-btn {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover {
+            background: rgba(201,168,76,0.22);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .submit-btn:disabled { 
+            background: var(--bg-input); 
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+            cursor: not-allowed; 
+        }
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+        .overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            max-width: 280px;
+            width: 100%;
+            animation: modalPop 0.3s ease-out;
+        }
+        @keyframes modalPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal.correct { 
+            background: linear-gradient(135deg, rgba(94,234,212,0.2), rgba(94,234,212,0.1)); 
+            border-color: var(--green);
+        }
+        .modal.incorrect { 
+            background: linear-gradient(135deg, rgba(251,113,133,0.2), rgba(251,113,133,0.1)); 
+            border-color: var(--red);
+        }
+        .modal-title { 
+            font-family: 'Playfair Display', serif;
+            font-size: 22px; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+        }
+        .modal.correct .modal-title { color: var(--green); }
+        .modal.incorrect .modal-title { color: var(--red); }
+        .modal-text { font-size: 14px; margin-bottom: 15px; color: var(--text-primary); }
+        .modal-btn {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 10px 30px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .results-screen { 
+            justify-content: center; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .results-box {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 100%;
+        }
+        .score-display { 
+            font-family: 'Playfair Display', serif;
+            font-size: 48px; 
+            font-weight: 700; 
+            color: var(--accent); 
+            margin-bottom: 8px; 
+        }
+        .stats-text { 
+            font-size: 14px; 
+            color: var(--text-secondary); 
+            margin-bottom: 12px; 
+        }
+        .grade-text { 
+            font-family: 'Playfair Display', serif;
+            font-size: 24px; 
+            font-weight: 700; 
+            margin-bottom: 15px; 
+        }
+        .grade-text.sobresaliente { color: var(--green); }
+        .grade-text.notable { color: #90CAF9; }
+        .grade-text.bien { color: #81C784; }
+        .grade-text.suficiente { color: #FFD54F; }
+        .grade-text.insuficiente { color: #FFB74D; }
+        .grade-text.deficiente { color: var(--red); }
+        .results-screen { justify-content: center; align-items: center; }
+        .results-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            width: 100%;
+        }
+        .results-box h2 { color: #5E35B1; font-size: 20px; margin-bottom: 10px; }
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #66BB6A, #42A5F5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .grade-text { font-size: 20px; font-weight: bold; margin: 10px 0; padding: 10px; border-radius: 10px; }
+        .grade-text.sobresaliente { background: #C8E6C9; color: #2E7D32; }
+        .grade-text.notable { background: #BBDEFB; color: #1565C0; }
+        .grade-text.bien { background: #C5CAE9; color: #3949AB; }
+        .grade-text.suficiente { background: #FFF9C4; color: #F57F17; }
+        .grade-text.insuficiente { background: #FFCCBC; color: #D84315; }
+        .grade-text.deficiente { background: #FFCDD2; color: #C62828; }
+        .stats { color: #666; font-size: 13px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"><h1>R.Raíndo — EXAMEN DE TRÍADAS</h1></div>
+        <div class="screen active start-screen" id="startScreen">
+            <div class="config-box">
+                <label>Preguntas:</label>
+                <select id="numQuestions">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+            <div class="config-box">
+                <label>Cifrado:</label>
+                <select id="notation">
+                    <option value="international">Internacional (C, D, E...)</option>
+                    <option value="latin">Latino (Do, Re, Mi...)</option>
+                </select>
+            </div>
+            <button class="btn" id="startBtn">COMENZAR</button>
+        </div>
+        <div class="screen exam-screen" id="examScreen">
+            <div class="progress-bar"><div class="progress-text" id="progressText">1 / 10</div></div>
+            <div class="chord-display">
+                <div class="chord-name" id="chordName">Cmaj7</div>
+                <div class="chord-diagram" id="chordDiagram"></div>
+            </div>
+            <div class="selection-area">
+                <div class="selected-display"><div class="selected-note" id="selectedNote">-</div></div>
+                <div class="notes-row" id="notesRow"></div>
+                <div class="accidentals-row" id="accRow1"></div>
+                <div class="accidentals-row" id="accRow2"></div>
+                <button class="submit-btn" id="submitBtn" disabled>RESPONDER</button>
+            </div>
+        </div>
+        <div class="screen results-screen" id="resultsScreen">
+            <div class="results-box">
+                <h2>¡Examen Finalizado!</h2>
+                <div class="score-display" id="scoreDisplay">0.0</div>
+                <div class="grade-text" id="gradeText">-</div>
+                <div class="stats" id="statsText">-</div>
+                <button class="btn" id="resetBtn">NUEVO EXAMEN</button>
+            </div>
+        </div>
+    </div>
+    <div class="overlay" id="overlay">
+        <div class="modal" id="modal">
+            <div class="modal-title" id="modalTitle">ACERTASTE</div>
+            <div class="modal-text" id="modalText"></div>
+            <button class="modal-btn" id="modalBtn">CONTINUAR</button>
+        </div>
+    </div>
+    <script>
+        let audioCtx;
+        
+        const SIMPLE_ROOTS = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C♯', 'D♯', 'F♯', 'G♯', 'A♯'];
+        const NOTES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+        const SCALE_DEGREES = {
+            'C': ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+            'C♯': ['C♯', 'D♯', 'E♯', 'F♯', 'G♯', 'A♯', 'B♯'],
+            'D': ['D', 'E', 'F♯', 'G', 'A', 'B', 'C♯'],
+            'D♯': ['D♯', 'E♯', 'F𝄪', 'G♯', 'A♯', 'B♯', 'C𝄪'],
+            'E': ['E', 'F♯', 'G♯', 'A', 'B', 'C♯', 'D♯'],
+            'F': ['F', 'G', 'A', 'B♭', 'C', 'D', 'E'],
+            'F♯': ['F♯', 'G♯', 'A♯', 'B', 'C♯', 'D♯', 'E♯'],
+            'G': ['G', 'A', 'B', 'C', 'D', 'E', 'F♯'],
+            'G♯': ['G♯', 'A♯', 'B♯', 'C♯', 'D♯', 'E♯', 'F𝄪'],
+            'A': ['A', 'B', 'C♯', 'D', 'E', 'F♯', 'G♯'],
+            'A♯': ['A♯', 'B♯', 'C𝄪', 'D♯', 'E♯', 'F𝄪', 'G𝄪'],
+            'B': ['B', 'C♯', 'D♯', 'E', 'F♯', 'G♯', 'A♯']
+        };
+        const CHORD_TYPES = {
+            'M': { name: '', formula: [0, 2, 4], alterations: [0, 0, 0] },
+            'm': { name: 'm', formula: [0, 2, 4], alterations: [0, -1, 0] },
+            'dim': { name: 'dim', formula: [0, 2, 4], alterations: [0, -1, -1] },
+            'aug': { name: 'aug', formula: [0, 2, 4], alterations: [0, 0, 1] }
+        };
+        const ENHARMONIC = {
+            'C♯': ['D♭'], 'D♭': ['C♯'], 'D♯': ['E♭'], 'E♭': ['D♯'], 'E': ['F♭'], 'F': ['E♯'],
+            'F♯': ['G♭'], 'G♭': ['F♯'], 'G♯': ['A♭'], 'A♭': ['G♯'], 'A♯': ['B♭'], 'B♭': ['A♯'],
+            'B': ['C♭'], 'C': ['B♯'], 'E♯': ['F'], 'B♯': ['C'], 'F♭': ['E'], 'C♭': ['B']
+        };
+
+        let currentQuestion = 0, totalQuestions = 10, correctAnswers = 0;
+        let currentChord = null, selectedBase = '', selectedAccidental = '';
+        let useLatin = false;
+
+        const INT_TO_LATIN = { 'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si' };
+        const LATIN_TO_INT = { 'Do': 'C', 'Re': 'D', 'Mi': 'E', 'Fa': 'F', 'Sol': 'G', 'La': 'A', 'Si': 'B' };
+
+        function getNoteFrequency(note) {
+            const freqMap = {
+                'C': 261.63, 'C♯': 277.18, 'D': 293.66, 'D♯': 311.13, 'E': 329.63,
+                'F': 349.23, 'F♯': 369.99, 'G': 392.00, 'G♯': 415.30, 'A': 440.00,
+                'A♯': 466.16, 'B': 493.88, 'E♯': 349.23, 'B♯': 523.25,
+                'D♭': 277.18, 'E♭': 311.13, 'G♭': 369.99, 'A♭': 415.30, 'B♭': 466.16,
+                'F♭': 329.63, 'C♭': 493.88, 'C𝄪': 293.66, 'D𝄪': 329.63, 'E𝄪': 349.23,
+                'F𝄪': 392.00, 'G𝄪': 440.00, 'A𝄪': 493.88, 'B𝄪': 277.18,
+                'C𝄫': 466.16, 'D𝄫': 261.63, 'E𝄫': 293.66, 'F𝄫': 311.13, 
+                'G𝄫': 349.23, 'A𝄫': 392.00, 'B𝄫': 440.00
+            };
+            return freqMap[note] || 440;
+        }
+
+        function playChordNotes(notes) {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const rootFreq = getNoteFrequency(notes[0]);
+            
+            const notesWithFreq = notes.map((note, idx) => {
+                let freq = getNoteFrequency(note);
+                if (idx > 0 && freq < rootFreq) {
+                    freq = freq * 2;
+                }
+                return { note, freq, idx };
+            });
+            
+            notesWithFreq.sort((a, b) => a.freq - b.freq);
+            
+            notesWithFreq.forEach((item, i) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(item.freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.8);
+                }, i * 600);
+            });
+        }
+
+        function toDisplay(note) {
+            if (!useLatin) return note;
+            const base = note.replace(/[♯♭𝄪𝄫]/g, '');
+            const acc = note.replace(base, '');
+            return (INT_TO_LATIN[base] || base) + acc;
+        }
+        
+        function fromDisplay(note) {
+            if (!useLatin) return note;
+            let base = '', acc = '';
+            for (const l of ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si']) {
+                if (note.startsWith(l)) { 
+                    base = LATIN_TO_INT[l]; 
+                    acc = note.slice(l.length); 
+                    break; 
+                }
+            }
+            return base + acc;
+        }
+
+        function alterNote(note, semitones) {
+            const base = note.replace(/[♯♭𝄪𝄫]/g, '');
+            let idx = NOTES.indexOf(note);
+            if (idx === -1) {
+                if (note === 'E♯') idx = NOTES.indexOf('F');
+                else if (note === 'B♯') idx = NOTES.indexOf('C');
+                else if (note === 'F♭') idx = NOTES.indexOf('E');
+                else if (note === 'C♭') idx = NOTES.indexOf('B');
+                else if (note.includes('♭')) idx = (NOTES.indexOf(base) - 1 + 12) % 12;
+                else if (note.includes('𝄪')) idx = (NOTES.indexOf(base) + 2) % 12;
+                else if (note.includes('𝄫')) idx = (NOTES.indexOf(base) - 2 + 12) % 12;
+                else idx = NOTES.indexOf(base);
+            }
+            if (idx === -1) return note;
+            if (semitones === -1) {
+                if (note.includes('♯')) return base;
+                if (note.includes('𝄪')) return base + '♯';
+                if (!note.includes('♭') && !note.includes('𝄫')) return base + '♭';
+                if (note.includes('♭')) return base + '𝄫';
+            }
+            if (semitones === -2) {
+                if (note.includes('𝄪')) return base;
+                if (note.includes('♯')) return base + '♭';
+                return base + '𝄫';
+            }
+            return NOTES[(idx + semitones + 12) % 12];
+        }
+
+        function generateRandomChord() {
+            const root = SIMPLE_ROOTS[Math.floor(Math.random() * SIMPLE_ROOTS.length)];
+            const types = Object.keys(CHORD_TYPES);
+            const type = types[Math.floor(Math.random() * types.length)];
+            const scale = SCALE_DEGREES[root];
+            const { formula, alterations } = CHORD_TYPES[type];
+            const notes = formula.map((deg, i) => {
+                let n = scale[deg];
+                if (alterations[i] !== 0) n = alterNote(n, alterations[i]);
+                return n;
+            });
+            const hiddenIndex = Math.floor(Math.random() * 2) + 1;
+            const symbol = root + CHORD_TYPES[type].name;
+            return { 
+                root, 
+                type, 
+                symbol, 
+                notes, 
+                hiddenIndex, 
+                hiddenNote: notes[hiddenIndex] 
+            };
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function startExam() {
+            totalQuestions = parseInt(document.getElementById('numQuestions').value);
+            useLatin = document.getElementById('notation').value === 'latin';
+            currentQuestion = 0;
+            correctAnswers = 0;
+            updateNoteButtons();
+            showScreen('examScreen');
+            loadQuestion();
+        }
+
+        function updateNoteButtons() {
+            const nr = document.getElementById('notesRow');
+            nr.innerHTML = '';
+            const notes = useLatin ? ['Do','Re','Mi','Fa','Sol','La','Si'] : ['C','D','E','F','G','A','B'];
+            notes.forEach(n => {
+                const b = document.createElement('button');
+                b.className = 'note-btn'; 
+                b.textContent = n;
+                b.onclick = () => selectNote(n);
+                nr.appendChild(b);
+            });
+        }
+
+        function loadQuestion() {
+            currentQuestion++;
+            currentChord = generateRandomChord();
+            document.getElementById('progressText').textContent = `${currentQuestion} / ${totalQuestions}`;
+            
+            // Convertir solo la fundamental del acorde, no el símbolo completo
+            const rootDisplay = toDisplay(currentChord.root);
+            const chordSymbol = rootDisplay + currentChord.type;
+            document.getElementById('chordName').textContent = chordSymbol;
+            
+            const diagram = document.getElementById('chordDiagram');
+            diagram.innerHTML = '';
+            currentChord.notes.forEach((note, i) => {
+                const c = document.createElement('div');
+                c.className = 'note-circle ' + (i === currentChord.hiddenIndex ? 'hidden' : 'visible');
+                c.textContent = i === currentChord.hiddenIndex ? '?' : toDisplay(note);
+                diagram.appendChild(c);
+            });
+            resetSelection();
+        }
+
+        function selectNote(n) {
+            selectedBase = n;
+            updateSelection();
+            document.querySelectorAll('.note-btn').forEach(b => b.classList.toggle('selected', b.textContent === n));
+        }
+        
+        function selectAccidental(a, btn) {
+            selectedAccidental = a;
+            updateSelection();
+            document.querySelectorAll('.accidental-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+        
+        function updateSelection() {
+            document.getElementById('selectedNote').textContent = selectedBase ? selectedBase + selectedAccidental : '-';
+            document.getElementById('submitBtn').disabled = !selectedBase;
+        }
+        
+        function resetSelection() {
+            selectedBase = ''; 
+            selectedAccidental = '';
+            document.getElementById('selectedNote').textContent = '-';
+            document.getElementById('submitBtn').disabled = true;
+            document.querySelectorAll('.note-btn, .accidental-btn').forEach(b => b.classList.remove('selected'));
+        }
+
+        function submitAnswer() {
+            const userDisplay = selectedBase + selectedAccidental;
+            const user = fromDisplay(userDisplay);
+            const correct = currentChord.hiddenNote;
+            let ok = user === correct;
+            if (!ok && ENHARMONIC[correct]) ok = ENHARMONIC[correct].includes(user);
+            if (ok) correctAnswers++;
+            playChordNotes(currentChord.notes);
+            showModal(ok, toDisplay(correct), userDisplay);
+        }
+        
+        function showModal(ok, correct, user) {
+            document.getElementById('overlay').classList.add('active');
+            const m = document.getElementById('modal');
+            m.className = 'modal ' + (ok ? 'correct' : 'incorrect');
+            document.getElementById('modalTitle').textContent = ok ? '¡CORRECTO! ✓' : 'INCORRECTO ✗';
+            document.getElementById('modalText').textContent = ok ? (user === correct ? `Es ${correct}` : `${user} = ${correct}`) : `Era: ${correct}`;
+        }
+        
+        function closeModal() {
+            document.getElementById('overlay').classList.remove('active');
+            if (currentQuestion >= totalQuestions) {
+                showResults();
+            } else {
+                loadQuestion();
+            }
+        }
+        
+        function showResults() {
+            const score = (correctAnswers / totalQuestions) * 10;
+            document.getElementById('scoreDisplay').textContent = score.toFixed(1);
+            document.getElementById('statsText').textContent = `${correctAnswers} / ${totalQuestions} correctas`;
+            let g, c;
+            if (score >= 9) { g = 'SOBRESALIENTE'; c = 'sobresaliente'; }
+            else if (score >= 7) { g = 'NOTABLE'; c = 'notable'; }
+            else if (score >= 6) { g = 'BIEN'; c = 'bien'; }
+            else if (score >= 5) { g = 'SUFICIENTE'; c = 'suficiente'; }
+            else if (score >= 4) { g = 'INSUFICIENTE'; c = 'insuficiente'; }
+            else { g = 'MUY DEFICIENTE'; c = 'deficiente'; }
+            document.getElementById('gradeText').textContent = g;
+            document.getElementById('gradeText').className = 'grade-text ' + c;
+            showScreen('resultsScreen');
+        }
+
+        document.getElementById('startBtn').onclick = startExam;
+        document.getElementById('submitBtn').onclick = submitAnswer;
+        document.getElementById('modalBtn').onclick = closeModal;
+        document.getElementById('resetBtn').onclick = () => showScreen('startScreen');
+
+        const ar1 = document.getElementById('accRow1');
+        [['♯','♯'],['♭','♭'],['','♮']].forEach(([v,d]) => {
+            const b = document.createElement('button');
+            b.className = 'accidental-btn'; 
+            b.textContent = d;
+            b.onclick = () => selectAccidental(v, b);
+            ar1.appendChild(b);
+        });
+        
+        const ar2 = document.getElementById('accRow2');
+        [['𝄪','𝄪'],['𝄫','𝄫']].forEach(([v,d]) => {
+            const b = document.createElement('button');
+            b.className = 'accidental-btn'; 
+            b.textContent = d;
+            b.onclick = () => selectAccidental(v, b);
+            ar2.appendChild(b);
+        });
+    </script>
+</body>
+</html>
