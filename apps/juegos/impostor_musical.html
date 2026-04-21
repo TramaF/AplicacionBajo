@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎵 El Impostor Musical</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --space: #0c0a00;
+    --deep: #161100;
+    --card: #1e1900;
+    --card2: #181400;
+    --accent: #d4a200;
+    --accent2: #f5c400;
+    --green: #16a34a;
+    --red: #dc2626;
+    --yellow: #f5c400;
+    --cyan: #ca8a04;
+    --pink: #f59e0b;
+    --text: #fff8e1;
+    --muted: #a08c40;
+    --gold: #ffd600;
+    --r: 14px;
+    --shadow: 0 8px 32px rgba(212,162,0,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--space);
+    font-family: 'Nunito', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    user-select: none;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,210,0,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(255,200,0,0.35) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 60%, rgba(255,220,0,0.45) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,180,0,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 70%, rgba(255,210,0,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 15%, rgba(255,230,0,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 85%, rgba(255,200,0,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 45%, rgba(255,215,0,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 40%, rgba(255,220,0,0.45) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 25%, rgba(255,190,0,0.3) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen { display: none; position: relative; z-index: 1; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ====== HEADER ====== */
+  .top-bar {
+    background: linear-gradient(135deg, #b8860b 0%, #d4a200 50%, #f5c400 100%);
+    padding: 14px 16px 10px;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(212,162,0,0.6);
+    position: relative;
+  }
+  .top-bar h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.7rem;
+    letter-spacing: 1px;
+    color: #1a1200;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .top-bar .subtitle {
+    font-size: 0.72rem;
+    color: #4a3000;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ====== WELCOME SCREEN ====== */
+  #screen-welcome {
+    align-items: center;
+    justify-content: flex-start;
+    padding-bottom: 24px;
+  }
+
+  .welcome-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px;
+    gap: 16px;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .mascot {
+    font-size: 5rem;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(168,85,247,0.8));
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  .game-desc {
+    background: var(--card);
+    border: 1px solid rgba(212,162,0,0.4);
+    border-radius: var(--r);
+    padding: 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    width: 100%;
+  }
+  .game-desc h2 { font-family:'Fredoka One',cursive; font-size:1.2rem; color:var(--accent2); margin-bottom:8px; }
+  .game-desc p { font-size: 0.82rem; color: #d4b86a; line-height: 1.5; }
+
+  .config-box {
+    background: var(--card);
+    border: 1px solid rgba(212,162,0,0.4);
+    border-radius: var(--r);
+    padding: 16px;
+    width: 100%;
+    box-shadow: var(--shadow);
+  }
+  .config-box h3 { font-size: 0.85rem; color: var(--accent2); font-weight: 800; margin-bottom: 12px; text-transform:uppercase; letter-spacing:1px; }
+
+  .config-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .config-row label { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+
+  select, .sel {
+    background: var(--deep);
+    border: 1px solid rgba(212,162,0,0.5);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 10px;
+    outline: none;
+  }
+
+  .player-input-wrap { margin-bottom: 10px; }
+  .player-input-wrap input {
+    width: 100%;
+    background: var(--deep);
+    border: 1px solid rgba(212,162,0,0.5);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 10px 12px;
+    outline: none;
+  }
+  .player-input-wrap input::placeholder { color: var(--muted); }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary {
+    background: linear-gradient(135deg, #b8860b 0%, #d4a200 50%, #f5c400 100%);
+    color: #1a1200;
+    font-weight: 900;
+    box-shadow: 0 4px 20px rgba(212,162,0,0.5);
+  }
+  .btn-secondary {
+    background: linear-gradient(135deg, var(--green) 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(16,185,129,0.4);
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, var(--red) 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(239,68,68,0.4);
+  }
+  .btn-warning {
+    background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+    color: #fef3c7;
+    box-shadow: 0 4px 20px rgba(120,53,15,0.4);
+  }
+  .btn-cyan {
+    background: linear-gradient(135deg, #92400e 0%, #b45309 100%);
+    color: #fef3c7;
+    box-shadow: 0 4px 20px rgba(180,83,9,0.4);
+  }
+  .btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 8px; width: auto; display: inline-block; }
+
+  .credit {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 6px;
+  }
+  .credit span { color: var(--gold); font-weight: 800; }
+
+  /* ====== ROLE REVEAL ====== */
+  #screen-role {
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .role-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 32px 24px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    border: 2px solid rgba(212,162,0,0.5);
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn { from{transform:scale(0.6);opacity:0} to{transform:scale(1);opacity:1} }
+  .role-name { font-size: 0.8rem; color: var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px; }
+  .player-name-big { font-family:'Fredoka One',cursive; font-size:2rem; color: var(--gold); margin-bottom: 16px; }
+  .role-secret {
+    background: rgba(0,0,0,0.5);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 2px dashed rgba(212,162,0,0.5);
+  }
+  .role-secret p { font-size:0.8rem; color:var(--muted); margin-bottom:4px; }
+  .role-secret .role-emoji { font-size: 3rem; margin-bottom:6px; }
+  .role-secret .role-title { font-family:'Fredoka One',cursive; font-size:1.6rem; margin-bottom:4px; }
+  .role-secret .role-hint { font-size:0.82rem; color:#d4c170; line-height:1.4; }
+  .role-secret.impostor { border-color: rgba(239,68,68,0.5); }
+  .role-secret.impostor .role-title { color: var(--red); }
+  .role-secret.crew { border-color: rgba(212,162,0,0.6); }
+  .role-secret.crew .role-title { color: var(--gold); }
+
+  .tap-hint { font-size:0.78rem; color:var(--muted); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+  /* ====== QUESTION SCREEN ====== */
+  #screen-question {
+    align-items: stretch;
+    padding: 0;
+  }
+  .question-header {
+    background: linear-gradient(135deg, #78600a 0%, #b8860b 50%, #d4a200 100%);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(212,162,0,0.5);
+  }
+  .q-info { font-size: 0.78rem; color: #1a1200; font-weight: 800; }
+  .q-round { font-family:'Fredoka One',cursive; font-size: 1rem; color: #1a1200; }
+  .progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.1); }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, #b8860b, #ffd600); transition: width 0.5s; }
+
+  .question-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .current-player-tag {
+    background: linear-gradient(135deg, rgba(212,162,0,0.2), rgba(245,196,0,0.12));
+    border: 1px solid rgba(212,162,0,0.45);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .current-player-tag .avatar { font-size: 1.4rem; }
+  .current-player-tag .pname { font-family:'Fredoka One',cursive; font-size: 1rem; color: var(--gold); }
+  .current-player-tag .pturn { font-size: 0.72rem; color: var(--muted); }
+
+  .question-card {
+    background: var(--card);
+    border: 1px solid rgba(212,162,0,0.4);
+    border-radius: var(--r);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .question-category {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #f5c400;
+    font-weight: 800;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .question-text {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.4;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .question-hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 14px;
+    background: rgba(212,162,0,0.08);
+    border-left: 3px solid #d4a200;
+    padding: 6px 10px;
+    border-radius: 0 6px 6px 0;
+  }
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .option-btn {
+    background: var(--card2);
+    border: 2px solid rgba(212,162,0,0.3);
+    border-radius: 10px;
+    padding: 12px 8px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.3;
+    transition: all 0.18s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .option-btn:active { transform: scale(0.95); }
+  .option-btn.selected-correct { background: rgba(16,163,74,0.25); border-color: var(--green); color: #4ade80; }
+  .option-btn.selected-wrong { background: rgba(220,38,38,0.25); border-color: var(--red); color: #f87171; }
+  .option-btn.correct-reveal { background: rgba(16,163,74,0.25); border-color: var(--green); color: #4ade80; }
+
+  .answer-feedback {
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .answer-feedback.correct { background: rgba(16,163,74,0.2); border: 1px solid var(--green); color: #4ade80; }
+  .answer-feedback.wrong { background: rgba(220,38,38,0.2); border: 1px solid var(--red); color: #f87171; }
+  .answer-feedback.shown { display: block; }
+
+  .answer-explanation {
+    font-size: 0.78rem;
+    color: #c8a84b;
+    font-style: italic;
+    margin-top: 6px;
+    font-weight: 400;
+  }
+
+  /* ====== VOTE SCREEN ====== */
+  #screen-vote {
+    align-items: stretch;
+    padding: 0;
+  }
+  .vote-header {
+    background: linear-gradient(135deg, #7f1d1d 0%, var(--red) 100%);
+    padding: 14px 16px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(239,68,68,0.5);
+  }
+  .vote-header h2 { font-family:'Fredoka One',cursive; font-size: 1.5rem; }
+  .vote-header p { font-size: 0.78rem; color: #fca5a5; margin-top: 2px; }
+
+  .vote-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .vote-instruction {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 0.82rem;
+    color: #fca5a5;
+    text-align: center;
+    font-weight: 700;
+  }
+  .vote-player-btn {
+    background: var(--card);
+    border: 2px solid rgba(212,162,0,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .vote-player-btn:active { transform: scale(0.97); }
+  .vote-player-btn .vavatar { font-size: 2rem; }
+  .vote-player-btn .vname { font-family:'Fredoka One',cursive; font-size: 1.1rem; }
+  .vote-player-btn .vscore { font-size: 0.75rem; color: var(--muted); }
+  .vote-player-btn.voted { border-color: var(--red); background: rgba(239,68,68,0.15); }
+
+  /* ====== RESULT SCREEN ====== */
+  #screen-result {
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+  }
+  .result-header {
+    padding: 20px 16px 14px;
+    text-align: center;
+    width: 100%;
+  }
+  .result-emoji { font-size: 4rem; animation: float 2s ease-in-out infinite; margin-bottom: 8px; }
+  .result-title { font-family:'Fredoka One',cursive; font-size: 2rem; }
+  .result-subtitle { font-size: 0.85rem; color: var(--muted); }
+
+  .result-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px 24px;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .scoreboard {
+    background: var(--card);
+    border: 1px solid rgba(212,162,0,0.45);
+    border-radius: var(--r);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .scoreboard-title {
+    background: linear-gradient(135deg, #78600a 0%, #b8860b 50%, #d4a200 100%);
+    padding: 10px 16px;
+    font-family:'Fredoka One',cursive;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: #1a1200;
+  }
+  .score-row {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(212,162,0,0.08);
+  }
+  .score-row:last-child { border-bottom: none; }
+  .score-rank { font-family:'Fredoka One',cursive; font-size: 1.2rem; width: 28px; text-align:center; }
+  .score-avatar { font-size: 1.4rem; }
+  .score-name { flex: 1; font-weight: 800; font-size: 0.9rem; }
+  .score-pts { font-family:'Fredoka One',cursive; font-size: 1.1rem; color: var(--gold); }
+  .score-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform:uppercase; }
+  .score-tag.impostor-tag { background: rgba(220,38,38,0.3); color: #f87171; }
+  .score-tag.crew-tag { background: rgba(212,162,0,0.2); color: var(--gold); }
+
+  .tip-box {
+    background: var(--card);
+    border: 1px solid rgba(212,162,0,0.35);
+    border-radius: var(--r);
+    padding: 14px;
+  }
+  .tip-box h4 { font-size: 0.75rem; color: #f5c400; text-transform:uppercase; letter-spacing:2px; font-weight:800; margin-bottom:8px; }
+  .tip-box p { font-size: 0.82rem; color: #c8a84b; line-height: 1.5; }
+
+  /* ====== SCORES DISPLAY ====== */
+  .live-scores {
+    background: var(--card2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .live-score-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(212,162,0,0.15);
+    border: 1px solid rgba(212,162,0,0.3);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .live-score-chip .chip-pts { color: var(--gold); font-family:'Fredoka One',cursive; }
+
+  /* ====== SABOTAGE SCREEN ====== */
+  #screen-sabotage {
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(127,29,29,0.5) 0%, var(--space) 70%);
+  }
+  .sabotage-card {
+    background: var(--card);
+    border: 2px solid var(--red);
+    border-radius: 20px;
+    padding: 30px 24px;
+    max-width: 360px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(239,68,68,0.4);
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .sabotage-card h2 { font-family:'Fredoka One',cursive; font-size: 1.8rem; color: var(--red); margin-bottom:12px; }
+  .sabotage-card p { color: #fca5a5; font-size: 0.85rem; margin-bottom: 20px; line-height: 1.5; }
+
+  /* ====== TRANSITIONS ====== */
+  .fade-in { animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ====== MODAL ====== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+    display: none;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid rgba(212,162,0,0.5);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+    animation: popIn 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-box h3 { font-family:'Fredoka One',cursive; font-size: 1.4rem; margin-bottom: 10px; color: var(--gold); }
+  .modal-box p { font-size: 0.82rem; color: #c8a84b; margin-bottom: 18px; line-height: 1.5; }
+  .modal-box .modal-emoji { font-size: 3rem; margin-bottom: 10px; }
+
+  /* ====== HOWTO ====== */
+  .howto-list { text-align: left; }
+  .howto-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  .howto-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .howto-text { font-size: 0.8rem; color: #c8a84b; line-height: 1.4; }
+  .howto-text strong { color: var(--text); }
+
+  .players-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .player-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(212,162,0,0.15);
+    border: 1px solid rgba(212,162,0,0.4);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .chip-del {
+    color: var(--red);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 2px;
+  }
+
+  /* ====== TIMER ====== */
+  .timer-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(239,68,68,0.2);
+    border: 2px solid var(--red);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--red);
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    margin-top: 4px;
+  }
+
+  .impostor-warning {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    color: #fca5a5;
+    margin-top: 8px;
+  }
+
+  .about-box {
+    background: var(--card);
+    border: 1px solid rgba(212,162,0,0.5);
+    border-radius: var(--r);
+    padding: 14px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(212,162,0,0.15);
+  }
+  .about-box .creator { font-family:'Fredoka One',cursive; font-size: 1.1rem; color: var(--gold); }
+  .about-box .tagline { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .about-box .version { font-size: 0.68rem; color: rgba(212,162,0,0.35); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- SCREEN: WELCOME -->
+<!-- ============================================================ -->
+<div id="screen-welcome" class="screen active fade-in">
+  <div class="top-bar">
+    <h1>🎵 El Impostor Musical</h1>
+    <div class="subtitle">Juego Pedagógico de Lenguaje Musical</div>
+  </div>
+
+  <div class="welcome-body">
+    <div class="mascot">👾</div>
+
+    <div class="game-desc">
+      <h2>¿Cómo se juega?</h2>
+      <div class="howto-list">
+        <div class="howto-item"><div class="howto-icon">🎯</div><div class="howto-text"><strong>Cada ronda</strong> todos los jugadores responden a preguntas de teoría musical, ¡pero uno es el IMPOSTOR y tiene la respuesta incorrecta!</div></div>
+        <div class="howto-item"><div class="howto-icon">🗣️</div><div class="howto-text"><strong>Después de votar</strong>, ¡intentad descubrir quién mintió! Gana puntos si aciertas la pregunta o si descubres al impostor.</div></div>
+        <div class="howto-item"><div class="howto-icon">🏆</div><div class="howto-text"><strong>El impostor</strong> gana puntos si nadie le vota. ¡Sed astutos!</div></div>
+      </div>
+    </div>
+
+    <div class="config-box">
+      <h3>⚙️ Configuración</h3>
+
+      <div class="config-row">
+        <label>📚 Nivel</label>
+        <select id="sel-level">
+          <option value="1">1º Elemental</option>
+          <option value="2">2º Elemental</option>
+          <option value="both" selected>Ambos cursos</option>
+        </select>
+      </div>
+
+      <div class="config-row">
+        <label>🔢 Rondas</label>
+        <select id="sel-rounds">
+          <option value="3">3 rondas</option>
+          <option value="5" selected>5 rondas</option>
+          <option value="8">8 rondas</option>
+          <option value="10">10 rondas</option>
+        </select>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="section-label">👥 Jugadores (2-8)</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <div class="player-input-wrap" style="flex:1;margin:0">
+            <input type="text" id="player-name-input" placeholder="Nombre del jugador..." maxlength="18">
+          </div>
+          <button class="btn btn-cyan btn-sm" onclick="addPlayer()" style="padding:10px 14px;flex-shrink:0">➕</button>
+        </div>
+        <div id="players-chips" class="players-chips"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startGame()">🚀 ¡COMENZAR!</button>
+    <button class="btn btn-warning" style="margin-top:-6px" onclick="showHowTo()">📖 Cómo jugar</button>
+
+    <div class="about-box" style="width:100%">
+      <div class="creator">✨ R.Raíndo</div>
+      <div class="tagline">Innovación Pedagógica Musical · Conservatorio</div>
+      <div class="version">v2.0 · 1º y 2º E.Elemental · Lenguaje Musical</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: ROLE REVEAL -->
+<!-- ============================================================ -->
+<div id="screen-role" class="screen">
+  <div class="role-card" id="role-card">
+    <div class="role-name">🎮 Turno de:</div>
+    <div class="player-name-big" id="role-player-name">---</div>
+    <div id="role-secret-area" class="role-secret crew">
+      <div class="role-emoji" id="role-emoji">🎵</div>
+      <div class="role-title" id="role-title">TRIPULANTE</div>
+      <div class="role-hint" id="role-hint">Lee tu respuesta con atención.</div>
+    </div>
+    <div class="tap-hint" id="role-tap">👆 Toca para continuar</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: QUESTION -->
+<!-- ============================================================ -->
+<div id="screen-question" class="screen">
+  <div class="question-header">
+    <div>
+      <div class="q-round" id="q-round-label">Ronda 1</div>
+      <div class="q-info" id="q-player-label">Turno de: ---</div>
+    </div>
+    <div class="timer-circle" id="q-timer">--</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="q-progress"></div>
+  </div>
+  <div class="question-body">
+    <div class="current-player-tag">
+      <div class="avatar" id="q-avatar">🎵</div>
+      <div>
+        <div class="pname" id="q-pname">---</div>
+        <div class="pturn" id="q-pturn">Lee la pregunta y elige tu respuesta</div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="question-category" id="q-category">🎶 Teoría Musical</div>
+      <div class="question-text" id="q-text">...</div>
+      <div class="question-hint" id="q-hint" style="display:none"></div>
+      <div class="options-grid" id="q-options"></div>
+      <div class="answer-feedback" id="q-feedback">
+        <div id="q-feedback-text"></div>
+        <div class="answer-explanation" id="q-explanation"></div>
+      </div>
+    </div>
+
+    <div id="q-live-section">
+      <div class="section-label">📊 Puntuación actual</div>
+      <div class="live-scores" id="q-live-scores"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: SABOTAGE (Impostor's fake answer reveal) -->
+<!-- ============================================================ -->
+<div id="screen-sabotage" class="screen">
+  <div class="sabotage-card">
+    <div style="font-size:3rem;margin-bottom:12px">🔴</div>
+    <h2>¡SABOTAJE!</h2>
+    <p id="sab-text">El impostor ha respondido incorrectamente a propósito. ¿Pueden los tripulantes descubrirle en la votación?</p>
+    <button class="btn btn-danger" onclick="goToVote()">⚡ ¡A VOTAR!</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: VOTE -->
+<!-- ============================================================ -->
+<div id="screen-vote" class="screen">
+  <div class="vote-header">
+    <h2>🗳️ ¡VOTACIÓN!</h2>
+    <p>¿Quién crees que es el impostor?</p>
+  </div>
+  <div class="vote-body">
+    <div class="vote-instruction" id="vote-voter-label">Vota ahora — ¿quién dio la respuesta incorrecta?</div>
+    <div id="vote-players-list"></div>
+    <div id="vote-live-scores" style="margin-top:4px">
+      <div class="section-label">📊 Puntuación antes de votar</div>
+      <div class="live-scores" id="vote-scores-chips"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: RESULT -->
+<!-- ============================================================ -->
+<div id="screen-result" class="screen">
+  <div class="result-header">
+    <div class="result-emoji" id="res-emoji">🏆</div>
+    <div class="result-title" id="res-title">¡Fin!</div>
+    <div class="result-subtitle" id="res-sub"></div>
+  </div>
+  <div class="result-body">
+    <div class="scoreboard">
+      <div class="scoreboard-title">🏆 Marcador Final</div>
+      <div id="scoreboard-rows"></div>
+    </div>
+
+    <div class="tip-box" id="musical-tip-box">
+      <h4>🎵 Dato Musical del Juego</h4>
+      <p id="musical-tip-text"></p>
+    </div>
+
+    <button class="btn btn-primary" onclick="nextRound()">▶️ Siguiente Ronda</button>
+    <button class="btn btn-secondary" onclick="goHome()">🏠 Menú Principal</button>
+
+    <div class="credit">Creado por <span>R.Raíndo</span> · Pedagogía Musical Innovadora</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: HOWTO -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="modal-howto">
+  <div class="modal-box">
+    <div class="modal-emoji">📖</div>
+    <h3>Cómo jugar</h3>
+    <div class="howto-list" style="text-align:left">
+      <div class="howto-item"><div class="howto-icon">1️⃣</div><div class="howto-text"><strong>Configura</strong> el número de jugadores y rondas. Mínimo 2 jugadores.</div></div>
+      <div class="howto-item"><div class="howto-icon">2️⃣</div><div class="howto-text"><strong>Pasa el móvil</strong> a cada jugador para que vea su rol en secreto. ¡No lo enseñes!</div></div>
+      <div class="howto-item"><div class="howto-icon">3️⃣</div><div class="howto-text"><strong>El impostor</strong> ve la respuesta incorrecta. Tiene que intentar no ser descubierto.</div></div>
+      <div class="howto-item"><div class="howto-icon">4️⃣</div><div class="howto-text"><strong>Todos responden</strong> la misma pregunta. El impostor responde diferente.</div></div>
+      <div class="howto-item"><div class="howto-icon">5️⃣</div><div class="howto-text"><strong>¡Votación!</strong> El grupo vota quién cree que fue el impostor. Discutid entre todos.</div></div>
+      <div class="howto-item"><div class="howto-icon">🏆</div><div class="howto-text"><strong>Puntos:</strong> +3 por respuesta correcta · +5 si tripulantes descubren al impostor · +5 al impostor si nadie le vota · +2 por votar bien.</div></div>
+    </div>
+    <button class="btn btn-primary" onclick="closeModal('modal-howto')">✅ ¡Entendido!</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL: REVEAL -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="modal-reveal">
+  <div class="modal-box">
+    <div class="modal-emoji" id="reveal-emoji">🔍</div>
+    <h3 id="reveal-title">El Impostor era...</h3>
+    <p id="reveal-text">---</p>
+    <div id="reveal-answer-info" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;margin-bottom:14px;font-size:0.82rem;color:#fca5a5;"></div>
+    <button class="btn btn-primary" onclick="closeModal('modal-reveal'); showResult()">📊 Ver Resultados</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// GAME DATA - Extensive Question Library
+// ============================================================
+const QUESTIONS = [
+  // ===== 1º ELEMENTAL =====
+  // NOTAS Y PENTAGRAMA
+  { id:1, level:1, cat:"📝 Notas y Pentagrama", cat_icon:"📝",
+    q:"¿Cuántas líneas tiene el pentagrama?",
+    answers:["5 líneas","4 líneas","6 líneas","3 líneas"], correct:0,
+    fake:1, hint:"El pentagrama es la base de la escritura musical occidental.",
+    explanation:"El pentagrama siempre tiene exactamente 5 líneas y 4 espacios entre ellas." },
+
+  { id:2, level:1, cat:"📝 Notas y Pentagrama", cat_icon:"📝",
+    q:"¿Qué nota ocupa la primera línea del pentagrama en clave de Sol?",
+    answers:["Mi","Fa","Re","Sol"], correct:0,
+    fake:1, hint:"La clave de Sol está colocada en la segunda línea.",
+    explanation:"En clave de Sol (2ª línea), la primera línea corresponde a la nota Mi." },
+
+  { id:3, level:1, cat:"📝 Notas y Pentagrama", cat_icon:"📝",
+    q:"¿Cuántos espacios tiene el pentagrama?",
+    answers:["4 espacios","5 espacios","3 espacios","6 espacios"], correct:0,
+    fake:1, hint:"Los espacios están entre las líneas.",
+    explanation:"El pentagrama tiene 4 espacios, que quedan entre sus 5 líneas." },
+
+  { id:4, level:1, cat:"📝 Notas y Pentagrama", cat_icon:"📝",
+    q:"¿Cuántas notas tiene la escala musical?",
+    answers:["7 notas","5 notas","8 notas","6 notas"], correct:0,
+    fake:1, hint:"Las notas son: Do, Re, Mi, Fa, Sol, La, Si",
+    explanation:"La escala diatónica tiene 7 notas: Do, Re, Mi, Fa, Sol, La, Si." },
+
+  { id:5, level:1, cat:"📝 Notas y Pentagrama", cat_icon:"📝",
+    q:"¿Qué nota está en el espacio 1 del pentagrama en clave de Sol?",
+    answers:["Fa","Mi","Sol","Re"], correct:0,
+    fake:1, hint:"Los espacios también tienen notas asignadas.",
+    explanation:"En clave de Sol, el primer espacio (entre 1ª y 2ª línea) corresponde a Fa." },
+
+  // FIGURAS RÍTMICAS
+  { id:6, level:1, cat:"🎼 Figuras Rítmicas", cat_icon:"🎼",
+    q:"¿Cuántos tiempos vale una redonda?",
+    answers:["4 tiempos","2 tiempos","1 tiempo","3 tiempos"], correct:0,
+    fake:1, hint:"La redonda es la figura de mayor duración más común.",
+    explanation:"La redonda vale 4 tiempos, siendo la figura de mayor duración en el sistema métrico básico." },
+
+  { id:7, level:1, cat:"🎼 Figuras Rítmicas", cat_icon:"🎼",
+    q:"¿Cuántos tiempos vale una negra?",
+    answers:["1 tiempo","2 tiempos","4 tiempos","½ tiempo"], correct:0,
+    fake:1, hint:"La negra es la unidad de tiempo más común en compás de 4/4.",
+    explanation:"La negra vale 1 tiempo y es la unidad de referencia habitual." },
+
+  { id:8, level:1, cat:"🎼 Figuras Rítmicas", cat_icon:"🎼",
+    q:"¿Cuántos tiempos vale una blanca?",
+    answers:["2 tiempos","1 tiempo","4 tiempos","3 tiempos"], correct:0,
+    fake:1, hint:"La blanca equivale a dos negras.",
+    explanation:"La blanca vale 2 tiempos, el doble que la negra." },
+
+  { id:9, level:1, cat:"🎼 Figuras Rítmicas", cat_icon:"🎼",
+    q:"¿Cuántas corcheas caben en una negra?",
+    answers:["2 corcheas","4 corcheas","1 corchea","3 corcheas"], correct:0,
+    fake:1, hint:"La corchea vale la mitad que la negra.",
+    explanation:"Cada negra equivale a 2 corcheas, ya que la corchea vale medio tiempo." },
+
+  { id:10, level:1, cat:"🎼 Figuras Rítmicas", cat_icon:"🎼",
+    q:"¿Qué figura tiene una plica y una corchete (banderín)?",
+    answers:["Corchea","Negra","Blanca","Semicorchea"], correct:0,
+    fake:1, hint:"Esta figura vale medio tiempo.",
+    explanation:"La corchea tiene cabeza negra, plica y un corchete (banderín) en la plica." },
+
+  { id:11, level:1, cat:"🎼 Figuras Rítmicas", cat_icon:"🎼",
+    q:"¿Cuántos tiempos vale una negra con puntillo?",
+    answers:["1½ tiempos","2 tiempos","1 tiempo","3 tiempos"], correct:0,
+    fake:1, hint:"El puntillo añade la mitad del valor de la figura.",
+    explanation:"El puntillo añade la mitad del valor: negra (1) + puntillo (½) = 1½ tiempos." },
+
+  // COMPASES
+  { id:12, level:1, cat:"📐 Compases", cat_icon:"📐",
+    q:"En un compás de 2/4, ¿cuántos tiempos hay por compás?",
+    answers:["2 tiempos","4 tiempos","3 tiempos","6 tiempos"], correct:0,
+    fake:1, hint:"El número de arriba en el indicador de compás indica los tiempos.",
+    explanation:"En el compás 2/4, el número superior (2) indica que hay 2 tiempos por compás." },
+
+  { id:13, level:1, cat:"📐 Compases", cat_icon:"📐",
+    q:"En un compás de 3/4, ¿cuántos tiempos hay?",
+    answers:["3 tiempos","4 tiempos","2 tiempos","6 tiempos"], correct:0,
+    fake:1, hint:"Es el compás típico del vals.",
+    explanation:"El compás 3/4 tiene 3 tiempos. Es el compás ternario típico del vals." },
+
+  { id:14, level:1, cat:"📐 Compases", cat_icon:"📐",
+    q:"En un compás de 4/4, ¿qué indica el número inferior (4)?",
+    answers:["La negra es la unidad","Hay 4 compases","Hay 4 silencios","La redonda vale 4"], correct:0,
+    fake:1, hint:"El número inferior siempre indica qué figura es la unidad de tiempo.",
+    explanation:"El número inferior (4) indica que la unidad de tiempo es la negra (figura número 4 en el sistema de notación)." },
+
+  { id:15, level:1, cat:"📐 Compases", cat_icon:"📐",
+    q:"¿Cómo se llama el primer tiempo del compás?",
+    answers:["Tiempo fuerte","Tiempo débil","Anacrusis","Contrabajo"], correct:0,
+    fake:1, hint:"Es el tiempo acentuado del compás.",
+    explanation:"El primer tiempo del compás se llama tiempo fuerte porque lleva el acento rítmico principal." },
+
+  // DINÁMICAS
+  { id:16, level:1, cat:"🔊 Dinámica", cat_icon:"🔊",
+    q:"¿Qué significa el símbolo 'p' en música?",
+    answers:["Piano (suave)","Presto (rápido)","Pesante (pesado)","Poco (poco)"], correct:0,
+    fake:1, hint:"Es un término de intensidad sonora.",
+    explanation:"'p' significa piano, que indica tocar o cantar suavemente, con poca intensidad." },
+
+  { id:17, level:1, cat:"🔊 Dinámica", cat_icon:"🔊",
+    q:"¿Qué significa 'f' en música?",
+    answers:["Forte (fuerte)","Flauta","Final","Fluido"], correct:0,
+    fake:1, hint:"Es el opuesto de piano.",
+    explanation:"'f' significa forte, que indica tocar con mucha intensidad, fuertemente." },
+
+  { id:18, level:1, cat:"🔊 Dinámica", cat_icon:"🔊",
+    q:"¿Qué significa 'mf'?",
+    answers:["Mezzoforte (medio fuerte)","Muy fuerte","Moderado forte","Mini forte"], correct:0,
+    fake:1, hint:"'Mezzo' en italiano significa 'medio'.",
+    explanation:"'mf' es la abreviatura de mezzoforte, que significa moderadamente fuerte, entre piano y forte." },
+
+  { id:19, level:1, cat:"🔊 Dinámica", cat_icon:"🔊",
+    q:"¿Qué indica un crescendo?",
+    answers:["Ir aumentando el volumen","Ir disminuyendo el volumen","Tocar forte","Hacer un silencio"], correct:0,
+    fake:1, hint:"Se representa con un símbolo que se abre como un embudo.",
+    explanation:"El crescendo indica que el intérprete debe ir aumentando progresivamente la intensidad del sonido." },
+
+  // TEMPO - 1º
+  { id:20, level:1, cat:"⏱️ Tempo", cat_icon:"⏱️",
+    q:"¿Qué tempo indica 'Allegro'?",
+    answers:["Rápido y vivo","Lento y tranquilo","Moderado","Muy lento"], correct:0,
+    fake:1, hint:"En italiano, allegro significa 'alegre'.",
+    explanation:"Allegro indica un tempo rápido y vivo, generalmente entre 120-168 bpm." },
+
+  { id:21, level:1, cat:"⏱️ Tempo", cat_icon:"⏱️",
+    q:"¿Qué tempo indica 'Adagio'?",
+    answers:["Lento y expresivo","Muy rápido","Moderado","Rápido"], correct:0,
+    fake:1, hint:"Es uno de los tempos más lentos.",
+    explanation:"Adagio indica un tempo lento y expresivo, generalmente entre 60-72 bpm." },
+
+  { id:22, level:1, cat:"⏱️ Tempo", cat_icon:"⏱️",
+    q:"¿Qué tempo indica 'Moderato'?",
+    answers:["Moderado","Muy lento","Muy rápido","Casi nada"], correct:0,
+    fake:1, hint:"El nombre del tempo ya nos da una pista.",
+    explanation:"Moderato indica un tempo moderado, ni muy lento ni muy rápido, en torno a 100-110 bpm." },
+
+  // SIGNOS
+  { id:23, level:1, cat:"✍️ Signos Musicales", cat_icon:"✍️",
+    q:"¿Qué es una ligadura de prolongación?",
+    answers:["Une dos notas iguales sumando su duración","Une dos notas distintas suavizando el sonido","Indica repetición","Es un signo de dinámica"], correct:0,
+    fake:1, hint:"Se usa para alargar el sonido de una nota.",
+    explanation:"La ligadura de prolongación une dos notas del mismo sonido y altura, sumando sus duraciones." },
+
+  { id:24, level:1, cat:"✍️ Signos Musicales", cat_icon:"✍️",
+    q:"¿Qué indica un calderón (fermata)?",
+    answers:["Prolongar el sonido a voluntad","Hacer silencio","Repetir el fragmento","Tocar más fuerte"], correct:0,
+    fake:1, hint:"Se representa con un semicírculo y un punto.",
+    explanation:"El calderón indica que hay que prolongar el sonido más allá de su valor escrito, a discreción del intérprete." },
+
+  { id:25, level:1, cat:"✍️ Signos Musicales", cat_icon:"✍️",
+    q:"¿Para qué sirve la barra de repetición?",
+    answers:["Repetir el fragmento comprendido","Indicar el final","Separar secciones","Indicar forte"], correct:0,
+    fake:1, hint:"Se representan con dos puntos y doble barra.",
+    explanation:"Las barras de repetición indican que el fragmento entre ellas debe tocarse dos veces." },
+
+  // CLAVE
+  { id:26, level:1, cat:"🔑 Clave Musical", cat_icon:"🔑",
+    q:"¿En qué línea se coloca la clave de Sol?",
+    answers:["Segunda línea","Primera línea","Tercera línea","Cuarta línea"], correct:0,
+    fake:1, hint:"La clave de Sol rodea la segunda línea del pentagrama.",
+    explanation:"La clave de Sol se coloca en la segunda línea del pentagrama, indicando que esa línea corresponde a la nota Sol." },
+
+  { id:27, level:1, cat:"🔑 Clave Musical", cat_icon:"🔑",
+    q:"¿Para qué sirve la clave musical?",
+    answers:["Indica qué nota corresponde a cada línea","Indica el tempo","Indica la dinámica","Indica el compás"], correct:0,
+    fake:1, hint:"Es el primer signo que aparece en el pentagrama.",
+    explanation:"La clave indica cuál es la altura de referencia del pentagrama, determinando el nombre de todas las notas." },
+
+  // ===== 2º ELEMENTAL =====
+  // INTERVALOS
+  { id:28, level:2, cat:"🎯 Intervalos", cat_icon:"🎯",
+    q:"¿Cómo se llama el intervalo entre Do y Sol?",
+    answers:["Quinta","Cuarta","Tercera","Sexta"], correct:0,
+    fake:1, hint:"Contamos desde Do hasta Sol: Do-Re-Mi-Fa-Sol.",
+    explanation:"De Do a Sol hay 5 notas (Do, Re, Mi, Fa, Sol), por lo que el intervalo es de Quinta." },
+
+  { id:29, level:2, cat:"🎯 Intervalos", cat_icon:"🎯",
+    q:"¿Cuántos semitonos tiene un tono entero?",
+    answers:["2 semitonos","1 semitono","3 semitonos","4 semitonos"], correct:0,
+    fake:1, hint:"El semitono es la menor distancia entre dos notas.",
+    explanation:"Un tono entero equivale exactamente a 2 semitonos. Es la distancia más pequeña practicable dividida por 2." },
+
+  { id:30, level:2, cat:"🎯 Intervalos", cat_icon:"🎯",
+    q:"¿Cuántos semitonos tiene una tercera mayor?",
+    answers:["4 semitonos","3 semitonos","5 semitonos","2 semitonos"], correct:0,
+    fake:1, hint:"La tercera mayor es más grande que la menor.",
+    explanation:"La tercera mayor tiene 4 semitonos (2 tonos), mientras que la tercera menor tiene 3 semitonos." },
+
+  { id:31, level:2, cat:"🎯 Intervalos", cat_icon:"🎯",
+    q:"¿Cómo se llama el intervalo entre Do y Re?",
+    answers:["Segunda","Tercera","Cuarta","Unísono"], correct:0,
+    fake:1, hint:"Solo hay una nota de diferencia.",
+    explanation:"De Do a Re hay solo 2 notas (Do y Re), formando un intervalo de Segunda." },
+
+  { id:32, level:2, cat:"🎯 Intervalos", cat_icon:"🎯",
+    q:"¿Qué intervalo es el unísono?",
+    answers:["Dos notas al mismo sonido","Intervalo de segunda","Octava perfecta","Intervalo de tercera"], correct:0,
+    fake:1, hint:"'Uni' significa 'uno', todo junto.",
+    explanation:"El unísono es cuando dos voces o instrumentos suenan exactamente la misma nota, sin diferencia de altura." },
+
+  { id:33, level:2, cat:"🎯 Intervalos", cat_icon:"🎯",
+    q:"¿Cuántos semitonos tiene una quinta justa?",
+    answers:["7 semitonos","5 semitonos","6 semitonos","8 semitonos"], correct:0,
+    fake:1, hint:"Es uno de los intervalos más consonantes.",
+    explanation:"La quinta justa tiene 7 semitonos (3 tonos y ½). Es el intervalo más consonante después de la octava." },
+
+  // TONALIDAD
+  { id:34, level:2, cat:"🎵 Tonalidad", cat_icon:"🎵",
+    q:"¿Cuántas alteraciones tiene la tonalidad de Sol Mayor?",
+    answers:["1 sostenido (Fa#)","2 sostenidos","0 alteraciones","1 bemol"], correct:0,
+    fake:1, hint:"Sol Mayor tiene el Fa alterado.",
+    explanation:"Sol Mayor tiene 1 sostenido en la armadura: Fa sostenido (#). Es la primera tonalidad con sostenidos." },
+
+  { id:35, level:2, cat:"🎵 Tonalidad", cat_icon:"🎵",
+    q:"¿Cuántas alteraciones tiene Do Mayor?",
+    answers:["0 alteraciones","1 sostenido","1 bemol","2 sostenidos"], correct:0,
+    fake:1, hint:"Es la tonalidad más 'pura'.",
+    explanation:"Do Mayor no tiene ninguna alteración en la armadura, todas sus notas son naturales." },
+
+  { id:36, level:2, cat:"🎵 Tonalidad", cat_icon:"🎵",
+    q:"¿Qué tonalidad tiene 1 bemol (Si♭)?",
+    answers:["Fa Mayor","Sol Mayor","Re Mayor","La Mayor"], correct:0,
+    fake:1, hint:"Es la primera tonalidad en el orden de los bemoles.",
+    explanation:"Fa Mayor tiene 1 bemol: Si bemol (♭). Es la primera tonalidad en el círculo de quintas con bemoles." },
+
+  { id:37, level:2, cat:"🎵 Tonalidad", cat_icon:"🎵",
+    q:"¿Cuántas alteraciones tiene Re Mayor?",
+    answers:["2 sostenidos (Fa# y Do#)","1 sostenido","3 sostenidos","0 alteraciones"], correct:0,
+    fake:1, hint:"Re Mayor tiene un sostenido más que Sol Mayor.",
+    explanation:"Re Mayor tiene 2 sostenidos en armadura: Fa# y Do#. Sigue el orden de quintas ascendentes." },
+
+  { id:38, level:2, cat:"🎵 Tonalidad", cat_icon:"🎵",
+    q:"¿Qué es una armadura de clave?",
+    answers:["Alteraciones fijas al inicio del pentagrama","El tipo de clave usada","La velocidad de la obra","El nombre del compás"], correct:0,
+    fake:1, hint:"Se coloca justo después de la clave.",
+    explanation:"La armadura de clave son las alteraciones (sostenidos o bemoles) que se escriben al principio de cada línea para indicar la tonalidad." },
+
+  // ESCALAS
+  { id:39, level:2, cat:"🎼 Escalas", cat_icon:"🎼",
+    q:"¿Cuántos tonos y semitonos tiene la escala mayor?",
+    answers:["T-T-ST-T-T-T-ST","T-ST-T-T-ST-T-T","ST-T-T-T-T-T-ST","T-T-T-ST-T-T-ST"], correct:0,
+    fake:1, hint:"Los semitonos están entre los grados 3-4 y 7-8.",
+    explanation:"La escala mayor sigue el patrón: Tono-Tono-Semitono-Tono-Tono-Tono-Semitono (T-T-ST-T-T-T-ST)." },
+
+  { id:40, level:2, cat:"🎼 Escalas", cat_icon:"🎼",
+    q:"¿Cómo se llama la escala que tiene los semitonos entre 2-3 y 5-6?",
+    answers:["Escala menor natural","Escala mayor","Escala pentatónica","Escala cromática"], correct:0,
+    fake:1, hint:"Es la escala que da el carácter más melancólico.",
+    explanation:"La escala menor natural tiene sus semitonos entre los grados 2-3 y 5-6, dándole su carácter más oscuro." },
+
+  { id:41, level:2, cat:"🎼 Escalas", cat_icon:"🎼",
+    q:"¿Qué es la escala cromática?",
+    answers:["La que tiene todos los semitonos","La de Do Mayor","La pentatónica","La de 5 notas"], correct:0,
+    fake:1, hint:"Usa todos los sonidos posibles del sistema temperado.",
+    explanation:"La escala cromática incluye todos los 12 semitonos de la octava, sin saltar ningún sonido." },
+
+  { id:42, level:2, cat:"🎼 Escalas", cat_icon:"🎼",
+    q:"¿Qué nota es la tónica de la escala de La menor?",
+    answers:["La","Do","Mi","Sol"], correct:0,
+    fake:1, hint:"La tónica da nombre a la escala.",
+    explanation:"En la escala de La menor, la tónica (primer grado) es La. Es la relativa menor de Do Mayor." },
+
+  // ACORDES
+  { id:43, level:2, cat:"🎹 Acordes", cat_icon:"🎹",
+    q:"¿Cuántas notas tiene un acorde tríada?",
+    answers:["3 notas","4 notas","2 notas","5 notas"], correct:0,
+    fake:1, hint:"'Tríada' viene de 'tres'.",
+    explanation:"Un acorde tríada tiene exactamente 3 notas: la fundamental, la tercera y la quinta." },
+
+  { id:44, level:2, cat:"🎹 Acordes", cat_icon:"🎹",
+    q:"¿Cómo se forma un acorde mayor?",
+    answers:["3ª mayor + 3ª menor","3ª menor + 3ª mayor","2 3ªs mayores","2 3ªs menores"], correct:0,
+    fake:1, hint:"La primera tercera define si es mayor o menor.",
+    explanation:"El acorde mayor se forma apilando una tercera mayor (4 semitonos) y luego una tercera menor (3 semitonos)." },
+
+  { id:45, level:2, cat:"🎹 Acordes", cat_icon:"🎹",
+    q:"¿Qué notas forman el acorde de Do Mayor?",
+    answers:["Do - Mi - Sol","Do - Re - Sol","Do - Fa - Sol","Do - Mi - La"], correct:0,
+    fake:1, hint:"Se forma sobre los grados 1, 3 y 5 de la escala.",
+    explanation:"El acorde de Do Mayor se forma con las notas Do (fundamental), Mi (tercera mayor) y Sol (quinta justa)." },
+
+  { id:46, level:2, cat:"🎹 Acordes", cat_icon:"🎹",
+    q:"¿Qué es la función de Tónica?",
+    answers:["El acorde de reposo principal","El acorde de tensión","El acorde de inicio","El acorde cromático"], correct:0,
+    fake:1, hint:"Es el primer grado de la escala.",
+    explanation:"La función de Tónica (I grado) es el centro de reposo armónico, hacia donde tiende a resolver toda la música tonal." },
+
+  // FORMAS MUSICALES - 2º
+  { id:47, level:2, cat:"🎭 Formas Musicales", cat_icon:"🎭",
+    q:"¿Qué es un canon en música?",
+    answers:["Una melodía que se imita con retraso","Un instrumento de viento","Un tipo de compás","Una forma de silencio"], correct:0,
+    fake:1, hint:"Es una forma de contrapunto por imitación.",
+    explanation:"Un canon es una forma musical en la que una melodía es imitada por otras voces con cierto retraso temporal." },
+
+  { id:48, level:2, cat:"🎭 Formas Musicales", cat_icon:"🎭",
+    q:"¿Qué forma tiene la estructura A-B-A?",
+    answers:["Forma ternaria","Forma binaria","Fuga","Ostinato"], correct:0,
+    fake:1, hint:"Tiene tres secciones donde la primera y la tercera son iguales.",
+    explanation:"La forma A-B-A se llama ternaria porque tiene tres secciones: una primera parte, una contrastante y la reexposición de la primera." },
+
+  { id:49, level:2, cat:"🎭 Formas Musicales", cat_icon:"🎭",
+    q:"¿Qué es un ostinato?",
+    answers:["Un patrón rítmico o melódico repetido","Un instrumento de percusión","Un tipo de danza","Una escala modal"], correct:0,
+    fake:1, hint:"La palabra italiana significa 'obstinado'.",
+    explanation:"Un ostinato es un patrón rítmico o melódico que se repite constantemente a lo largo de una obra o sección." },
+
+  // INSTRUMENTOS
+  { id:50, level:1, cat:"🎸 Instrumentos", cat_icon:"🎸",
+    q:"¿A qué familia pertenece el violín?",
+    answers:["Cuerda frotada","Viento madera","Viento metal","Percusión"], correct:0,
+    fake:1, hint:"Se toca con un arco.",
+    explanation:"El violín pertenece a la familia de cuerda frotada, porque su sonido se produce frotando el arco sobre las cuerdas." },
+
+  { id:51, level:1, cat:"🎸 Instrumentos", cat_icon:"🎸",
+    q:"¿A qué familia pertenece la flauta travesera?",
+    answers:["Viento madera","Viento metal","Cuerda","Percusión"], correct:0,
+    fake:1, hint:"A pesar de ser de metal, se clasifica por su historia.",
+    explanation:"La flauta travesera pertenece a la familia de viento madera, aunque hoy se fabrique en metal, por su origen histórico." },
+
+  { id:52, level:1, cat:"🎸 Instrumentos", cat_icon:"🎸",
+    q:"¿A qué familia pertenece la trompeta?",
+    answers:["Viento metal","Viento madera","Cuerda","Percusión"], correct:0,
+    fake:1, hint:"Se toca con boquilla de copa.",
+    explanation:"La trompeta pertenece a la familia de viento metal, ya que se toca a través de una boquilla metálica con vibración de labios." },
+
+  { id:53, level:1, cat:"🎸 Instrumentos", cat_icon:"🎸",
+    q:"¿Cuántas cuerdas tiene una guitarra estándar?",
+    answers:["6 cuerdas","4 cuerdas","5 cuerdas","8 cuerdas"], correct:0,
+    fake:1, hint:"Las cuerdas se numeran del 1 al 6.",
+    explanation:"La guitarra clásica o española estándar tiene 6 cuerdas afinadas: Mi-La-Re-Sol-Si-Mi." },
+
+  { id:54, level:1, cat:"🎸 Instrumentos", cat_icon:"🎸",
+    q:"¿Qué instrumento es el piano?",
+    answers:["Cuerda percutida","Viento madera","Cuerda frotada","Membranófono"], correct:0,
+    fake:1, hint:"Las teclas accionan pequeños martillos.",
+    explanation:"El piano es un instrumento de cuerda percutida, ya que sus cuerdas son golpeadas por martillos accionados por las teclas." },
+
+  // HISTORIA Y COMPOSITORES
+  { id:55, level:1, cat:"🏛️ Historia Musical", cat_icon:"🏛️",
+    q:"¿En qué época vivió Johann Sebastian Bach?",
+    answers:["Barroco","Romántico","Clásico","Renacimiento"], correct:0,
+    fake:1, hint:"Vivió entre 1685 y 1750.",
+    explanation:"Bach fue el gran maestro del Barroco musical (1600-1750), destacando por su contrapunto y fugues." },
+
+  { id:56, level:1, cat:"🏛️ Historia Musical", cat_icon:"🏛️",
+    q:"¿Cuántas sinfonías compuso Ludwig van Beethoven?",
+    answers:["9 sinfonías","8 sinfonías","10 sinfonías","7 sinfonías"], correct:0,
+    fake:1, hint:"La última y más famosa es la Novena.",
+    explanation:"Beethoven compuso 9 sinfonías. La Novena, con el 'Himno a la Alegría', la escribió siendo completamente sordo." },
+
+  { id:57, level:2, cat:"🏛️ Historia Musical", cat_icon:"🏛️",
+    q:"¿Qué periodo musical va del año 1600 al 1750 aproximadamente?",
+    answers:["Barroco","Clásico","Romántico","Renacimiento"], correct:0,
+    fake:1, hint:"Es la época de Bach, Haendel y Vivaldi.",
+    explanation:"El periodo Barroco (aprox. 1600-1750) se caracteriza por la ornamentación, el bajo continuo y las formas como la fuga y el concerto grosso." },
+
+  { id:58, level:2, cat:"🏛️ Historia Musical", cat_icon:"🏛️",
+    q:"¿A qué periodo pertenece Wolfgang Amadeus Mozart?",
+    answers:["Clasicismo","Barroco","Romanticismo","Impresionismo"], correct:0,
+    fake:1, hint:"Vivió entre 1756 y 1791.",
+    explanation:"Mozart pertenece al Clasicismo (aprox. 1750-1820), periodo de equilibrio formal y claridad melódica." },
+
+  // LECTURA RÍTMICA AVANZADA - 2º
+  { id:59, level:2, cat:"📐 Compases", cat_icon:"📐",
+    q:"¿Qué es un compás compuesto?",
+    answers:["El que tiene subdivisión ternaria","El que tiene 2 tiempos","El que tiene muchos compases","El de 4/4"], correct:0,
+    fake:1, hint:"Su unidad se divide en 3 partes iguales.",
+    explanation:"Los compases compuestos tienen subdivisión ternaria: la unidad de tiempo se divide en 3 partes (por ejemplo, 6/8, 9/8, 12/8)." },
+
+  { id:60, level:2, cat:"📐 Compases", cat_icon:"📐",
+    q:"¿Qué indica el 8 en el denominador del compás 6/8?",
+    answers:["La corchea es la unidad","Hay 8 tiempos","Es el 8º compás","8 redondas por compás"], correct:0,
+    fake:1, hint:"El denominador siempre indica qué figura es la unidad.",
+    explanation:"En el compás 6/8, el 8 inferior indica que la corchea es la figura unidad. Hay 6 corcheas por compás, agrupadas en 2 tiempos de tresillo." },
+
+  { id:61, level:2, cat:"📐 Compases", cat_icon:"📐",
+    q:"¿Qué es una síncopa?",
+    answers:["Nota en tiempo débil prolongada a tiempo fuerte","Un tipo de escala","Una dinámica musical","Una figura rítmica especial"], correct:0,
+    fake:1, hint:"Desplaza el acento rítmico normal.",
+    explanation:"La síncopa es una figura que empieza en un tiempo débil y se prolonga al siguiente tiempo fuerte, desplazando el acento habitual." },
+
+  { id:62, level:2, cat:"📐 Compases", cat_icon:"📐",
+    q:"¿Qué es una anacrusa?",
+    answers:["Nota/s antes del primer tiempo fuerte","El último compás","Un tipo de acorde","Un signo de repetición"], correct:0,
+    fake:1, hint:"Precede al primer compás completo.",
+    explanation:"La anacrusa es una o varias notas que preceden al primer tiempo fuerte de la obra, funcionando como un 'impulso' inicial." },
+
+  // VOCES
+  { id:63, level:1, cat:"🎤 Voces", cat_icon:"🎤",
+    q:"¿Cuál es la voz femenina más aguda?",
+    answers:["Soprano","Mezzosoprano","Contralto","Tenor"], correct:0,
+    fake:1, hint:"Es la voz de las protagonistas operísticas.",
+    explanation:"La soprano es la voz femenina más aguda, capaz de alcanzar notas muy altas en la música coral y operística." },
+
+  { id:64, level:1, cat:"🎤 Voces", cat_icon:"🎤",
+    q:"¿Cuál es la voz masculina más grave?",
+    answers:["Bajo","Barítono","Tenor","Contratenor"], correct:0,
+    fake:1, hint:"La más grave de todas las voces humanas.",
+    explanation:"El bajo es la voz masculina más grave, cubriendo el registro más bajo del espectro vocal humano." },
+
+  { id:65, level:1, cat:"🎤 Voces", cat_icon:"🎤",
+    q:"¿Cuántas voces tiene un coro SATB?",
+    answers:["4 voces","3 voces","5 voces","2 voces"], correct:0,
+    fake:1, hint:"SATB son las iniciales de las cuatro voces.",
+    explanation:"El coro SATB tiene 4 voces: Soprano, Alto (Contralto), Tenor y Bajo. Es la formación coral más habitual." },
+
+  // TERMINOLOGÍA
+  { id:66, level:2, cat:"📖 Términos Musicales", cat_icon:"📖",
+    q:"¿Qué significa 'Da Capo' (D.C.)?",
+    answers:["Volver al principio","Fin de la obra","Repetir la coda","Ir a la señal"], correct:0,
+    fake:1, hint:"'Capo' en italiano significa 'cabeza', 'inicio'.",
+    explanation:"'Da Capo' (D.C.) significa 'desde el principio', indicando que se vuelve a tocar desde el inicio de la obra." },
+
+  { id:67, level:2, cat:"📖 Términos Musicales", cat_icon:"📖",
+    q:"¿Qué es la coda en música?",
+    answers:["Sección final de cierre","Introducción inicial","Repetición del tema","Pausa larga"], correct:0,
+    fake:1, hint:"'Coda' en italiano significa 'cola'.",
+    explanation:"La coda es una sección añadida al final de una obra o movimiento para concluirla de forma efectiva y rotunda." },
+
+  { id:68, level:2, cat:"📖 Términos Musicales", cat_icon:"📖",
+    q:"¿Qué significa 'Fine'?",
+    answers:["Final de la obra","Fuerte","Flautando","Falsete"], correct:0,
+    fake:1, hint:"Es la palabra italiana para 'fin'.",
+    explanation:"'Fine' es la indicación de fin de la obra o sección, señalando dónde debe terminar la interpretación." },
+
+  { id:69, level:1, cat:"📖 Términos Musicales", cat_icon:"📖",
+    q:"¿Qué significa 'Legato'?",
+    answers:["Ligado, sin separación entre notas","Rápido","Suave","Repetido"], correct:0,
+    fake:1, hint:"El opuesto sería 'staccato'.",
+    explanation:"Legato indica que las notas deben tocarse unidas, sin separación entre ellas, creando una línea sonora fluida y continua." },
+
+  { id:70, level:1, cat:"📖 Términos Musicales", cat_icon:"📖",
+    q:"¿Qué indica el 'staccato'?",
+    answers:["Notas cortas y separadas","Notas ligadas","Muy rápido","Muy suave"], correct:0,
+    fake:1, hint:"Se representa con un punto sobre la nota.",
+    explanation:"El staccato (punto sobre la nota) indica que la nota debe acortarse y separarse de las siguientes, tocando solo la mitad de su valor." },
+
+  // ALTURAS Y OCTAVAS
+  { id:71, level:2, cat:"🎯 Intervalos", cat_icon:"🎯",
+    q:"¿Cuántos semitonos tiene una octava?",
+    answers:["12 semitonos","8 semitonos","7 semitonos","10 semitonos"], correct:0,
+    fake:1, hint:"La octava completa el sistema temperado occidental.",
+    explanation:"Una octava contiene exactamente 12 semitonos, que son todos los sonidos del sistema temperado occidental." },
+
+  { id:72, level:2, cat:"🎯 Intervalos", cat_icon:"🎯",
+    q:"¿Qué es un intervalo armónico?",
+    answers:["Dos notas sonando simultáneamente","Dos notas consecutivas","Un acorde de 3 notas","Una escala ascendente"], correct:0,
+    fake:1, hint:"El opuesto sería melódico.",
+    explanation:"Un intervalo armónico es cuando dos notas suenan al mismo tiempo, en contraposición al melódico donde suenan en sucesión." },
+
+  // NOTACIÓN MUSICAL
+  { id:73, level:1, cat:"✍️ Signos Musicales", cat_icon:"✍️",
+    q:"¿Cuántos tiempos dura un silencio de redonda?",
+    answers:["4 tiempos","2 tiempos","1 tiempo","3 tiempos"], correct:0,
+    fake:1, hint:"Los silencios tienen la misma duración que su figura correspondiente.",
+    explanation:"El silencio de redonda dura 4 tiempos, igual que la redonda. Se representa como un rectángulo colgado de la cuarta línea." },
+
+  { id:74, level:1, cat:"✍️ Signos Musicales", cat_icon:"✍️",
+    q:"¿Qué es una ligadura de expresión?",
+    answers:["Une notas distintas para tocar legato","Une dos notas iguales para prolongar","Indica el forte","Es una barra de compás"], correct:0,
+    fake:1, hint:"Se llama también 'arco' en los instrumentos de cuerda.",
+    explanation:"La ligadura de expresión une notas de diferente altura indicando que deben tocarse de forma continua y expresiva (legato)." },
+
+  { id:75, level:2, cat:"🎵 Tonalidad", cat_icon:"🎵",
+    q:"¿Qué es el tono relativo?",
+    answers:["Mayor y menor que comparten armadura","Dos tonalidades iguales","Tonalidad sin alteraciones","El tono más cercano"], correct:0,
+    fake:1, hint:"Do Mayor y La menor son tonos relativos.",
+    explanation:"Dos tonalidades son relativas cuando comparten la misma armadura de clave. Por ejemplo, Do Mayor y La menor, ambas sin alteraciones." },
+
+  // ACÚSTICA BÁSICA
+  { id:76, level:1, cat:"🔊 Acústica", cat_icon:"🔊",
+    q:"¿Cómo se llaman los 4 parámetros del sonido?",
+    answers:["Altura, duración, intensidad, timbre","Tempo, dinámica, ritmo, melodía","Forte, piano, legato, staccato","Soprano, alto, tenor, bajo"], correct:0,
+    fake:1, hint:"Son las 4 cualidades físicas de cualquier sonido musical.",
+    explanation:"Los 4 parámetros o cualidades del sonido son: altura (agudo/grave), duración (largo/corto), intensidad (fuerte/suave) y timbre (color sonoro)." },
+
+  { id:77, level:1, cat:"🔊 Acústica", cat_icon:"🔊",
+    q:"¿Qué parámetro del sonido indica si es agudo o grave?",
+    answers:["Altura","Duración","Intensidad","Timbre"], correct:0,
+    fake:1, hint:"Depende de la frecuencia de la vibración.",
+    explanation:"La altura (o tono) del sonido indica si es agudo o grave, y depende de la frecuencia de vibración: más Hz = más agudo." },
+
+  { id:78, level:1, cat:"🔊 Acústica", cat_icon:"🔊",
+    q:"¿Qué es el timbre en música?",
+    answers:["El color sonoro que distingue instrumentos","El volumen del sonido","La velocidad del sonido","La altura de la nota"], correct:0,
+    fake:1, hint:"Por el timbre reconocemos cada instrumento.",
+    explanation:"El timbre es la cualidad del sonido que nos permite distinguir diferentes instrumentos o voces aunque toquen la misma nota con igual volumen." },
+
+  // RITMO AVANZADO
+  { id:79, level:2, cat:"🎼 Figuras Rítmicas", cat_icon:"🎼",
+    q:"¿Qué es un tresillo?",
+    answers:["3 notas en el valor de 2","2 notas en el valor de 3","6 semicorcheas","4 corcheas en 3 tiempos"], correct:0,
+    fake:1, hint:"Es una de las figuras irregulares más comunes.",
+    explanation:"El tresillo es un grupo de valoración especial: se interpretan 3 notas en el tiempo que normalmente ocuparían 2 de la misma figura." },
+
+  { id:80, level:2, cat:"🎼 Figuras Rítmicas", cat_icon:"🎼",
+    q:"¿Cuántos tiempos vale una semicorchea?",
+    answers:["¼ de tiempo","½ tiempo","1 tiempo","⅛ de tiempo"], correct:0,
+    fake:1, hint:"Vale la mitad que la corchea.",
+    explanation:"La semicorchea vale ¼ de tiempo (un cuarto), la mitad de la corchea y un cuarto de la negra." },
+
+  // ORQUESTA
+  { id:81, level:2, cat:"🎸 Instrumentos", cat_icon:"🎸",
+    q:"¿Cuántas familias instrumentales tiene la orquesta sinfónica?",
+    answers:["4 familias","3 familias","5 familias","2 familias"], correct:0,
+    fake:1, hint:"Cuerdas, vientos y percusión... ¿son tres o cuatro?",
+    explanation:"La orquesta sinfónica tiene 4 familias: cuerda (frotada), viento madera, viento metal y percusión." },
+
+  { id:82, level:2, cat:"🎸 Instrumentos", cat_icon:"🎸",
+    q:"¿Cuál es el instrumento de cuerda frotada más grave de la orquesta?",
+    answers:["Contrabajo","Violonchelo","Viola","Violín"], correct:0,
+    fake:1, hint:"Es el de mayor tamaño de la familia.",
+    explanation:"El contrabajo es el instrumento de cuerda frotada más grave y grande de la orquesta sinfónica." },
+
+  { id:83, level:1, cat:"🎸 Instrumentos", cat_icon:"🎸",
+    q:"¿Cuántas cuerdas tiene el violín?",
+    answers:["4 cuerdas","5 cuerdas","6 cuerdas","3 cuerdas"], correct:0,
+    fake:1, hint:"Se afinan en quintas: Sol, Re, La, Mi.",
+    explanation:"El violín tiene 4 cuerdas afinadas en quintas: Sol, Re, La y Mi (de más grave a más aguda)." },
+
+  // GÉNEROS Y ESTILOS
+  { id:84, level:2, cat:"🎭 Géneros Musicales", cat_icon:"🎭",
+    q:"¿Qué es una ópera?",
+    answers:["Drama musical con cantantes y orquesta","Solo música instrumental","Un tipo de sinfonía","Una danza barroca"], correct:0,
+    fake:1, hint:"Combina música, teatro y a veces danza.",
+    explanation:"La ópera es una forma teatral en la que la acción dramática se expresa principalmente a través del canto, con acompañamiento orquestal." },
+
+  { id:85, level:1, cat:"🎭 Géneros Musicales", cat_icon:"🎭",
+    q:"¿Cómo se llama una composición para una sola voz o instrumento sin acompañamiento?",
+    answers:["Solo","Dúo","Cuarteto","Coro"], correct:0,
+    fake:1, hint:"Es la interpretación de un único performer.",
+    explanation:"Un solo es una composición o sección interpretada por un único músico, sin acompañamiento o destacando sobre el grupo." },
+
+  // CLAVE DE FA
+  { id:86, level:2, cat:"🔑 Clave Musical", cat_icon:"🔑",
+    q:"¿En qué línea se coloca la clave de Fa?",
+    answers:["Cuarta línea","Tercera línea","Segunda línea","Quinta línea"], correct:0,
+    fake:1, hint:"La clave de Fa también se llama 'clave de bajo'.",
+    explanation:"La clave de Fa se coloca en la cuarta línea del pentagrama, indicando que esa línea corresponde a la nota Fa." },
+
+  { id:87, level:2, cat:"🔑 Clave Musical", cat_icon:"🔑",
+    q:"¿Qué instrumentos suelen usar la clave de Fa?",
+    answers:["Violonchelo, contrabajo, trombón","Violín, flauta, oboe","Clarinete, trompeta, tuba","Piano, órgano, arpa"], correct:0,
+    fake:1, hint:"Son los instrumentos más graves de la orquesta.",
+    explanation:"La clave de Fa es usada por los instrumentos más graves: violonchelo, contrabajo, fagot, trombón y la mano izquierda del piano." },
+
+  // ALTERACIONES
+  { id:88, level:1, cat:"✍️ Signos Musicales", cat_icon:"✍️",
+    q:"¿Qué hace un sostenido (#) a una nota?",
+    answers:["La sube un semitono","La baja un semitono","La prolonga","La repite"], correct:0,
+    fake:1, hint:"Es la alteración ascendente.",
+    explanation:"El sostenido (#) eleva la altura de la nota un semitono cromático ascendente." },
+
+  { id:89, level:1, cat:"✍️ Signos Musicales", cat_icon:"✍️",
+    q:"¿Qué hace un bemol (♭) a una nota?",
+    answers:["La baja un semitono","La sube un semitono","La acorta","La refuerza"], correct:0,
+    fake:1, hint:"Es el opuesto del sostenido.",
+    explanation:"El bemol (♭) desciende la altura de la nota un semitono cromático. Es la alteración descendente." },
+
+  { id:90, level:1, cat:"✍️ Signos Musicales", cat_icon:"✍️",
+    q:"¿Qué hace el becuadro (♮) a una nota alterada?",
+    answers:["Cancela la alteración anterior","La sube dos semitonos","La baja dos semitonos","La prolonga un tiempo"], correct:0,
+    fake:1, hint:"Devuelve la nota a su estado natural.",
+    explanation:"El becuadro (♮) cancela cualquier alteración previa (sostenido o bemol) y devuelve la nota a su estado natural." },
+];
+
+// ============================================================
+// TIPS MUSICALES (para mostrar al final)
+// ============================================================
+const TIPS = [
+  "El pentagrama fue inventado por el monje Guido d'Arezzo en el siglo XI, revolucionando la escritura musical.",
+  "Los nombres de las notas (Do, Re, Mi...) vienen de un himno latino a San Juan Bautista del siglo XI.",
+  "Beethoven compuso su famosa Novena Sinfonía siendo completamente sordo.",
+  "La escala de Do Mayor es la única escala mayor sin alteraciones en la armadura.",
+  "El compás de 3/4 se llama 'de vals' porque es el ritmo característico del vals vienés.",
+  "Bach tenía 20 hijos, varios de los cuales fueron también compositores destacados.",
+  "La flauta es uno de los instrumentos más antiguos: se han encontrado flautas de hueso de 40.000 años.",
+  "El piano se inventó hacia 1700 por Bartolomeo Cristofori y se llamó originalmente 'fortepiano'.",
+  "Mozart empezó a componer a los 5 años y fue considerado un niño prodigio.",
+  "La voz humana se clasifica según su tesitura: soprano, mezzosoprano, contralto (femeninas) y tenor, barítono, bajo (masculinas).",
+  "El violín tiene 4 cuerdas afinadas por quintas: Sol3, Re4, La4, Mi5.",
+  "La orquesta sinfónica moderna puede tener entre 40 y 100 músicos.",
+  "El metrónomo fue inventado por Maelzel en 1816 y Beethoven fue uno de los primeros en usarlo.",
+  "El intervalo de octava suena tan consonante porque la frecuencia superior es exactamente el doble de la inferior.",
+  "El 'Do' central del piano es la nota más famosa del mundo musical: está en el centro del teclado.",
+  "La escala pentatónica (5 notas) se usa en músicas de todo el mundo, desde el blues hasta la música china.",
+  "Un coro SATB tiene: Soprano (aguda), Alto (grave femenina), Tenor (agudo masculino) y Bajo (grave masculino).",
+  "El ritmo es el elemento más fundamental de la música: incluso sin melodía, el ritmo genera música.",
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+const AVATARS = ['🎵','🎶','🎸','🎹','🎺','🎻','🥁','🪗','🎷','🎤','🎼','🎧'];
+
+let state = {
+  players: [],
+  level: 'both',
+  rounds: 5,
+  currentRound: 0,
+  currentPlayerIdx: 0,
+  impostorIdx: -1,
+  questionPool: [],
+  usedQuestionIds: [],
+  currentQuestion: null,
+  roundAnswers: [], // {playerIdx, answeredCorrectly}
+  scores: [],
+  votes: {},  // voterIdx -> votedIdx
+  phase: 'setup', // setup, roleReveal, question, vote, result
+};
+
+// ============================================================
+// SETUP & NAVIGATION
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); });
+  const s = document.getElementById('screen-' + id);
+  s.classList.add('active');
+  s.classList.remove('fade-in');
+  void s.offsetWidth;
+  s.classList.add('fade-in');
+}
+
+function showModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showHowTo() { showModal('modal-howto'); }
+
+// ============================================================
+// PLAYERS MANAGEMENT
+// ============================================================
+function addPlayer() {
+  const inp = document.getElementById('player-name-input');
+  const name = inp.value.trim();
+  if (!name) return;
+  if (state.players.length >= 8) { alert('Máximo 8 jugadores'); return; }
+  if (state.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+    alert('Ese nombre ya existe'); return;
+  }
+  const avatar = AVATARS[state.players.length % AVATARS.length];
+  state.players.push({ name, avatar });
+  inp.value = '';
+  renderPlayerChips();
+}
+
+document.getElementById('player-name-input').addEventListener('keypress', e => {
+  if (e.key === 'Enter') addPlayer();
+});
+
+function removePlayer(idx) {
+  state.players.splice(idx, 1);
+  renderPlayerChips();
+}
+
+function renderPlayerChips() {
+  const el = document.getElementById('players-chips');
+  el.innerHTML = state.players.map((p, i) =>
+    `<div class="player-chip">${p.avatar} ${p.name} <span class="chip-del" onclick="removePlayer(${i})">✕</span></div>`
+  ).join('');
+}
+
+// ============================================================
+// GAME START
+// ============================================================
+function startGame() {
+  if (state.players.length < 2) {
+    alert('Necesitas al menos 2 jugadores. Añade nombres arriba. ¡Pueden ser los participantes del grupo!');
+    return;
+  }
+
+  state.level = document.getElementById('sel-level').value;
+  state.rounds = parseInt(document.getElementById('sel-rounds').value);
+  state.currentRound = 0;
+  state.usedQuestionIds = [];
+  state.scores = state.players.map(() => 0);
+
+  // Build question pool
+  buildQuestionPool();
+  startRound();
+}
+
+function buildQuestionPool() {
+  let pool = QUESTIONS.filter(q => {
+    if (state.level === '1') return q.level === 1;
+    if (state.level === '2') return q.level === 2;
+    return true;
+  });
+  // Shuffle
+  state.questionPool = shuffle([...pool]);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startRound() {
+  if (state.currentRound >= state.rounds) {
+    showFinalResult();
+    return;
+  }
+
+  state.currentRound++;
+  state.currentPlayerIdx = 0;
+  state.roundAnswers = [];
+  state.votes = {};
+
+  // Pick a question not yet used
+  let q = null;
+  for (let candidate of state.questionPool) {
+    if (!state.usedQuestionIds.includes(candidate.id)) {
+      q = candidate;
+      state.usedQuestionIds.push(candidate.id);
+      break;
+    }
+  }
+  // If all used, reset pool
+  if (!q) {
+    buildQuestionPool();
+    state.usedQuestionIds = [];
+    q = state.questionPool[0];
+    state.usedQuestionIds.push(q.id);
+  }
+  state.currentQuestion = q;
+
+  // Pick impostor randomly
+  state.impostorIdx = Math.floor(Math.random() * state.players.length);
+
+  // Show role reveal for first player
+  showRoleReveal();
+}
+
+// ============================================================
+// ROLE REVEAL
+// ============================================================
+function showRoleReveal() {
+  const player = state.players[state.currentPlayerIdx];
+  const isImpostor = state.currentPlayerIdx === state.impostorIdx;
+
+  document.getElementById('role-player-name').textContent = player.name;
+  document.getElementById('role-avatar') && null;
+
+  const secretArea = document.getElementById('role-secret-area');
+  const emojiEl = document.getElementById('role-emoji');
+  const titleEl = document.getElementById('role-title');
+  const hintEl = document.getElementById('role-hint');
+
+  if (isImpostor) {
+    secretArea.className = 'role-secret impostor';
+    emojiEl.textContent = '🔴';
+    titleEl.textContent = '¡ERES EL IMPOSTOR!';
+    const q = state.currentQuestion;
+    const fakeAnswer = q.answers[q.fake];
+    hintEl.innerHTML = `<strong>Tu respuesta FALSA es:</strong><br>"${fakeAnswer}"<br><small>Intenta no ser descubierto 😈</small>`;
+  } else {
+    secretArea.className = 'role-secret crew';
+    emojiEl.textContent = '🟢';
+    titleEl.textContent = 'TRIPULANTE ✓';
+    const q = state.currentQuestion;
+    const correctAnswer = q.answers[q.correct];
+    hintEl.innerHTML = `<strong>Tu respuesta correcta es:</strong><br>"${correctAnswer}"`;
+  }
+
+  showScreen('role');
+
+  // Tap to continue
+  const tapAction = () => {
+    document.getElementById('role-card').removeEventListener('click', tapAction);
+    showQuestionForCurrentPlayer();
+  };
+  setTimeout(() => {
+    document.getElementById('role-card').addEventListener('click', tapAction);
+  }, 800);
+}
+
+// ============================================================
+// QUESTION SCREEN
+// ============================================================
+let timerInterval = null;
+let timerLeft = 0;
+
+function showQuestionForCurrentPlayer() {
+  const player = state.players[state.currentPlayerIdx];
+  const q = state.currentQuestion;
+  const isImpostor = state.currentPlayerIdx === state.impostorIdx;
+
+  // Update header
+  document.getElementById('q-round-label').textContent = `Ronda ${state.currentRound} / ${state.rounds}`;
+  document.getElementById('q-player-label').textContent = `Turno de: ${player.name}`;
+
+  const progress = (state.currentRound - 1) / state.rounds * 100;
+  document.getElementById('q-progress').style.width = progress + '%';
+
+  // Player info
+  document.getElementById('q-avatar').textContent = player.avatar;
+  document.getElementById('q-pname').textContent = player.name;
+  document.getElementById('q-pturn').textContent = isImpostor ? '🔴 Eres el impostor — responde tu opción' : '🟢 Eres tripulante — responde correctamente';
+
+  // Question
+  document.getElementById('q-category').innerHTML = `${q.cat_icon} ${q.cat}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  const hintEl = document.getElementById('q-hint');
+  if (q.hint) {
+    hintEl.textContent = '💡 ' + q.hint;
+    hintEl.style.display = 'block';
+  } else {
+    hintEl.style.display = 'none';
+  }
+
+  // Build options - for impostor, highlight their fake answer visually (subtle)
+  const optionsEl = document.getElementById('q-options');
+  optionsEl.innerHTML = '';
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = ans;
+    btn.onclick = () => selectAnswer(i);
+    optionsEl.appendChild(btn);
+  });
+
+  // Reset feedback
+  const fb = document.getElementById('q-feedback');
+  fb.className = 'answer-feedback';
+  fb.style.display = 'none';
+
+  // Live scores
+  renderLiveScores('q-live-scores');
+
+  // Timer (30 seconds)
+  clearInterval(timerInterval);
+  timerLeft = 30;
+  document.getElementById('q-timer').textContent = timerLeft;
+  timerInterval = setInterval(() => {
+    timerLeft--;
+    document.getElementById('q-timer').textContent = timerLeft;
+    if (timerLeft <= 0) {
+      clearInterval(timerInterval);
+      // Auto-select
+      const isImp = state.currentPlayerIdx === state.impostorIdx;
+      autoAnswer(isImp);
+    }
+  }, 1000);
+
+  showScreen('question');
+}
+
+function autoAnswer(isImpostor) {
+  const q = state.currentQuestion;
+  const ans = isImpostor ? q.fake : q.correct;
+  selectAnswer(ans);
+}
+
+function selectAnswer(selectedIdx) {
+  clearInterval(timerInterval);
+  const q = state.currentQuestion;
+  const isImpostor = state.currentPlayerIdx === state.impostorIdx;
+  const options = document.querySelectorAll('.option-btn');
+
+  // Disable all buttons
+  options.forEach(b => b.onclick = null);
+
+  const answeredCorrectly = !isImpostor && (selectedIdx === q.correct);
+  const isImpostorAnswer = isImpostor && (selectedIdx === q.fake);
+
+  // Visual feedback
+  options[selectedIdx].classList.add(answeredCorrectly || isImpostorAnswer ? 'selected-correct' : 'selected-wrong');
+  if (!answeredCorrectly && !isImpostor) {
+    options[q.correct].classList.add('correct-reveal');
+  }
+
+  // Score for crew members answering correctly
+  if (!isImpostor && answeredCorrectly) {
+    state.scores[state.currentPlayerIdx] += 3;
+  }
+
+  // Store answer record
+  state.roundAnswers.push({
+    playerIdx: state.currentPlayerIdx,
+    answeredCorrectly: answeredCorrectly || isImpostor, // impostors "succeed" by giving fake
+    isImpostor,
+    selectedIdx
+  });
+
+  // Show feedback
+  const fb = document.getElementById('q-feedback');
+  const fbText = document.getElementById('q-feedback-text');
+  const expEl = document.getElementById('q-explanation');
+
+  fb.style.display = 'block';
+  if (isImpostor) {
+    fb.className = 'answer-feedback correct shown';
+    fbText.textContent = '🔴 Respuesta falsa enviada — ¡intenta no ser descubierto!';
+  } else if (answeredCorrectly) {
+    fb.className = 'answer-feedback correct shown';
+    fbText.textContent = '✅ ¡Correcto! +3 puntos';
+  } else {
+    fb.className = 'answer-feedback wrong shown';
+    fbText.textContent = `❌ Incorrecto — la respuesta era: "${q.answers[q.correct]}"`;
+  }
+  expEl.textContent = q.explanation;
+
+  // Update live scores display
+  renderLiveScores('q-live-scores');
+
+  // Next after 2.5s
+  setTimeout(() => {
+    nextPlayerOrVote();
+  }, 2500);
+}
+
+function nextPlayerOrVote() {
+  state.currentPlayerIdx++;
+  if (state.currentPlayerIdx < state.players.length) {
+    // Show role reveal for next player
+    showRoleReveal();
+  } else {
+    // All players have answered — show sabotage reveal then vote
+    showSabotage();
+  }
+}
+
+// ============================================================
+// SABOTAGE REVEAL
+// ============================================================
+function showSabotage() {
+  const impostor = state.players[state.impostorIdx];
+  const q = state.currentQuestion;
+  document.getElementById('sab-text').innerHTML =
+    `<strong>${impostor.avatar} ${impostor.name}</strong> ha dado una respuesta diferente al resto...<br><br>
+    La pregunta era: "<em>${q.q}</em>"<br><br>
+    ¿Quién crees que es el impostor? ¡Discutid entre vosotros!`;
+  showScreen('sabotage');
+}
+
+function goToVote() {
+  // Show vote screen - voting player by player
+  state.votePlayerIdx = 0;
+  state.votes = {};
+  showVoteForPlayer();
+}
+
+// ============================================================
+// VOTE SCREEN
+// ============================================================
+function showVoteForPlayer() {
+  if (state.votePlayerIdx >= state.players.length) {
+    // All voted — compute results
+    computeVoteResults();
+    return;
+  }
+
+  const voter = state.players[state.votePlayerIdx];
+  document.getElementById('vote-voter-label').innerHTML =
+    `${voter.avatar} <strong>${voter.name}</strong> — ¿Quién crees que es el impostor?`;
+
+  const list = document.getElementById('vote-players-list');
+  list.innerHTML = '';
+  state.players.forEach((p, i) => {
+    if (i === state.votePlayerIdx) return; // Can't vote for yourself
+    const btn = document.createElement('div');
+    btn.className = 'vote-player-btn';
+    btn.innerHTML = `<div class="vavatar">${p.avatar}</div><div><div class="vname">${p.name}</div><div class="vscore">Puntos: ${state.scores[i]}</div></div>`;
+    btn.onclick = () => castVote(i);
+    list.appendChild(btn);
+  });
+
+  renderLiveScores('vote-scores-chips');
+  showScreen('vote');
+}
+
+function castVote(votedIdx) {
+  state.votes[state.votePlayerIdx] = votedIdx;
+  state.votePlayerIdx++;
+  showVoteForPlayer();
+}
+
+function computeVoteResults() {
+  // Count votes against each player
+  const voteCounts = new Array(state.players.length).fill(0);
+  Object.values(state.votes).forEach(votedIdx => {
+    voteCounts[votedIdx]++;
+  });
+
+  // Find most voted
+  const maxVotes = Math.max(...voteCounts);
+  const mostVotedIdx = voteCounts.indexOf(maxVotes);
+
+  // Did they find the impostor?
+  const foundImpostor = mostVotedIdx === state.impostorIdx;
+
+  // Score bonuses
+  if (foundImpostor) {
+    // +2 to all who voted correctly
+    Object.entries(state.votes).forEach(([voterIdx, votedIdx]) => {
+      if (parseInt(votedIdx) === state.impostorIdx) {
+        state.scores[voterIdx] += 2;
+      }
+    });
+    // +5 to all crewmates
+    state.players.forEach((_, i) => {
+      if (i !== state.impostorIdx) state.scores[i] += 5;
+    });
+  } else {
+    // Impostor escapes: +5
+    state.scores[state.impostorIdx] += 5;
+  }
+
+  // Show reveal modal
+  const impostor = state.players[state.impostorIdx];
+  const q = state.currentQuestion;
+
+  document.getElementById('reveal-emoji').textContent = foundImpostor ? '🔍' : '😈';
+  document.getElementById('reveal-title').textContent = foundImpostor ? '¡Impostor descubierto!' : '¡El impostor escapó!';
+  document.getElementById('reveal-text').innerHTML = foundImpostor
+    ? `¡Enhorabuena! ${impostor.avatar} <strong>${impostor.name}</strong> era el impostor. +5 puntos para los tripulantes, +2 para los que votaron bien.`
+    : `😈 ¡${impostor.avatar} <strong>${impostor.name}</strong> era el impostor y nadie le votó! +5 puntos al impostor.`;
+
+  document.getElementById('reveal-answer-info').innerHTML =
+    `📝 La respuesta correcta era: <strong>"${q.answers[q.correct]}"</strong><br>
+     🔴 El impostor dijo: <strong>"${q.answers[q.fake]}"</strong>`;
+
+  showModal('modal-reveal');
+}
+
+function showResult() {
+  // Show per-round result then allow next round
+  const q = state.currentQuestion;
+  const impostor = state.players[state.impostorIdx];
+
+  // Random tip
+  const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+  document.getElementById('musical-tip-text').textContent = tip;
+
+  // Set emoji/title based on round
+  document.getElementById('res-emoji').textContent = '📊';
+  document.getElementById('res-title').textContent = `Ronda ${state.currentRound} completada`;
+  document.getElementById('res-sub').textContent = state.currentRound < state.rounds
+    ? `Quedan ${state.rounds - state.currentRound} rondas más`
+    : '¡Última ronda!';
+
+  // Scoreboard
+  renderScoreboard();
+  showScreen('result');
+}
+
+function nextRound() {
+  if (state.currentRound >= state.rounds) {
+    showFinalResult();
+    return;
+  }
+  startRound();
+}
+
+function showFinalResult() {
+  document.getElementById('res-emoji').textContent = '🏆';
+  document.getElementById('res-title').textContent = '¡Juego terminado!';
+
+  // Find winner
+  const maxScore = Math.max(...state.scores);
+  const winnerIdx = state.scores.indexOf(maxScore);
+  const winner = state.players[winnerIdx];
+  document.getElementById('res-sub').textContent = `Ganador: ${winner.avatar} ${winner.name} con ${maxScore} puntos`;
+
+  const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+  document.getElementById('musical-tip-text').textContent = tip;
+
+  renderScoreboard();
+
+  // Change button text
+  document.querySelectorAll('#screen-result .btn')[0].textContent = '🔄 Jugar de nuevo';
+  document.querySelectorAll('#screen-result .btn')[0].onclick = resetGame;
+
+  showScreen('result');
+}
+
+function renderScoreboard() {
+  const rows = document.getElementById('scoreboard-rows');
+  // Sort by score
+  const sorted = state.players.map((p, i) => ({ p, score: state.scores[i], idx: i }))
+    .sort((a, b) => b.score - a.score);
+
+  const medals = ['🥇','🥈','🥉'];
+  rows.innerHTML = sorted.map((item, rank) =>
+    `<div class="score-row">
+      <div class="score-rank">${medals[rank] || (rank+1)}</div>
+      <div class="score-avatar">${item.p.avatar}</div>
+      <div class="score-name">${item.p.name} ${item.idx === state.impostorIdx ? '<span class="score-tag impostor-tag">IMPOSTOR</span>' : '<span class="score-tag crew-tag">CREW</span>'}</div>
+      <div class="score-pts">${item.score}pts</div>
+    </div>`
+  ).join('');
+}
+
+function renderLiveScores(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = state.players.map((p, i) =>
+    `<div class="live-score-chip">${p.avatar} ${p.name} <span class="chip-pts">${state.scores[i]}</span></div>`
+  ).join('');
+}
+
+function resetGame() {
+  state.currentRound = 0;
+  state.usedQuestionIds = [];
+  state.scores = state.players.map(() => 0);
+  buildQuestionPool();
+  startRound();
+}
+
+function goHome() {
+  showScreen('welcome');
+}
+
+// ============================================================
+// INIT with demo players
+// ============================================================
+// Pre-add 3 sample players to make it easy to start
+['Alumno 1', 'Alumno 2', 'Alumno 3'].forEach((name, i) => {
+  state.players.push({ name, avatar: AVATARS[i] });
+});
+renderPlayerChips();
+</script>
+</body>
+</html>

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚽ Guitar Chords Soccer 🎸</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            color: #ecedf0;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 223, 0, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        #gameContainer {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            background: rgba(18, 18, 32, 0.95);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 
+                0 25px 70px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255, 215, 0, 0.06);
+            border: 1px solid rgba(255, 215, 0, 0.12);
+            position: relative;
+        }
+
+        .author-badge {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 223, 0, 0.05));
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 223, 0, 0.7);
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            color: rgba(212, 209, 160, 0.9);
+            margin-bottom: 20px;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: rgba(212, 209, 160, 0.9);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .instructions {
+            text-align: left;
+            margin: 20px 0;
+            list-style: none;
+        }
+
+        .instructions li {
+            margin: 10px 0;
+            display: flex;
+            align-items: start;
+            color: #ecedf0;
+        }
+
+        .instructions span:first-child {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.7), rgba(255, 165, 0, 0.6));
+            color: #1a1a2e;
+            border: none;
+            padding: 16px 30px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.15);
+            letter-spacing: 1px;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.25);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.8), rgba(255, 165, 0, 0.7));
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        #menuScreen, #gameOverScreen {
+            display: block;
+        }
+
+        #gameScreen {
+            display: none;
+        }
+
+        #scoreBoard {
+            background: rgba(255, 215, 0, 0.03);
+            border: 2px solid rgba(255, 215, 0, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            width: 800px;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .scoreInfo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .scoreItem {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #ecedf0;
+        }
+
+        #targetChord {
+            font-size: 2em;
+            font-weight: 700;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.7), rgba(255, 165, 0, 0.6));
+            padding: 10px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+            font-family: 'Playfair Display', serif;
+        }
+
+        #canvas {
+            display: block;
+            border: 3px solid rgba(255, 215, 0, 0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
+            background: #10b981;
+        }
+
+        #controls {
+            background: rgba(255, 215, 0, 0.03);
+            border: 2px solid rgba(255, 215, 0, 0.15);
+            color: rgba(212, 209, 160, 0.8);
+            padding: 10px;
+            border-radius: 12px;
+            width: 800px;
+            margin: 10px auto 0;
+            font-size: 0.9em;
+        }
+
+        .score-positive {
+            color: rgba(255, 215, 0, 0.9);
+        }
+
+        .score-negative {
+            color: #ff6348;
+        }
+
+        .level-info {
+            font-size: 0.9em;
+            color: #7a7f8e;
+            font-weight: 500;
+        }
+
+        #finalScore {
+            font-size: 2.5em;
+            color: rgba(255, 215, 0, 0.9);
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+
+        #gameOverScreen h2 {
+            color: #ff6348;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 15px;
+            left: 25px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 223, 0, 0.05));
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 223, 0, 0.7);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .fullscreen-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 223, 0, 0.08));
+            border-color: rgba(255, 215, 0, 0.25);
+        }
+
+        .bonus-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 165, 0, 0.9));
+            color: #1a1a2e;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: 700;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.5);
+            animation: bonusPop 1s ease-out;
+            display: none;
+        }
+
+        @keyframes bonusPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .penalty-counter {
+            font-size: 0.9em;
+            color: rgba(255, 215, 0, 0.7);
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="bonusNotification" class="bonus-notification">¡Vida Extra! +❤️</div>
+    
+    <div id="gameContainer">
+        <!-- Menú inicial -->
+        <div id="menuScreen" class="container">
+            <button class="fullscreen-btn" onclick="toggleFullscreen()">🖥️ Pantalla Completa</button>
+            <div class="author-badge">R.RAÍNDO</div>
+            <h1>⚽ Guitar Chords Soccer 🎸</h1>
+            <h2>¿Cómo jugar?</h2>
+            <ul class="instructions">
+                <li>
+                    <span>🎸</span>
+                    <span>Dispara el balón al acorde que aparece arriba</span>
+                </li>
+                <li>
+                    <span>⬅️➡️</span>
+                    <span>Muévete con las flechas del teclado</span>
+                </li>
+                <li>
+                    <span>␣</span>
+                    <span>Dispara con la barra espaciadora</span>
+                </li>
+                <li>
+                    <span>🎯</span>
+                    <span>Dispara a los futbolistas rivales rojos</span>
+                </li>
+                <li>
+                    <span>⚠️</span>
+                    <span>Si te cae un acorde encima: pierdes vida</span>
+                </li>
+                <li>
+                    <span>✅</span>
+                    <span>Acorde correcto: +1 punto</span>
+                </li>
+                <li>
+                    <span>❌</span>
+                    <span>Acorde incorrecto: -1 punto y -1 vida</span>
+                </li>
+                <li>
+                    <span>💚</span>
+                    <span>Mata 4 penaltis rojos: +1 vida extra</span>
+                </li>
+                <li>
+                    <span>⚡</span>
+                    <span>Cada minuto: aumenta la velocidad</span>
+                </li>
+            </ul>
+            <button class="btn" onclick="startGame()">¡Empezar a Jugar!</button>
+        </div>
+
+        <!-- Pantalla de juego -->
+        <div id="gameScreen">
+            <button class="fullscreen-btn" onclick="toggleFullscreen()">🖥️ Pantalla Completa</button>
+            <div class="author-badge">R.RAÍNDO</div>
+            <div id="scoreBoard">
+                <div class="scoreInfo">
+                    <div class="scoreItem">
+                        Puntos: <span id="score" class="score-positive">0</span>
+                    </div>
+                    <div id="targetChord">Do</div>
+                    <div class="scoreItem">
+                        Vidas: <span id="lives">❤️❤️❤️</span>
+                    </div>
+                </div>
+                <div class="level-info">
+                    Nivel <span id="level">1</span> | Velocidad: <span id="speed">2.0</span>x | 
+                    <span class="penalty-counter">Penaltis eliminados: <span id="penaltyCount">0</span>/4</span>
+                </div>
+            </div>
+            <canvas id="canvas" width="800" height="600"></canvas>
+            <div id="controls">
+                ⬅️➡️ Mover | ␣ Disparar | Elimina 4 penaltis rojos para vida extra
+            </div>
+        </div>
+
+        <!-- Pantalla de Game Over -->
+        <div id="gameOverScreen" class="container" style="display: none;">
+            <button class="fullscreen-btn" onclick="toggleFullscreen()">🖥️ Pantalla Completa</button>
+            <div class="author-badge">R.RAÍNDO</div>
+            <h2>¡Game Over!</h2>
+            <p style="font-size: 1.3em; margin: 20px 0; color: #ecedf0;">
+                Puntuación Final: <span id="finalScore">0</span>
+            </p>
+            <p style="font-size: 1.1em; margin-bottom: 20px; color: rgba(212, 209, 160, 0.9);">
+                Nivel alcanzado: <span id="finalLevel">1</span>
+            </p>
+            <p style="font-size: 1em; margin-bottom: 20px; color: rgba(212, 209, 160, 0.7);">
+                Penaltis eliminados: <span id="finalPenalties">0</span>
+            </p>
+            <button class="btn" onclick="startGame()">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        // Definición de acordes de guitarra (cifrado latino) - VERIFICADOS
+        const chordDefinitions = {
+            'Do': { 
+                positions: [
+                    { string: 5, fret: 3 }, 
+                    { string: 4, fret: 2 }, 
+                    { string: 2, fret: 1 }
+                ], 
+                muted: [6] 
+            },
+            'Sol': { 
+                positions: [
+                    { string: 6, fret: 3 }, 
+                    { string: 5, fret: 2 }, 
+                    { string: 1, fret: 3 }
+                ], 
+                muted: [] 
+            },
+            'Re': { 
+                positions: [
+                    { string: 3, fret: 2 }, 
+                    { string: 2, fret: 3 }, 
+                    { string: 1, fret: 2 }
+                ], 
+                muted: [5, 6] 
+            },
+            'Mim': { 
+                positions: [
+                    { string: 5, fret: 2 }, 
+                    { string: 4, fret: 2 }
+                ], 
+                muted: [] 
+            },
+            'Lam': { 
+                positions: [
+                    { string: 4, fret: 2 }, 
+                    { string: 3, fret: 2 }, 
+                    { string: 2, fret: 1 }
+                ], 
+                muted: [6] 
+            },
+            'Mi': { 
+                positions: [
+                    { string: 5, fret: 2 }, 
+                    { string: 4, fret: 2 }, 
+                    { string: 3, fret: 1 }
+                ], 
+                muted: [] 
+            },
+            'La': { 
+                positions: [
+                    { string: 4, fret: 2 }, 
+                    { string: 3, fret: 2 }, 
+                    { string: 2, fret: 2 }
+                ], 
+                muted: [6] 
+            },
+            'Rem': { 
+                positions: [
+                    { string: 2, fret: 3 }, 
+                    { string: 3, fret: 2 }, 
+                    { string: 1, fret: 1 }
+                ], 
+                muted: [5, 6] 
+            },
+            'Fa': { 
+                positions: [
+                    { string: 3, fret: 2 }, // La en cuerda G (dedo medio)
+                    { string: 5, fret: 3 }, // Do en cuerda A (dedo anular)
+                    { string: 4, fret: 3 }  // Fa en cuerda D (dedo meñique)
+                    // La cejilla en traste 1 se representa aparte
+                ], 
+                muted: [],
+                barre: { fret: 1, fromString: 1, toString: 6 } // Cejilla completa en traste 1
+            },
+            'Sim': { 
+                positions: [
+                    { string: 2, fret: 3 }, // Re en cuerda B (dedo medio)
+                    { string: 3, fret: 4 }, // Si en cuerda G (dedo meñique) 
+                    { string: 4, fret: 4 }  // Fa# en cuerda D (dedo anular)
+                ], 
+                muted: [6],
+                barre: { fret: 2, fromString: 1, toString: 5 }
+            },
+            'Si': {
+                positions: [
+                    { string: 2, fret: 4 }, // Re# en cuerda B (dedo meñique)
+                    { string: 3, fret: 4 }, // Si en cuerda G (dedo anular)
+                    { string: 4, fret: 4 }  // Fa# en cuerda D (dedo medio)
+                ],
+                muted: [6],
+                barre: { fret: 2, fromString: 1, toString: 5 }
+            }
+        };
+
+        // Variables del juego
+        let canvas, ctx;
+        let game = {
+            state: 'menu',
+            score: 0,
+            lives: 3,
+            level: 1,
+            targetChord: null,
+            player: { x: 400, y: 520, width: 40, height: 60, speed: 8 },
+            ball: null,
+            chords: [],
+            penalties: [],
+            keys: {},
+            lastChordSpawn: 0,
+            lastPenaltySpawn: 0,
+            chordSpawnRate: 2000,
+            penaltySpawnRate: 8000,
+            chordSpeed: 2,
+            animationId: null,
+            chordsSinceTarget: 0,
+            nextTargetIn: 2,
+            penaltiesKilled: 0,
+            totalPenaltiesKilled: 0,
+            startTime: 0,
+            lastSpeedIncrease: 0
+        };
+
+        // Audio Context y sonidos
+        let audioContext;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Sonido de disparo
+        function playShootSound() {
+            if (!audioContext) return;
+            
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(800, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+            
+            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Sonido de acierto
+        function playSuccessSound() {
+            if (!audioContext) return;
+            
+            const notes = [523.25, 659.25, 783.99];
+            let time = audioContext.currentTime;
+            
+            notes.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, time);
+                
+                gain.gain.setValueAtTime(0.15, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.start(time);
+                osc.stop(time + 0.15);
+                
+                time += 0.08;
+            });
+        }
+
+        // Sonido de error
+        function playErrorSound() {
+            if (!audioContext) return;
+            
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+            
+            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Sonido de colisión
+        function playHitSound() {
+            if (!audioContext) return;
+            
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150, audioContext.currentTime);
+            
+            gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.2);
+        }
+
+        // Sonido de vida extra
+        function playBonusSound() {
+            if (!audioContext) return;
+            
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            let time = audioContext.currentTime;
+            
+            notes.forEach((freq) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, time);
+                
+                gain.gain.setValueAtTime(0.2, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.start(time);
+                osc.stop(time + 0.2);
+                
+                time += 0.1;
+            });
+        }
+
+        // Mostrar notificación de vida extra
+        function showBonusNotification() {
+            const notification = document.getElementById('bonusNotification');
+            notification.style.display = 'block';
+            playBonusSound();
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 1000);
+        }
+
+        // Pantalla completa
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Error al intentar pantalla completa:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Inicializar
+        window.onload = function() {
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+        };
+
+        // Dibujar acorde de guitarra (sin nombre)
+        function drawChord(x, y, chordName, size = 1) {
+            const chord = chordDefinitions[chordName];
+            if (!chord) return;
+
+            const width = 60 * size;
+            const height = 80 * size;
+            const stringSpacing = width / 5;
+            const fretSpacing = height / 4;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.fillRect(x - width/2 - 5, y - 10, width + 10, height + 20);
+
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 6; i++) {
+                ctx.beginPath();
+                ctx.moveTo(x - width/2 + i * stringSpacing, y);
+                ctx.lineTo(x - width/2 + i * stringSpacing, y + height);
+                ctx.stroke();
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                ctx.lineWidth = i === 0 ? 3 : 1;
+                ctx.beginPath();
+                ctx.moveTo(x - width/2, y + i * fretSpacing);
+                ctx.lineTo(x + width/2, y + i * fretSpacing);
+                ctx.stroke();
+            }
+
+            // Dibujar cejilla si existe
+            if (chord.barre) {
+                const barreFret = chord.barre.fret;
+                const barreY = y + (barreFret - 0.5) * fretSpacing;
+                const stringFrom = 6 - chord.barre.fromString; // Invertir para dibujo
+                const stringTo = 6 - chord.barre.toString;
+                
+                ctx.fillStyle = 'rgba(37, 99, 235, 0.3)'; // Azul semi-transparente
+                ctx.fillRect(
+                    x - width/2 + stringTo * stringSpacing - 4,
+                    barreY - 7,
+                    (stringFrom - stringTo) * stringSpacing + 8,
+                    14
+                );
+                
+                // Contorno de la cejilla
+                ctx.strokeStyle = '#2563eb';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(
+                    x - width/2 + stringTo * stringSpacing - 4,
+                    barreY - 7,
+                    (stringFrom - stringTo) * stringSpacing + 8,
+                    14
+                );
+            }
+
+            // Posiciones de dedos (encima de la cejilla si existe)
+            ctx.fillStyle = '#2563eb';
+            chord.positions.forEach(pos => {
+                const stringX = x - width/2 + (6 - pos.string) * stringSpacing;
+                const fretY = y + (pos.fret - 0.5) * fretSpacing;
+                ctx.beginPath();
+                ctx.arc(stringX, fretY, 6 * size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // X para cuerdas silenciadas
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            chord.muted.forEach(string => {
+                const stringX = x - width/2 + (6 - string) * stringSpacing;
+                const crossY = y - 8;
+                const crossSize = 5;
+                ctx.beginPath();
+                ctx.moveTo(stringX - crossSize, crossY - crossSize);
+                ctx.lineTo(stringX + crossSize, crossY + crossSize);
+                ctx.moveTo(stringX + crossSize, crossY - crossSize);
+                ctx.lineTo(stringX - crossSize, crossY + crossSize);
+                ctx.stroke();
+            });
+        }
+
+        function drawPlayer(player) {
+            ctx.fillStyle = '#1e40af';
+            ctx.fillRect(player.x - player.width/2, player.y, player.width, player.height * 0.6);
+            
+            ctx.fillStyle = '#fcd34d';
+            ctx.beginPath();
+            ctx.arc(player.x, player.y - 5, player.width/3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#1e40af';
+            ctx.fillRect(player.x - player.width/2, player.y + player.height * 0.6, player.width/2 - 2, player.height * 0.4);
+            ctx.fillRect(player.x + 2, player.y + player.height * 0.6, player.width/2 - 2, player.height * 0.4);
+        }
+
+        function drawBall(ball) {
+            ctx.fillStyle = '#fff';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius * 0.7, (i * Math.PI * 2) / 5, ((i + 1) * Math.PI * 2) / 5);
+                ctx.stroke();
+            }
+        }
+
+        function drawPenalty(penalty) {
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(penalty.x - 20, penalty.y, 40, 50);
+            
+            ctx.fillStyle = '#fcd34d';
+            ctx.beginPath();
+            ctx.arc(penalty.x, penalty.y - 5, 12, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function checkCircleCollision(obj1, obj2, radius1, radius2) {
+            const dx = obj1.x - obj2.x;
+            const dy = obj1.y - obj2.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < radius1 + radius2;
+        }
+
+        function checkRectCollision(ball, chord) {
+            return ball.x + ball.radius > chord.x - 35 &&
+                   ball.x - ball.radius < chord.x + 35 &&
+                   ball.y + ball.radius > chord.y - 10 &&
+                   ball.y - ball.radius < chord.y + 90;
+        }
+
+        function checkChordPlayerCollision(chord, player) {
+            return chord.x + 35 > player.x - player.width/2 &&
+                   chord.x - 35 < player.x + player.width/2 &&
+                   chord.y + 90 > player.y &&
+                   chord.y - 10 < player.y + player.height;
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = game.score;
+            document.getElementById('score').className = game.score >= 0 ? 'score-positive' : 'score-negative';
+            document.getElementById('lives').textContent = '❤️'.repeat(Math.max(0, game.lives));
+            document.getElementById('level').textContent = game.level;
+            document.getElementById('speed').textContent = game.chordSpeed.toFixed(1);
+            document.getElementById('targetChord').textContent = game.targetChord;
+            document.getElementById('penaltyCount').textContent = game.penaltiesKilled;
+        }
+
+        function startGame() {
+            initAudio();
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+
+            game.score = 0;
+            game.lives = 3;
+            game.level = 1;
+            game.chords = [];
+            game.penalties = [];
+            game.ball = null;
+            game.player = { x: 400, y: 520, width: 40, height: 60, speed: 8 };
+            game.lastChordSpawn = Date.now();
+            game.lastPenaltySpawn = Date.now();
+            game.chordSpawnRate = 2000;
+            game.penaltySpawnRate = 8000;
+            game.chordSpeed = 2;
+            game.keys = {};
+            game.chordsSinceTarget = 0;
+            game.nextTargetIn = 2 + Math.floor(Math.random() * 2);
+            game.state = 'playing';
+            game.penaltiesKilled = 0;
+            game.totalPenaltiesKilled = 0;
+            game.startTime = Date.now();
+            game.lastSpeedIncrease = Date.now();
+
+            const chordNames = Object.keys(chordDefinitions);
+            game.targetChord = chordNames[Math.floor(Math.random() * chordNames.length)];
+
+            updateUI();
+            
+            if (game.animationId) {
+                cancelAnimationFrame(game.animationId);
+            }
+            gameLoop();
+        }
+
+        function gameLoop() {
+            const now = Date.now();
+
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(0, 0, 800, 600);
+
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 500);
+            ctx.lineTo(800, 500);
+            ctx.stroke();
+
+            // Incrementar velocidad cada minuto
+            const timeSinceLastIncrease = now - game.lastSpeedIncrease;
+            if (timeSinceLastIncrease >= 60000) { // 60 segundos
+                game.chordSpeed += 0.5;
+                game.lastSpeedIncrease = now;
+                updateUI();
+            }
+
+            const currentLevel = Math.floor(game.score / 10) + 1;
+            if (currentLevel !== game.level) {
+                game.level = currentLevel;
+                game.chordSpawnRate = Math.max(1000, 2000 - game.level * 100);
+                updateUI();
+            }
+
+            if (now - game.lastChordSpawn > game.chordSpawnRate) {
+                const chordNames = Object.keys(chordDefinitions);
+                let randomChord;
+                
+                if (game.chordsSinceTarget >= game.nextTargetIn) {
+                    randomChord = game.targetChord;
+                    game.chordsSinceTarget = 0;
+                    game.nextTargetIn = 2 + Math.floor(Math.random() * 2);
+                } else {
+                    const otherChords = chordNames.filter(c => c !== game.targetChord);
+                    randomChord = otherChords[Math.floor(Math.random() * otherChords.length)];
+                    game.chordsSinceTarget++;
+                }
+                
+                game.chords.push({
+                    x: Math.random() * 700 + 50,
+                    y: -50,
+                    name: randomChord,
+                    speed: game.chordSpeed
+                });
+                game.lastChordSpawn = now;
+            }
+
+            if (now - game.lastPenaltySpawn > game.penaltySpawnRate) {
+                game.penalties.push({
+                    x: Math.random() * 700 + 50,
+                    y: -50,
+                    speed: game.chordSpeed * 1.5
+                });
+                game.lastPenaltySpawn = now;
+            }
+
+            game.chords = game.chords.filter(chord => {
+                chord.y += chord.speed;
+                
+                if (chord.y > 600) return false;
+                
+                drawChord(chord.x, chord.y, chord.name);
+                
+                if (game.ball && checkRectCollision(game.ball, chord)) {
+                    if (chord.name === game.targetChord) {
+                        game.score++;
+                        playSuccessSound();
+                        const chordNames = Object.keys(chordDefinitions);
+                        game.targetChord = chordNames[Math.floor(Math.random() * chordNames.length)];
+                        game.chordsSinceTarget = 0;
+                        game.nextTargetIn = 2 + Math.floor(Math.random() * 2);
+                    } else {
+                        game.score = Math.max(0, game.score - 1);
+                        game.lives--;
+                        playErrorSound();
+                        if (game.lives <= 0) {
+                            gameOver();
+                            return false;
+                        }
+                    }
+                    game.ball = null;
+                    updateUI();
+                    return false;
+                }
+
+                if (checkChordPlayerCollision(chord, game.player)) {
+                    game.lives--;
+                    playErrorSound();
+                    updateUI();
+                    if (game.lives <= 0) {
+                        gameOver();
+                        return false;
+                    }
+                    return false;
+                }
+                
+                return true;
+            });
+
+            game.penalties = game.penalties.filter(penalty => {
+                penalty.y += penalty.speed;
+                
+                if (penalty.y > 600) return false;
+                
+                drawPenalty(penalty);
+                
+                if (game.ball && checkCircleCollision(penalty, game.ball, 25, game.ball.radius)) {
+                    playHitSound();
+                    game.ball = null;
+                    game.penaltiesKilled++;
+                    game.totalPenaltiesKilled++;
+                    
+                    // Vida extra cada 4 penaltis eliminados
+                    if (game.penaltiesKilled >= 4) {
+                        game.lives++;
+                        game.penaltiesKilled = 0;
+                        showBonusNotification();
+                        updateUI();
+                    } else {
+                        updateUI();
+                    }
+                    
+                    return false;
+                }
+
+                if (checkCircleCollision(game.player, penalty, 20, 30)) {
+                    game.lives--;
+                    playErrorSound();
+                    updateUI();
+                    if (game.lives <= 0) {
+                        gameOver();
+                        return false;
+                    }
+                    return false;
+                }
+                
+                return true;
+            });
+
+            if (game.keys['ArrowLeft'] && game.player.x > 20) {
+                game.player.x -= game.player.speed;
+            }
+            if (game.keys['ArrowRight'] && game.player.x < 780) {
+                game.player.x += game.player.speed;
+            }
+
+            drawPlayer(game.player);
+
+            if (game.ball) {
+                game.ball.y -= game.ball.speed;
+                
+                if (game.ball.y < -20) {
+                    game.ball = null;
+                } else {
+                    drawBall(game.ball);
+                }
+            }
+
+            if (game.keys[' '] && !game.ball) {
+                game.ball = {
+                    x: game.player.x,
+                    y: game.player.y - 10,
+                    radius: 10,
+                    speed: 8
+                };
+                playShootSound();
+                game.keys[' '] = false;
+            }
+
+            game.animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function gameOver() {
+            game.state = 'gameover';
+            
+            if (game.animationId) {
+                cancelAnimationFrame(game.animationId);
+            }
+            
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'block';
+            document.getElementById('finalScore').textContent = game.score;
+            document.getElementById('finalLevel').textContent = game.level;
+            document.getElementById('finalPenalties').textContent = game.totalPenaltiesKilled;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                e.preventDefault();
+                game.keys[e.key] = true;
+            }
+            
+            // F11 para pantalla completa
+            if (e.key === 'F11') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                game.keys[e.key] = false;
+            }
+        });
+    </script>
+</body>
+</html>

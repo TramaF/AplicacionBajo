@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Rítmico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            color: #ecedf0;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 223, 0, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .container {
+            background: rgba(18, 18, 32, 0.95);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 
+                0 25px 70px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .author-badge {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 223, 0, 0.08));
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 223, 0, 0.9);
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            color: #d4d1a0;
+            margin-bottom: 30px;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .setup-screen, .game-screen, .results-screen {
+            display: none;
+        }
+
+        .setup-screen.active, .game-screen.active, .results-screen.active {
+            display: block;
+        }
+
+        .player-setup {
+            margin: 20px 0;
+        }
+
+        .player-setup label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #ecedf0;
+            font-size: 16px;
+        }
+
+        .player-setup select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background: rgba(255, 215, 0, 0.05);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            color: #ecedf0;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .player-setup select:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .player-names {
+            margin-top: 20px;
+        }
+
+        .player-names input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255, 215, 0, 0.05);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'DM Sans', sans-serif;
+            color: #ecedf0;
+            transition: all 0.3s;
+        }
+
+        .player-names input:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .player-names input::placeholder {
+            color: #7a7f8e;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            border: none;
+            padding: 16px 30px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .game-info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .current-player {
+            font-size: 28px;
+            font-weight: 700;
+            color: #d4d1a0;
+            margin-bottom: 10px;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .round-info {
+            font-size: 16px;
+            color: #7a7f8e;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .tempo-info {
+            font-size: 22px;
+            margin: 10px 0;
+            color: #d4d1a0;
+            font-weight: 600;
+        }
+
+        .beat-button {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff4757, #ff6348);
+            border: 4px solid rgba(255, 71, 87, 0.3);
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 30px auto;
+            display: block;
+            box-shadow: 
+                0 15px 40px rgba(255, 71, 87, 0.4),
+                inset 0 -5px 20px rgba(0, 0, 0, 0.2),
+                0 0 0 15px rgba(255, 71, 87, 0.1);
+            transition: all 0.15s;
+            position: relative;
+            letter-spacing: 2px;
+        }
+
+        .beat-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .beat-button:active {
+            transform: scale(0.92);
+            box-shadow: 
+                0 8px 20px rgba(255, 71, 87, 0.5),
+                inset 0 -2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .beat-button:disabled {
+            background: rgba(100, 100, 120, 0.3);
+            border-color: rgba(100, 100, 120, 0.2);
+            cursor: not-allowed;
+            box-shadow: none;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .status {
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+            min-height: 30px;
+            color: #ecedf0;
+            font-weight: 500;
+        }
+
+        .timeline {
+            margin-top: 40px;
+            margin-bottom: 60px;
+            padding: 25px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ecedf0;
+            font-size: 18px;
+        }
+
+        .timeline-visual {
+            position: relative;
+            height: 80px;
+            background: rgba(18, 18, 32, 0.6);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateY(-50%);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            background: rgba(255, 215, 0, 0.3);
+            height: 60px;
+        }
+
+        .expected-marker {
+            width: 5px;
+            height: 70px;
+            background: linear-gradient(180deg, #4caf50, #45a049);
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+        }
+
+        .actual-marker {
+            width: 5px;
+            height: 70px;
+            background: linear-gradient(180deg, #ff6b6b, #ee5a6f);
+            z-index: 3;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+        }
+
+        .player-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            z-index: 4;
+            border: 2px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .player-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .player-result-number {
+            font-size: 20px;
+            font-weight: 700;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .player-result-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .player-result-score {
+            font-size: 18px;
+            font-weight: 700;
+            color: #d4d1a0;
+        }
+
+        .beat-label {
+            position: absolute;
+            bottom: -25px;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #7a7f8e;
+        }
+
+        .timeline-labels {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .timeline-labels span {
+            display: inline-block;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+
+        .expected-label {
+            color: #4caf50;
+        }
+
+        .actual-label {
+            color: #ff6b6b;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #d4d1a0;
+            margin: 20px 0;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th, .results-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+            color: #d4d1a0;
+            font-weight: 700;
+        }
+
+        .results-table td {
+            color: #ecedf0;
+        }
+
+        .results-table tr:nth-child(even) {
+            background: rgba(255, 215, 0, 0.03);
+        }
+
+        .winner {
+            font-size: 32px;
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            color: #d4d1a0;
+            margin: 20px 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .metronome-visual {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .beat-indicator {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            margin: 0 10px;
+            transition: all 0.1s;
+        }
+
+        .beat-indicator.active {
+            background: rgba(76, 175, 80, 0.8);
+            border-color: #4caf50;
+            transform: scale(1.2);
+            box-shadow: 0 0 25px rgba(76, 175, 80, 0.8);
+        }
+
+        .beat-indicator.accent {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-color: #FFD700;
+            transform: scale(1.3);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        }
+
+        select option {
+            background: #181b24;
+            color: #ecedf0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="author-badge">by R.Raíndo</div>
+        <h1>🎵 Entrenamiento Rítmico 🎵</h1>
+
+        <!-- Pantalla de configuración -->
+        <div class="setup-screen active">
+            <div class="instructions">
+                <h2 style="color: #d4d1a0; font-family: 'Playfair Display', serif; margin-bottom: 20px; font-size: 24px;">Instrucciones</h2>
+                <p style="color: #ecedf0; margin-bottom: 15px; line-height: 1.6;">Cada jugador debe usar una tecla numérica (1-9) para pulsar en el momento correcto.</p>
+                <p style="color: #7a7f8e; margin-bottom: 20px; line-height: 1.6;">Al final se mostrará una línea de tiempo con los resultados de cada jugador identificado por su número.</p>
+                
+                <div class="key-legend" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0;">
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">1</div>
+                        <input type="text" id="playerName1" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">2</div>
+                        <input type="text" id="playerName2" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">3</div>
+                        <input type="text" id="playerName3" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">4</div>
+                        <input type="text" id="playerName4" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">5</div>
+                        <input type="text" id="playerName5" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">6</div>
+                        <input type="text" id="playerName6" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">7</div>
+                        <input type="text" id="playerName7" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">8</div>
+                        <input type="text" id="playerName8" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                    <div class="key-box" style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 24px; color: #d4d1a0; font-weight: 700;">9</div>
+                        <input type="text" id="playerName9" placeholder="Nombre" style="width: 100%; margin-top: 8px; padding: 8px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 6px; color: #ecedf0; font-size: 12px; text-align: center;" maxlength="15">
+                    </div>
+                </div>
+            </div>
+            <button class="btn" onclick="startGame()">Comenzar Juego</button>
+        </div>
+
+        <!-- Pantalla de juego -->
+        <div class="game-screen">
+            <div class="game-info">
+                <div class="round-info" id="roundInfo"></div>
+                <div class="tempo-info" id="tempoInfo"></div>
+            </div>
+
+            <div class="metronome-visual" id="metronomeVisual">
+                <div class="beat-indicator"></div>
+                <div class="beat-indicator"></div>
+                <div class="beat-indicator"></div>
+                <div class="beat-indicator"></div>
+            </div>
+
+            <div class="players-pressed" id="playersPressed" style="text-align: center; margin: 20px 0; min-height: 40px;">
+                <div style="color: #7a7f8e; font-size: 14px; margin-bottom: 10px;">Jugadores que han pulsado:</div>
+                <div id="pressedList" style="font-size: 24px; color: #d4d1a0; font-weight: 700;"></div>
+            </div>
+
+            <div class="status" id="status"></div>
+
+            <div class="timeline" id="timeline" style="display: none;">
+                <div class="timeline-title">Línea de Tiempo - Resultados</div>
+                <div class="timeline-visual" id="timelineVisual"></div>
+                <div class="timeline-labels">
+                    <span class="expected-label">● Momento correcto</span>
+                </div>
+                <div id="playerResults" style="margin-top: 20px;"></div>
+            </div>
+
+            <button class="btn" id="nextButton" style="display: none;" onclick="nextRound()">
+                Siguiente Jugada
+            </button>
+        </div>
+
+        <!-- Pantalla de resultados -->
+        <div class="results-screen">
+            <div class="winner" id="winner"></div>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Jugador</th>
+                        <th>Puntuación Total</th>
+                        <th>Promedio</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+            <button class="btn" onclick="resetGame()">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <!-- Audio Context -->
+    <script>
+        let audioContext;
+        let currentRound = 0;
+        let tempo = 0;
+        let beatDuration = 0;
+        let startTime = 0;
+        let expectedPressTime = 0;
+        let isListening = false;
+        let totalBars = 5;
+        let playerPresses = {}; // {playerNumber: {time: timestamp, score: points}}
+        let totalScores = {}; // {playerNumber: totalPoints}
+        let playerNames = {}; // {playerNumber: name}
+        let activeTimeouts = []; // Para almacenar timeouts activos
+
+        // Colores para cada jugador
+        const playerColors = [
+            '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7',
+            '#fd79a8', '#fdcb6e', '#00b894', '#a29bfe', '#fab1a0'
+        ];
+
+        // Calcular el número de compases según la ronda
+        function calculateBarsForRound(round) {
+            const additionalBars = Math.floor(round / 2) * 2;
+            return 5 + additionalBars;
+        }
+
+        function startGame() {
+            currentRound = 0;
+            totalScores = {};
+            playerNames = {};
+            
+            // Recoger nombres de jugadores
+            for (let i = 1; i <= 9; i++) {
+                const nameInput = document.getElementById(`playerName${i}`);
+                const name = nameInput ? nameInput.value.trim() : '';
+                playerNames[i] = name || `Jugador ${i}`;
+            }
+            
+            document.querySelector('.setup-screen').classList.remove('active');
+            document.querySelector('.game-screen').classList.add('active');
+            
+            startRound();
+        }
+
+        function startRound() {
+            // Limpiar todos los timeouts activos
+            activeTimeouts.forEach(timeout => clearTimeout(timeout));
+            activeTimeouts = [];
+            
+            totalBars = calculateBarsForRound(currentRound);
+            tempo = Math.floor(Math.random() * 71) + 80;
+            beatDuration = 60 / tempo;
+            
+            document.getElementById('roundInfo').textContent = `Jugada ${currentRound + 1} de 4 | ${totalBars} compases`;
+            document.getElementById('tempoInfo').textContent = `Tempo: ${tempo} BPM`;
+            
+            document.getElementById('status').textContent = 'Escucha el ritmo...';
+            document.getElementById('timeline').style.display = 'none';
+            document.getElementById('nextButton').style.display = 'none';
+            document.getElementById('pressedList').textContent = '';
+            
+            isListening = false;
+            playerPresses = {};
+            
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const timeout1 = setTimeout(() => {
+                playMetronome();
+            }, 1000);
+            activeTimeouts.push(timeout1);
+        }
+
+        function playMetronome() {
+            startTime = audioContext.currentTime;
+            const indicators = document.querySelectorAll('.beat-indicator');
+            
+            // Reproducir 2 compases (8 pulsos)
+            for (let bar = 0; bar < 2; bar++) {
+                for (let beat = 0; beat < 4; beat++) {
+                    const time = startTime + (bar * 4 + beat) * beatDuration;
+                    const isAccent = beat === 0;
+                    
+                    playBeep(time, isAccent);
+                    
+                    const delay = (bar * 4 + beat) * beatDuration * 1000;
+                    const timeout = setTimeout(() => {
+                        indicators.forEach(ind => ind.classList.remove('active', 'accent'));
+                        if (isAccent) {
+                            indicators[beat].classList.add('accent');
+                        } else {
+                            indicators[beat].classList.add('active');
+                        }
+                    }, delay);
+                    activeTimeouts.push(timeout);
+                }
+            }
+            
+            expectedPressTime = startTime + ((totalBars - 1) * 4) * beatDuration;
+            
+            const timeout2 = setTimeout(() => {
+                document.querySelectorAll('.beat-indicator').forEach(ind => {
+                    ind.classList.remove('active', 'accent');
+                });
+            }, 2 * 4 * beatDuration * 1000);
+            activeTimeouts.push(timeout2);
+            
+            const timeout3 = setTimeout(() => {
+                document.getElementById('status').textContent = `¡Pulsa tu número (1-9) en el primer tiempo del compás ${totalBars}!`;
+                isListening = true;
+            }, (2 * 4 * beatDuration * 1000) + 100);
+            activeTimeouts.push(timeout3);
+            
+            const timeout4 = setTimeout(() => {
+                if (isListening) {
+                    finishRound();
+                }
+            }, (totalBars * 4 * beatDuration * 1000) + 500);
+            activeTimeouts.push(timeout4);
+        }
+
+        function playBeep(time, isAccent) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = isAccent ? 880 : 440;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0, time);
+            gainNode.gain.linearRampToValueAtTime(isAccent ? 0.3 : 0.2, time + 0.01);
+            gainNode.gain.linearRampToValueAtTime(0, time + 0.1);
+            
+            oscillator.start(time);
+            oscillator.stop(time + 0.1);
+        }
+
+        function handleKeyPress(playerNumber) {
+            if (!isListening || playerPresses[playerNumber]) return;
+            
+            const actualPressTime = audioContext.currentTime;
+            playerPresses[playerNumber] = {
+                time: actualPressTime,
+                score: 0
+            };
+            
+            updatePressedList();
+        }
+
+        function updatePressedList() {
+            const numbers = Object.keys(playerPresses).sort((a, b) => a - b);
+            const names = numbers.map(num => playerNames[num] || `Jugador ${num}`);
+            document.getElementById('pressedList').textContent = names.join(', ') || 'Ninguno';
+        }
+
+        function finishRound() {
+            isListening = false;
+            
+            // Calcular puntuaciones
+            const sixteenthNote = beatDuration / 4;
+            const eighthNote = beatDuration / 2;
+            
+            Object.keys(playerPresses).forEach(playerNum => {
+                const press = playerPresses[playerNum];
+                const difference = press.time - expectedPressTime;
+                const differenceMs = difference * 1000;
+                const sixteenthNoteMs = sixteenthNote * 1000;
+                const eighthNoteMs = eighthNote * 1000;
+                
+                let score = 0;
+                if (Math.abs(differenceMs) <= sixteenthNoteMs) {
+                    score = 10;
+                } else {
+                    const eighthsOff = Math.abs(differenceMs) / eighthNoteMs;
+                    score = Math.max(0, 10 - Math.floor(eighthsOff));
+                }
+                
+                playerPresses[playerNum].score = score;
+                playerPresses[playerNum].differenceMs = differenceMs;
+                
+                if (!totalScores[playerNum]) {
+                    totalScores[playerNum] = 0;
+                }
+                totalScores[playerNum] += score;
+            });
+            
+            displayTimeline();
+            document.getElementById('nextButton').style.display = 'block';
+        }
+
+        function displayTimeline() {
+            const timeline = document.getElementById('timeline');
+            timeline.style.display = 'block';
+            
+            const visual = document.getElementById('timelineVisual');
+            visual.innerHTML = '<div class="timeline-line"></div>';
+            
+            // Crear marcadores de beat
+            for (let i = 0; i <= 8; i++) {
+                const marker = document.createElement('div');
+                marker.className = 'timeline-marker';
+                marker.style.left = `${(i / 8) * 100}%`;
+                visual.appendChild(marker);
+                
+                const label = document.createElement('div');
+                label.className = 'beat-label';
+                label.style.left = `${(i / 8) * 100}%`;
+                
+                if (i % 2 === 0) {
+                    label.textContent = `${i / 2}♩`;
+                } else {
+                    label.textContent = `${i}♪`;
+                }
+                
+                visual.appendChild(label);
+            }
+            
+            // Marcador esperado
+            const expectedMarker = document.createElement('div');
+            expectedMarker.className = 'timeline-marker expected-marker';
+            expectedMarker.style.left = '50%';
+            visual.appendChild(expectedMarker);
+            
+            // Marcadores de jugadores
+            const eighthNote = beatDuration / 2;
+            const maxRange = 4 * eighthNote;
+            
+            Object.keys(playerPresses).forEach((playerNum, index) => {
+                const press = playerPresses[playerNum];
+                const difference = press.time - expectedPressTime;
+                
+                let offset = (difference / maxRange) * 0.5;
+                offset = Math.max(-0.5, Math.min(0.5, offset));
+                const actualPosition = 0.5 + offset;
+                
+                const playerMarker = document.createElement('div');
+                playerMarker.className = 'player-marker';
+                playerMarker.style.left = `${actualPosition * 100}%`;
+                playerMarker.style.backgroundColor = playerColors[parseInt(playerNum) - 1];
+                playerMarker.textContent = playerNum;
+                visual.appendChild(playerMarker);
+            });
+            
+            // Mostrar resultados de cada jugador
+            const resultsDiv = document.getElementById('playerResults');
+            resultsDiv.innerHTML = '';
+            
+            const sortedPlayers = Object.keys(playerPresses).sort((a, b) => 
+                playerPresses[b].score - playerPresses[a].score
+            );
+            
+            sortedPlayers.forEach(playerNum => {
+                const press = playerPresses[playerNum];
+                const direction = press.differenceMs > 0 ? 'tarde' : press.differenceMs < 0 ? 'temprano' : 'perfecto';
+                const playerName = playerNames[playerNum] || `Jugador ${playerNum}`;
+                
+                const item = document.createElement('div');
+                item.className = 'player-result-item';
+                item.style.borderLeftColor = playerColors[parseInt(playerNum) - 1];
+                
+                item.innerHTML = `
+                    <div class="player-result-number" style="background: ${playerColors[parseInt(playerNum) - 1]}">
+                        ${playerNum}
+                    </div>
+                    <div class="player-result-info">
+                        <div style="color: #ecedf0; font-size: 16px; font-weight: 600; margin-bottom: 4px;">
+                            ${playerName}
+                        </div>
+                        <div style="color: #7a7f8e; font-size: 14px;">
+                            ${Math.abs(press.differenceMs).toFixed(0)}ms ${direction}
+                        </div>
+                    </div>
+                    <div class="player-result-score">
+                        ${press.score} pts
+                    </div>
+                `;
+                
+                resultsDiv.appendChild(item);
+            });
+            
+            if (Object.keys(playerPresses).length === 0) {
+                resultsDiv.innerHTML = '<div style="text-align: center; color: #7a7f8e; padding: 20px;">Ningún jugador pulsó</div>';
+            }
+        }
+
+        function nextRound() {
+            currentRound++;
+            
+            if (currentRound >= 4) {
+                showResults();
+                return;
+            }
+            
+            startRound();
+        }
+
+        function showResults() {
+            document.querySelector('.game-screen').classList.remove('active');
+            document.querySelector('.results-screen').classList.add('active');
+            
+            const playersList = Object.keys(totalScores).map(num => ({
+                number: num,
+                name: playerNames[num] || `Jugador ${num}`,
+                score: totalScores[num],
+                average: (totalScores[num] / 4).toFixed(1)
+            })).sort((a, b) => b.score - a.score);
+            
+            if (playersList.length > 0) {
+                document.getElementById('winner').textContent = `🏆 Ganador: ${playersList[0].name} 🏆`;
+            } else {
+                document.getElementById('winner').textContent = 'No hubo participantes';
+            }
+            
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+            
+            playersList.forEach((player, index) => {
+                const row = tbody.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2);
+                
+                cell1.innerHTML = `<span style="display: inline-block; width: 30px; height: 30px; border-radius: 50%; background: ${playerColors[parseInt(player.number) - 1]}; color: white; text-align: center; line-height: 30px; margin-right: 10px; font-weight: 700;">${player.number}</span> ${player.name}`;
+                cell2.textContent = `${player.score} puntos`;
+                cell3.textContent = `${player.average} pts/jugada`;
+            });
+            
+            if (playersList.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell(0);
+                cell.colSpan = 3;
+                cell.textContent = 'No hubo participantes';
+                cell.style.textAlign = 'center';
+                cell.style.color = '#7a7f8e';
+            }
+        }
+
+        function resetGame() {
+            // Limpiar todos los timeouts activos
+            activeTimeouts.forEach(timeout => clearTimeout(timeout));
+            activeTimeouts = [];
+            
+            document.querySelector('.results-screen').classList.remove('active');
+            document.querySelector('.setup-screen').classList.add('active');
+            
+            currentRound = 0;
+            totalScores = {};
+            playerPresses = {};
+            playerNames = {};
+            isListening = false;
+        }
+
+        // Soporte para teclas numéricas
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            if (key >= '1' && key <= '9') {
+                e.preventDefault();
+                handleKeyPress(key);
+            }
+        });
+    </script>
+</body>
+</html>

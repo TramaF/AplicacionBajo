@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simón Dice - Guitarra</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f1117;
+            --bg-card: #181b24;
+            --bg-card-hover: #1e2230;
+            --bg-input: #141720;
+            --accent: #c9a84c;
+            --accent-dim: rgba(201,168,76,0.15);
+            --accent-glow: rgba(201,168,76,0.35);
+            --text-primary: #ecedf0;
+            --text-secondary: #7a7f8e;
+            --text-muted: #4f5462;
+            --green: #5eead4;
+            --green-dim: rgba(94,234,212,0.12);
+            --red: #fb7185;
+            --red-dim: rgba(251,113,133,0.12);
+            --blue: #60a5fa;
+            --blue-dim: rgba(96,165,250,0.12);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            background: var(--bg-deep);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            touch-action: none;
+            color: var(--text-primary);
+        }
+
+        /* ambient glow */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 20% 100%, rgba(94,234,212,0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Start Screen ── */
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-deep);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+
+        #startScreen.hidden {
+            display: none;
+        }
+
+        #startScreen h1 {
+            font-family: 'Playfair Display', serif;
+            color: var(--text-primary);
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            padding: 0 24px;
+            letter-spacing: 0.3px;
+            line-height: 1.3;
+        }
+
+        #startScreen h1 .emoji {
+            color: var(--accent);
+        }
+
+        .start-author {
+            font-size: 0.75em;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 36px;
+            text-align: center;
+        }
+
+        #startScreen button {
+            padding: 14px 44px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            letter-spacing: 0.4px;
+            transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
+            min-height: 44px;
+        }
+
+        #startScreen button:hover {
+            background: rgba(201,168,76,0.22);
+            border-color: rgba(201,168,76,0.45);
+            box-shadow: 0 0 18px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        #startScreen button:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        /* ── Header ── */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 8px 80px 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            min-height: 45px;
+        }
+
+        #playerInfo {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 0.4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+
+        #playerInfo::before,
+        #playerInfo::after {
+            content: "♪";
+            font-size: 18px;
+            color: var(--accent);
+            animation: musicNote 2s ease-in-out infinite;
+        }
+
+        @keyframes musicNote {
+            0%, 100% { transform: translateY(0px); }
+            50%      { transform: translateY(-4px); }
+        }
+
+        .player-name {
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .by-text {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* ── Score badge ── */
+        #score {
+            position: fixed;
+            top: 9px;
+            right: 12px;
+            background: var(--bg-card-hover);
+            border: 1px solid rgba(255,255,255,0.07);
+            padding: 5px 13px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--accent);
+            z-index: 101;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            letter-spacing: 0.3px;
+        }
+
+        /* ── Fretboard container ── */
+        #gameContainer {
+            position: relative;
+            width: 90vw;
+            max-width: 380px;
+            height: calc(100vh - 150px);
+            max-height: 650px;
+            margin-top: 80px;
+            margin-bottom: 10px;
+            background: linear-gradient(to bottom, #2e2118, #1f1610);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.55);
+            padding: 15px 10px;
+            border: 1px solid rgba(255,255,255,0.04);
+            z-index: 1;
+        }
+
+        #fretboard {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            right: 10px;
+            bottom: 15px;
+            background: linear-gradient(90deg, #6b5038, #7d6248);
+            border-radius: 5px;
+        }
+
+        /* ── Strings (unchanged positioning) ── */
+        .string {
+            position: absolute;
+            background: linear-gradient(to right, #a8a8a8, #d8d8d8, #a8a8a8);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            height: 100%;
+            top: 0;
+        }
+
+        .string-6 { width: 2px;   left: calc(8.33% - 1px); }
+        .string-5 { width: 2.5px; left: calc(25% - 1.25px); }
+        .string-4 { width: 3px;   left: calc(41.66% - 1.5px); }
+        .string-3 { width: 3.5px; left: calc(58.33% - 1.75px); }
+        .string-2 { width: 4px;   left: calc(75% - 2px); }
+        .string-1 { width: 4.5px; left: calc(91.66% - 2.25px); }
+
+        /* ── Frets (unchanged positioning) ── */
+        .fret {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to bottom, #c9a84c, #9a7f2e, #c9a84c);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+            border-radius: 2px;
+        }
+
+        .fret.nut {
+            height: 8px;
+            background: linear-gradient(to bottom, #e8e0c8, #ccc4a0, #e8e0c8);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.7);
+        }
+
+        /* ── Fret position markers ── */
+        .fret-marker {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(201,168,76,0.25);
+            border-radius: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ── Note circles ── */
+        .note {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            opacity: 0.8;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s ease;
+            border: 3px solid rgba(255,255,255,0.45);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            color: rgba(20,20,30,0.85);
+            z-index: 10;
+            line-height: 1;
+        }
+
+        .note:hover {
+            opacity: 0.95;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .note.active {
+            opacity: 1 !important;
+            transform: translate(-50%, -50%) scale(1.35);
+            box-shadow: 0 0 28px currentColor;
+            animation: pulse 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1.35); }
+            50%      { transform: translate(-50%, -50%) scale(1.5); }
+        }
+
+        /* Note colours – kept for gameplay, slightly saturated for dark bg */
+        .note-Mi   { background-color: #7ec8c8; }
+        .note-Fa   { background-color: #82c882; }
+        .note-Fas  { background-color: #e88ca8; }
+        .note-Sol  { background-color: #f0b878; }
+        .note-Sols { background-color: #b87cb8; }
+        .note-La   { background-color: #ddd870; }
+        .note-Las  { background-color: #78b8e8; }
+        .note-Si   { background-color: #e88888; }
+        .note-Do   { background-color: #8898d0; }
+        .note-Dos  { background-color: #e8a060; }
+        .note-Re   { background-color: #88d890; }
+        .note-Res  { background-color: #d88ca0; }
+
+        /* ── Game-over modal ── */
+        #modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        #modal.hidden {
+            display: none;
+        }
+
+        #modalContent {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.07);
+            padding: 44px 40px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+            max-width: 90%;
+        }
+
+        #modalContent h2 {
+            margin-bottom: 16px;
+            font-family: 'Playfair Display', serif;
+            color: var(--accent);
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        #modalContent button {
+            padding: 12px 36px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            letter-spacing: 0.4px;
+            transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
+            min-height: 44px;
+            margin-top: 8px;
+        }
+
+        #modalContent button:hover {
+            background: rgba(201,168,76,0.22);
+            border-color: rgba(201,168,76,0.45);
+            box-shadow: 0 0 16px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        #gameOver {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--red);
+            letter-spacing: 1px;
+        }
+
+        #modalContent p {
+            margin-top: 18px;
+            font-size: 17px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        #modalContent p #finalRound {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ── Landscape ── */
+        @media (orientation: landscape) and (max-height: 600px) {
+            body {
+                transform: scale(0.7);
+                transform-origin: center top;
+            }
+
+            #score {
+                top: 70px;
+            }
+
+            .note {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+                border: 2px solid rgba(255,255,255,0.45);
+            }
+
+            .note.active {
+                border-width: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="startScreen">
+        <h1><span class="emoji">♪</span> Simón Dice - Guitarra <span class="emoji">♪</span></h1>
+        <div class="start-author">R.Raíndo</div>
+        <button id="startGameBtn">INICIAR JUEGO</button>
+    </div>
+
+    <div id="header">
+        <div id="playerInfo">Simón Dice - Guitarra - R.Raíndo</div>
+    </div>
+
+    <div id="score">Ronda: 0</div>
+
+    <div id="gameContainer">
+        <div id="fretboard"></div>
+    </div>
+
+    <div id="modal" class="hidden">
+        <div id="modalContent">
+            <div id="gameOver">GAME OVER</div>
+            <p style="margin-top:20px; font-size:20px;">¡Llegaste a la ronda <span id="finalRound">0</span>!</p>
+        </div>
+    </div>
+
+    <script>
+        let audioContext = null;
+        window.currentOscillator = null;
+        
+        const stringPositions = [91.66, 75, 58.33, 41.66, 25, 8.33];
+        const fretPositions = [16, 31, 46, 61, 76, 91];
+        const notePositions = [5, 23.5, 38.5, 53.5, 68.5, 83.5];
+        
+        const noteMap = {
+            'E': 'Mi', 'F': 'Fa', 'F#': 'Fa#', 'G': 'Sol', 'G#': 'Sol#',
+            'A': 'La', 'A#': 'La#', 'B': 'Si', 'C': 'Do', 'C#': 'Do#',
+            'D': 'Re', 'D#': 'Re#'
+        };
+
+        const strings = {
+            1: { x: 91.66, notes: [
+                {fret: 0, note: 'Mi', noteEn: 'E5', freq: 659.25},
+                {fret: 1, note: 'Fa', noteEn: 'F5', freq: 698.46},
+                {fret: 2, note: 'Fa#', noteEn: 'F#5', freq: 739.99},
+                {fret: 3, note: 'Sol', noteEn: 'G5', freq: 783.99},
+                {fret: 4, note: 'Sol#', noteEn: 'G#5', freq: 830.61},
+                {fret: 5, note: 'La', noteEn: 'A5', freq: 880.00}
+            ]},
+            2: { x: 75, notes: [
+                {fret: 0, note: 'Si', noteEn: 'B4', freq: 493.88},
+                {fret: 1, note: 'Do', noteEn: 'C5', freq: 523.25},
+                {fret: 2, note: 'Do#', noteEn: 'C#5', freq: 554.37},
+                {fret: 3, note: 'Re', noteEn: 'D5', freq: 587.33},
+                {fret: 4, note: 'Re#', noteEn: 'D#5', freq: 622.25},
+                {fret: 5, note: 'Mi', noteEn: 'E5', freq: 659.25}
+            ]},
+            3: { x: 58.33, notes: [
+                {fret: 0, note: 'Sol', noteEn: 'G4', freq: 392.00},
+                {fret: 1, note: 'Sol#', noteEn: 'G#4', freq: 415.30},
+                {fret: 2, note: 'La', noteEn: 'A4', freq: 440.00},
+                {fret: 3, note: 'La#', noteEn: 'A#4', freq: 466.16},
+                {fret: 4, note: 'Si', noteEn: 'B4', freq: 493.88},
+                {fret: 5, note: 'Do', noteEn: 'C5', freq: 523.25}
+            ]},
+            4: { x: 41.66, notes: [
+                {fret: 0, note: 'Re', noteEn: 'D4', freq: 293.66},
+                {fret: 1, note: 'Re#', noteEn: 'D#4', freq: 311.13},
+                {fret: 2, note: 'Mi', noteEn: 'E4', freq: 329.63},
+                {fret: 3, note: 'Fa', noteEn: 'F4', freq: 349.23},
+                {fret: 4, note: 'Fa#', noteEn: 'F#4', freq: 369.99},
+                {fret: 5, note: 'Sol', noteEn: 'G4', freq: 392.00}
+            ]},
+            5: { x: 25, notes: [
+                {fret: 0, note: 'La', noteEn: 'A3', freq: 220.00},
+                {fret: 1, note: 'La#', noteEn: 'A#3', freq: 233.08},
+                {fret: 2, note: 'Si', noteEn: 'B3', freq: 246.94},
+                {fret: 3, note: 'Do', noteEn: 'C4', freq: 261.63},
+                {fret: 4, note: 'Do#', noteEn: 'C#4', freq: 277.18},
+                {fret: 5, note: 'Re', noteEn: 'D4', freq: 293.66}
+            ]},
+            6: { x: 8.33, notes: [
+                {fret: 0, note: 'Mi', noteEn: 'E3', freq: 164.81},
+                {fret: 1, note: 'Fa', noteEn: 'F3', freq: 174.61},
+                {fret: 2, note: 'Fa#', noteEn: 'F#3', freq: 185.00},
+                {fret: 3, note: 'Sol', noteEn: 'G3', freq: 196.00},
+                {fret: 4, note: 'Sol#', noteEn: 'G#3', freq: 207.65},
+                {fret: 5, note: 'La', noteEn: 'A3', freq: 220.00}
+            ]}
+        };
+
+        let allNotes = [];
+        let sequence = [];
+        let playerSequence = [];
+        let round = 0;
+        let isPlaying = false;
+        let gameStarted = false;
+
+        function stopCurrentSound() {
+            if (window.currentOscillator) {
+                try {
+                    window.currentOscillator.stop();
+                    window.currentOscillator.disconnect();
+                } catch (e) {}
+                window.currentOscillator = null;
+            }
+        }
+
+        function playTone(freq, duration = 0.5) {
+            stopCurrentSound();
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = freq;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+
+            window.currentOscillator = oscillator;
+
+            setTimeout(() => {
+                if (window.currentOscillator === oscillator) {
+                    window.currentOscillator = null;
+                }
+            }, duration * 1000);
+        }
+
+        function playErrorSound() {
+            playTone(100, 0.5);
+        }
+
+        function highlightNote(noteObj, duration = 300) {
+            noteObj.element.classList.add('active');
+            playTone(noteObj.data.freq, duration / 1000);
+            
+            setTimeout(() => {
+                noteObj.element.classList.remove('active');
+            }, duration);
+        }
+
+        async function playSequence() {
+            isPlaying = true;
+            
+            for (let i = 0; i < sequence.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+                highlightNote(sequence[i], 300);
+                await new Promise(resolve => setTimeout(resolve, 350));
+            }
+            
+            isPlaying = false;
+        }
+
+        function handleNoteClick(element, noteData) {
+            if (isPlaying || !gameStarted) return;
+            
+            const noteObj = allNotes.find(n => n.element === element);
+            highlightNote(noteObj, 200);
+            
+            playerSequence.push(noteObj);
+            
+            const currentIndex = playerSequence.length - 1;
+            
+            if (playerSequence[currentIndex] !== sequence[currentIndex]) {
+                gameOver();
+                return;
+            }
+            
+            if (playerSequence.length === sequence.length) {
+                setTimeout(() => nextRound(), 300);
+            }
+        }
+
+        const scales = {
+            doMayor: ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'],
+            laMenor: ['La', 'Si', 'Do', 'Re', 'Mi', 'Fa', 'Sol'],
+            solMayor: ['Sol', 'La', 'Si', 'Do', 'Re', 'Mi', 'Fa#'],
+            pentatonica: ['Do', 'Re', 'Mi', 'Sol', 'La']
+        };
+
+        let currentScale = scales.doMayor;
+        let lastNote = null;
+
+        function getNextMelodicNote() {
+            if (sequence.length === 0) {
+                const tonicNotes = allNotes.filter(n => 
+                    ['Do', 'Mi', 'Sol'].includes(n.data.note) && 
+                    n.data.freq >= 260 && n.data.freq <= 400
+                );
+                if (tonicNotes.length > 0) {
+                    return tonicNotes[Math.floor(Math.random() * tonicNotes.length)];
+                }
+                return allNotes[Math.floor(Math.random() * allNotes.length)];
+            }
+
+            lastNote = sequence[sequence.length - 1];
+            
+            if (Math.random() < 0.12 && sequence.length > 2) {
+                const sharps = allNotes.filter(n => n.data.note.includes('#'));
+                if (sharps.length > 0) {
+                    const nearbySharps = sharps.filter(n => {
+                        const lastX = parseFloat(lastNote.element.style.left);
+                        const lastY = parseFloat(lastNote.element.style.top);
+                        const currX = parseFloat(n.element.style.left);
+                        const currY = parseFloat(n.element.style.top);
+                        
+                        const xDiff = Math.abs(currX - lastX);
+                        const yDiff = Math.abs(currY - lastY);
+                        
+                        return (xDiff < 20 && yDiff < 25);
+                    });
+                    
+                    if (nearbySharps.length > 0) {
+                        return nearbySharps[Math.floor(Math.random() * nearbySharps.length)];
+                    }
+                }
+            }
+            
+            const scaleNotes = allNotes.filter(n => currentScale.includes(n.data.note));
+            
+            if (Math.random() < 0.8) {
+                const veryNearbyNotes = scaleNotes.filter(n => {
+                    if (n === lastNote) return false;
+                    
+                    const lastX = parseFloat(lastNote.element.style.left);
+                    const lastY = parseFloat(lastNote.element.style.top);
+                    const currX = parseFloat(n.element.style.left);
+                    const currY = parseFloat(n.element.style.top);
+                    
+                    const xDiff = Math.abs(currX - lastX);
+                    const yDiff = Math.abs(currY - lastY);
+                    
+                    return (yDiff < 20 && xDiff < 20);
+                });
+
+                if (veryNearbyNotes.length > 0) {
+                    return veryNearbyNotes[Math.floor(Math.random() * veryNearbyNotes.length)];
+                }
+            }
+            
+            const nearbyNotes = scaleNotes.filter(n => {
+                if (n === lastNote) return false;
+                
+                const lastX = parseFloat(lastNote.element.style.left);
+                const lastY = parseFloat(lastNote.element.style.top);
+                const currX = parseFloat(n.element.style.left);
+                const currY = parseFloat(n.element.style.top);
+                
+                const xDiff = Math.abs(currX - lastX);
+                const yDiff = Math.abs(currY - lastY);
+                
+                return (xDiff < 17 && yDiff < 35) || (xDiff < 1 && yDiff < 50);
+            });
+
+            if (nearbyNotes.length > 0) {
+                return nearbyNotes[Math.floor(Math.random() * nearbyNotes.length)];
+            }
+
+            const availableScale = scaleNotes.filter(n => n !== lastNote);
+            if (availableScale.length > 0) {
+                return availableScale[Math.floor(Math.random() * availableScale.length)];
+            }
+
+            return allNotes[Math.floor(Math.random() * allNotes.length)];
+        }
+
+        function nextRound() {
+            round++;
+            document.getElementById('score').textContent = 'Ronda: ' + round;
+            playerSequence = [];
+            
+            if (round % 8 === 1 && round > 1) {
+                const scaleNames = Object.keys(scales);
+                const randomScaleName = scaleNames[Math.floor(Math.random() * scaleNames.length)];
+                currentScale = scales[randomScaleName];
+            }
+            
+            const nextNote = getNextMelodicNote();
+            sequence.push(nextNote);
+            
+            setTimeout(() => playSequence(), 400);
+        }
+
+        function gameOver() {
+            gameStarted = false;
+            playErrorSound();
+            
+            document.getElementById('finalRound').textContent = round;
+            document.getElementById('modal').classList.remove('hidden');
+            
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        }
+
+        function getColorClass(note) {
+            const noteBase = note.replace('#', 's');
+            return 'note-' + noteBase;
+        }
+
+        function initGame() {
+            const fretboard = document.getElementById('fretboard');
+            allNotes = [];
+
+            for (let i = 1; i <= 6; i++) {
+                const string = document.createElement('div');
+                string.className = 'string string-' + i;
+                fretboard.appendChild(string);
+            }
+
+            const nut = document.createElement('div');
+            nut.className = 'fret nut';
+            nut.style.top = fretPositions[0] + '%';
+            fretboard.appendChild(nut);
+
+            for (let i = 1; i < fretPositions.length; i++) {
+                const fret = document.createElement('div');
+                fret.className = 'fret';
+                fret.style.top = fretPositions[i] + '%';
+                fretboard.appendChild(fret);
+
+                if ([3, 5].includes(i)) {
+                    const marker = document.createElement('div');
+                    marker.className = 'fret-marker';
+                    marker.style.top = fretPositions[i] + '%';
+                    fretboard.appendChild(marker);
+                }
+            }
+
+            for (let stringNum in strings) {
+                const string = strings[stringNum];
+                string.notes.forEach((noteData, fretIndex) => {
+                    const noteEl = document.createElement('div');
+                    noteEl.className = 'note ' + getColorClass(noteData.note);
+                    noteEl.style.left = string.x + '%';
+                    noteEl.style.top = notePositions[fretIndex] + '%';
+                    noteEl.textContent = noteData.note;
+                    noteEl.dataset.freq = noteData.freq;
+                    noteEl.dataset.note = noteData.note;
+                    
+                    noteEl.addEventListener('click', () => handleNoteClick(noteEl, noteData));
+                    noteEl.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        handleNoteClick(noteEl, noteData);
+                    });
+                    
+                    fretboard.appendChild(noteEl);
+                    allNotes.push({element: noteEl, data: noteData});
+                });
+            }
+        }
+
+        function startGame() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            audioContext.resume();
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            gameStarted = true;
+            
+            setTimeout(() => nextRound(), 500);
+        }
+
+        window.addEventListener('load', () => {
+            initGame();
+        });
+
+        document.getElementById('startGameBtn').addEventListener('click', startGame);
+    </script>
+</body>
+</html>

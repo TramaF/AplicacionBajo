@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test de Armonía Moderna</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0f1117;
+  --bg-card: #181b24;
+  --bg-card-hover: #1e2230;
+  --accent: #c9a84c;
+  --accent-dim: rgba(201,168,76,0.15);
+  --accent-glow: rgba(201,168,76,0.35);
+  --green: #5eead4;
+  --green-dim: rgba(94,234,212,0.12);
+  --red: #fb7185;
+  --red-dim: rgba(251,113,133,0.12);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.12);
+  --text: #e2e4e9;
+  --text-muted: #7a7f8e;
+  --border: rgba(255,255,255,0.07);
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 16px 80px;
+  /* subtle ambient gradient */
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201,168,76,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(96,165,250,0.05) 0%, transparent 70%);
+}
+
+.container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  max-width: 440px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+/* ── Header ── */
+.header {
+  position: relative;
+  padding: 28px 24px 22px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(201,168,76,0.08) 0%, transparent 100%);
+}
+.header::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+.author {
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.header h1 {
+  font-family: var(--font-head);
+  color: var(--text);
+  font-size: 23px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+.score {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.score span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Game content ── */
+.game-content { padding: 28px 24px 30px; }
+
+/* ── Start screen ── */
+.start-screen { text-align:center; }
+.start-screen h2 {
+  font-family: var(--font-head);
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.start-screen > p {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* info box */
+.info-box {
+  background: var(--blue-dim);
+  border: 1px solid rgba(96,165,250,0.18);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin: 0 0 22px;
+  text-align: left;
+}
+.info-box ul {
+  list-style: none;
+  padding: 0;
+}
+.info-box li {
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 9px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.info-box li strong { color: var(--accent); font-weight: 600; }
+
+/* difficulty selector */
+.difficulty-selector {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.difficulty-btn {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 13.5px;
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.difficulty-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.difficulty-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* start button */
+.start-btn {
+  background: linear-gradient(135deg, #b8943f, var(--accent), #b8943f);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 44px;
+  color: var(--bg-deep);
+  font-size: 16px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 18px var(--accent-glow);
+}
+.start-btn:hover {
+  background-position: 0% 0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+
+/* ── Quiz ── */
+.question-counter {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  margin-bottom: 6px;
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.question-counter span { color: var(--accent); font-weight: 600; }
+
+/* progress bar */
+.progress-wrap {
+  width: 100%;
+  height: 3px;
+  background: var(--bg-deep);
+  border-radius: 2px;
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #dcc07a);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.question {
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.55;
+  margin-bottom: 22px;
+  text-align: center;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-family: var(--font-head);
+  letter-spacing: -0.2px;
+}
+
+/* options */
+.options { display:flex; flex-direction:column; gap: 10px; }
+.option {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 14.5px;
+  font-family: var(--font-body);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.22s ease;
+  text-align: center;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+.option::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background: var(--blue-dim);
+  opacity:0;
+  transition: opacity 0.22s;
+}
+.option:hover {
+  border-color: var(--blue);
+  color: #fff;
+}
+.option:hover::before { opacity:1; }
+.option span { position:relative; z-index:1; }
+
+/* states */
+.option.correct {
+  background: var(--green-dim);
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: 0 0 14px rgba(94,234,212,0.2);
+}
+.option.correct::before { opacity:0 !important; }
+.option.incorrect {
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: 0 0 14px rgba(251,113,133,0.2);
+}
+.option.incorrect::before { opacity:0 !important; }
+.option.disabled { pointer-events:none; opacity:0.55; }
+.option.correct.disabled,
+.option.incorrect.disabled { opacity:1; }
+
+/* next btn */
+.next-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #b8943f, var(--accent));
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  color: var(--bg-deep);
+  font-size: 15px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.25s ease;
+  display: none;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.next-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px var(--accent-glow);
+}
+
+/* ── Result ── */
+.result { text-align:center; padding: 10px 0; }
+.result h2 {
+  font-family: var(--font-head);
+  color: var(--text);
+  font-size: 24px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+.result p {
+  color: var(--text);
+  font-size: 15.5px;
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+
+.restart-btn {
+  background: linear-gradient(135deg, #b8943f, var(--accent));
+  border: none;
+  border-radius: 12px;
+  padding: 14px 36px;
+  color: var(--bg-deep);
+  font-size: 15px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.restart-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px var(--accent-glow);
+}
+
+/* ── Utility ── */
+.hidden { display:none !important; }
+
+/* ── Animations ── */
+@keyframes fadeSlideUp {
+  from { opacity:0; transform: translateY(12px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.start-screen, .quiz:not(.hidden), .result:not(.hidden) {
+  animation: fadeSlideUp 0.35s ease both;
+}
+.option { animation: fadeSlideUp 0.28s ease both; }
+.option:nth-child(1){animation-delay:0.03s}
+.option:nth-child(2){animation-delay:0.08s}
+.option:nth-child(3){animation-delay:0.13s}
+.option:nth-child(4){animation-delay:0.18s}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="author">R.Raíndo</div>
+    <h1>Test de Armonía Moderna</h1>
+    <div class="score">Puntuación: <span id="score">0</span> / <span id="total">10</span></div>
+  </div>
+
+  <div class="game-content">
+
+    <!-- START -->
+    <div id="startScreen" class="start-screen">
+      <h2>Bienvenido al Test</h2>
+      <p>Pon a prueba tus conocimientos de teoría musical y armonía moderna.</p>
+      <div class="info-box">
+        <ul>
+          <li>📊 <span><strong>10 preguntas</strong> por partida</span></li>
+          <li>🎯 <span>Elige entre nivel <strong>Básico</strong> o <strong>Avanzado</strong></span></li>
+          <li>✅ <span>Respuesta inmediata con feedback visual</span></li>
+          <li>🔄 <span><strong>195 preguntas</strong> en total para practicar</span></li>
+        </ul>
+      </div>
+      <div class="difficulty-selector">
+        <button class="difficulty-btn active" data-level="basico">📘 Básico</button>
+        <button class="difficulty-btn" data-level="avanzado">📕 Avanzado</button>
+      </div>
+      <button class="start-btn">Comenzar Test</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" class="quiz hidden">
+      <div class="question-counter">Pregunta <span id="current">1</span> de <span id="totalQuestions">10</span></div>
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:10%"></div></div>
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+      <button class="next-btn" id="nextBtn">Siguiente →</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" class="result hidden">
+      <h2>¡Juego terminado!</h2>
+      <p id="finalScore"></p>
+      <button class="restart-btn">🔄 Jugar de nuevo</button>
+    </div>
+
+  </div><!-- game-content -->
+</div><!-- container -->
+
+<script>
+        const QB = [{question:"¿Cuántas notas tiene una escala mayor?",options:["5 notas","6 notas","7 notas","8 notas"],correct:2},{question:"¿Cuántas notas tiene una escala pentatónica?",options:["4 notas","5 notas","6 notas","7 notas"],correct:1},{question:"¿Qué intervalo hay entre Do y Mi?",options:["2ª Mayor","3ª Mayor","3ª menor","4ª Justa"],correct:1},{question:"¿Qué intervalo es una octava?",options:["6ª","7ª","8ª","9ª"],correct:2},{question:"¿Cuántos semitonos tiene una 3ª Mayor?",options:["2 semitonos","3 semitonos","4 semitonos","5 semitonos"],correct:2},{question:"¿Cuántas notas tiene un acorde tríada?",options:["2 notas","3 notas","4 notas","5 notas"],correct:1},{question:"¿Qué notas forman el acorde de Do Mayor?",options:["Do-Mi-Sol","Do-Mib-Sol","Do-Re-Mi","Do-Fa-La"],correct:0},{question:"¿Cuántos modos tiene la escala mayor?",options:["5","6","7","8"],correct:2},{question:"¿Cuál es la función del acorde I?",options:["Dominante","Subdominante","Tónica","Modal"],correct:2},{question:"¿Cuál es la función del acorde V7?",options:["Tónica","Subdominante","Dominante","Modal"],correct:2},{question:"¿Cuántos semitonos tiene una 5ª Justa?",options:["5","6","7","8"],correct:2},{question:"¿Qué intervalo hay entre Do y Fa?",options:["3ª Mayor","4ª Justa","4ª Aumentada","5ª Justa"],correct:1},{question:"¿Cuántos semitonos tiene un tono?",options:["1","2","3","4"],correct:1},{question:"¿Qué notas forman el acorde de La menor?",options:["La-Do-Mi","La-Do#-Mi","La-Reb-Mi","La-Do-Fa"],correct:0},{question:"¿Cuántos semitonos tiene una 3ª menor?",options:["2","3","4","5"],correct:1},{question:"¿Qué es un acorde Mayor?",options:["1-3m-5","1-3M-5","1-3M-5#","1-3m-5b"],correct:1},{question:"¿Qué es un acorde menor?",options:["1-3M-5","1-3m-5","1-3m-5b","1-3M-5#"],correct:1},{question:"¿Cuántos semitonos tiene una 2ª Mayor?",options:["1","2","3","4"],correct:1},{question:"¿Cuántos semitonos tiene una 2ª menor?",options:["1","2","3","4"],correct:0},{question:"¿Qué intervalo hay entre Do y Sol?",options:["4ª Justa","5ª Justa","6ª Mayor","7ª Mayor"],correct:1},{question:"¿Qué es una armadura?",options:["Alteraciones al inicio","Tipo de acorde","Escala","Modo"],correct:0},{question:"¿Qué es el círculo de quintas?",options:["Escala","Relación entre tonalidades","Acorde","Intervalo"],correct:1},{question:"¿Cuántos sostenidos tiene Sol Mayor?",options:["0","1","2","3"],correct:1},{question:"¿Cuántos bemoles tiene Fa Mayor?",options:["0","1","2","3"],correct:1},{question:"¿Qué es un acorde disminuido?",options:["1-3m-5b","1-3M-5","1-3m-5","1-3M-5#"],correct:0},{question:"¿Qué es un acorde aumentado?",options:["1-3M-5#","1-3M-5","1-3m-5#","1-3m-5"],correct:0},{question:"¿Cuántos semitonos tiene una 6ª Mayor?",options:["7","8","9","10"],correct:2},{question:"¿Cuántos semitonos tiene una 7ª Mayor?",options:["9","10","11","12"],correct:2},{question:"¿Qué grado es el acorde de subdominante?",options:["I","II","IV","V"],correct:2},{question:"¿Qué notas forman Do menor?",options:["Do-Mi-Sol","Do-Mib-Sol","Do-Mi-Solb","Do-Mib-Solb"],correct:1},{question:"¿Qué es una cadencia?",options:["Tipo de escala","Sucesión de acordes","Intervalo","Modo"],correct:1},{question:"¿Qué es la tonalidad?",options:["Centro tonal","Tipo de ritmo","Dinámica","Tempo"],correct:0},{question:"¿Qué es el tempo?",options:["Tonalidad","Velocidad","Volumen","Timbre"],correct:1},{question:"¿Qué indica un compás de 4/4?",options:["4 tiempos por compás","4 compases","4 notas","4 acordes"],correct:0},{question:"¿Qué es una semicorchea?",options:["1/4 de tiempo","1/8 de tiempo","1/16 de tiempo","1/2 tiempo"],correct:2},{question:"¿Qué es una corchea?",options:["1/2 tiempo","1/4 de tiempo","1/8 de tiempo","1/16 de tiempo"],correct:2},{question:"¿Qué es una negra?",options:["1/2 tiempo","1 tiempo","2 tiempos","1/4 de tiempo"],correct:1},{question:"¿Qué es una blanca?",options:["1 tiempo","2 tiempos","3 tiempos","4 tiempos"],correct:1},{question:"¿Qué es una redonda?",options:["1 tiempo","2 tiempos","3 tiempos","4 tiempos"],correct:3},{question:"¿Qué alteración sube medio tono?",options:["Bemol","Sostenido","Becuadro","Doble bemol"],correct:1},{question:"¿Qué alteración baja medio tono?",options:["Sostenido","Bemol","Becuadro","Doble sostenido"],correct:1},{question:"¿Qué hace el becuadro?",options:["Sube medio tono","Baja medio tono","Anula alteraciones","Sube un tono"],correct:2},{question:"¿Cuántos compases tiene un periodo?",options:["2","4","6","8"],correct:3},{question:"¿Qué es un acorde de séptima?",options:["3 notas","4 notas","5 notas","6 notas"],correct:1},{question:"¿Cuál es el relativo menor de Do Mayor?",options:["Re menor","Mi menor","La menor","Sol menor"],correct:2},{question:"¿Cuál es el relativo mayor de La menor?",options:["Do Mayor","Re Mayor","Mi Mayor","Sol Mayor"],correct:0},{question:"¿Qué es staccato?",options:["Notas ligadas","Notas cortas","Notas largas","Notas fuertes"],correct:1},{question:"¿Qué es legato?",options:["Notas cortas","Notas ligadas","Notas fuertes","Notas suaves"],correct:1},{question:"¿Qué significa forte?",options:["Suave","Fuerte","Rápido","Lento"],correct:1},{question:"¿Qué significa piano?",options:["Fuerte","Suave","Rápido","Lento"],correct:1},{question:"¿Qué es un trino?",options:["Ornamento","Acorde","Escala","Modo"],correct:0},{question:"¿Qué es un acorde de novena?",options:["3 notas","4 notas","5 notas","6 notas"],correct:2},{question:"¿Qué es el contrapunto?",options:["Tipo de acorde","Melodías simultáneas","Escala","Ritmo"],correct:1},{question:"¿Qué es una anacrusa?",options:["Final de frase","Inicio antes del compás","Tipo de acorde","Intervalo"],correct:1},{question:"¿Qué es el unísono?",options:["Misma nota","Diferentes notas","Acorde","Escala"],correct:0},{question:"¿Qué es la síncopa?",options:["Acento en tiempo débil","Acento en tiempo fuerte","Tipo de escala","Tipo de acorde"],correct:0},{question:"¿Qué es un arpegio?",options:["Notas simultáneas","Notas sucesivas de acorde","Escala","Intervalo"],correct:1},{question:"¿Qué es la dinámica?",options:["Velocidad","Intensidad sonora","Altura","Timbre"],correct:1},{question:"¿Qué es el timbre?",options:["Altura","Duración","Color del sonido","Intensidad"],correct:2},{question:"¿Qué es una cadencia perfecta?",options:["I-V","V-I","IV-I","II-V"],correct:1},{question:"¿Qué es la modulación?",options:["Cambio de tonalidad","Cambio de tempo","Cambio de compás","Cambio de dinámica"],correct:0},{question:"¿Qué es un acorde invertido?",options:["Acorde con otra nota en bajo","Acorde normal","Acorde disminuido","Acorde aumentado"],correct:0},{question:"¿Qué es la primera inversión?",options:["Fundamental en bajo","Tercera en bajo","Quinta en bajo","Séptima en bajo"],correct:1},{question:"¿Qué es la segunda inversión?",options:["Fundamental en bajo","Tercera en bajo","Quinta en bajo","Séptima en bajo"],correct:2},{question:"¿Cuántos sostenidos tiene Re Mayor?",options:["1","2","3","4"],correct:1},{question:"¿Cuántos sostenidos tiene La Mayor?",options:["1","2","3","4"],correct:2},{question:"¿Cuántos bemoles tiene Sib Mayor?",options:["1","2","3","4"],correct:1},{question:"¿Cuántos bemoles tiene Mib Mayor?",options:["1","2","3","4"],correct:2},{question:"¿Qué es un acorde sus4?",options:["1-4-5","1-3-5","1-2-5","1-3-6"],correct:0},{question:"¿Qué es un acorde sus2?",options:["1-2-5","1-3-5","1-4-5","1-3-6"],correct:0},{question:"¿Qué es un acorde add9?",options:["Tríada + 9ª","Acorde de 7ª + 9ª","Solo 9ª","Acorde menor"],correct:0},{question:"¿Qué escala no tiene alteraciones?",options:["Do Mayor","Sol Mayor","Re Mayor","Fa Mayor"],correct:0},{question:"¿Qué es el modo Jónico?",options:["Escala mayor","Escala menor","Escala pentatónica","Escala cromática"],correct:0},{question:"¿Qué es el modo Eólico?",options:["Escala mayor","Escala menor natural","Escala pentatónica","Escala cromática"],correct:1},{question:"¿Cuántas notas tiene la escala cromática?",options:["7","10","12","15"],correct:2},{question:"¿Qué es un intervalo armónico?",options:["Notas sucesivas","Notas simultáneas","Un acorde","Una escala"],correct:1},{question:"¿Qué es un intervalo melódico?",options:["Notas simultáneas","Notas sucesivas","Un acorde","Una escala"],correct:1},{question:"¿Qué es el registro?",options:["Zona de altura","Tipo de acorde","Escala","Tempo"],correct:0},{question:"¿Qué es una progresión armónica?",options:["Secuencia de acordes","Escala","Melodía","Ritmo"],correct:0},{question:"¿Qué es el ámbito de una melodía?",options:["Distancia nota más grave a aguda","Duración","Tempo","Timbre"],correct:0},{question:"¿Qué es un calderón?",options:["Prolongar nota","Acortar nota","Subir tono","Bajar tono"],correct:0},{question:"¿Qué es un compás compuesto?",options:["División ternaria","División binaria","Sin división","División cuaternaria"],correct:0},{question:"¿Qué es un compás simple?",options:["División ternaria","División binaria","Sin división","División quinaria"],correct:1},{question:"¿Qué indica mezzo forte?",options:["Muy fuerte","Medio fuerte","Suave","Muy suave"],correct:1},{question:"¿Qué indica mezzo piano?",options:["Muy suave","Medio suave","Fuerte","Muy fuerte"],correct:1},{question:"¿Qué es accelerando?",options:["Acelerar","Ralentizar","Mantener tempo","Parar"],correct:0},{question:"¿Qué es ritardando?",options:["Acelerar","Ralentizar","Mantener tempo","Parar"],correct:1},{question:"¿Qué es una fermata?",options:["Prolongar duración","Acortar duración","Mantener duración","Repetir"],correct:0},{question:"¿Qué es una repetición?",options:["Tocar de nuevo sección","Cambiar tonalidad","Cambiar tempo","Finalizar"],correct:0},{question:"¿Qué es un Da Capo?",options:["Volver al inicio","Ir al final","Repetir compás","Cambiar tono"],correct:0},{question:"¿Qué es Dal Segno?",options:["Volver al signo","Ir al final","Volver al inicio","Repetir todo"],correct:0},{question:"¿Qué es una coda?",options:["Sección final","Sección inicial","Sección media","Repetición"],correct:0},{question:"¿Qué es el pizzicato?",options:["Tocar con arco","Tocar con dedos","Tocar fuerte","Tocar suave"],correct:1},{question:"¿Qué es el vibrato?",options:["Oscilación de altura","Tocar fuerte","Tocar rápido","Tocar ligado"],correct:0}];
+
+        const QA = [{question:"¿Qué es un dominante secundario?",options:["V7 que no es de la tonalidad","V7 de cualquier grado excepto el V","Acorde menor","Acorde disminuido"],correct:1},{question:"¿Qué es un sustituto tritonal?",options:["Acorde a 5ª","Acorde a 4ª aumentada","Acorde relativo","Acorde paralelo"],correct:1},{question:"¿Qué distancia hay entre un V7 y su sustituto?",options:["2ª Mayor","3ª Mayor","Tritono","5ª Justa"],correct:2},{question:"¿Qué notas comparten V7 y su sustituto tritonal?",options:["1 y 5","3 y 7","2 y 6","4 y 8"],correct:1},{question:"¿Qué es V7/II?",options:["V del V","Dominante del II grado","Segundo dominante","Dominante secundario del II"],correct:3},{question:"¿Qué es el intercambio modal?",options:["Cambiar de modo","Tomar acordes de tonalidad paralela","Modular","Cambiar escala"],correct:1},{question:"¿Cuál es el intercambio modal más común?",options:["Mayor a Lidio","Mayor a menor natural","Menor a Mayor","Mayor a Mixolidio"],correct:1},{question:"¿Qué acorde es típico de intercambio modal en Mayor?",options:["Imaj7","IVmaj7","IVm7","V7"],correct:2},{question:"¿Qué escala usa el V7 con tensiones alteradas?",options:["Mixolidia","Lidia","Alterada","Dórica"],correct:2},{question:"¿Qué modo es la escala alterada?",options:["VII de menor melódica","V de menor armónica","II de mayor","IV de menor"],correct:0},{question:"¿Qué es un acorde de sexta napolitana?",options:["bII en 1ª inversión","II en 1ª inversión","IV en 1ª inversión","VI en 1ª inversión"],correct:0},{question:"¿Qué escala usa el IIm7 en menor?",options:["Dórica","Frigia","Locria","Eólica"],correct:2},{question:"¿Qué escala usa el IIm7 en Mayor?",options:["Jónica","Dórica","Frigia","Lidia"],correct:1},{question:"¿Qué escala usa el IVmaj7 en Mayor?",options:["Jónica","Dórica","Lidia","Mixolidia"],correct:2},{question:"¿Qué es una cadencia rota?",options:["V-VI","V-I","IV-I","II-V"],correct:0},{question:"¿Qué es una cadencia plagal?",options:["IV-I","V-I","I-V","II-V"],correct:0},{question:"¿Qué es el modo Lidio?",options:["IV grado de Mayor","I grado de Mayor","V grado de Mayor","VI grado de Mayor"],correct:0},{question:"¿Qué es el modo Mixolidio?",options:["V grado de Mayor","IV grado de Mayor","VI grado de Mayor","VII grado de Mayor"],correct:0},{question:"¿Qué es el modo Dórico?",options:["II grado de Mayor","III grado de Mayor","IV grado de Mayor","V grado de Mayor"],correct:0},{question:"¿Qué es el modo Frigio?",options:["III grado de Mayor","II grado de Mayor","IV grado de Mayor","V grado de Mayor"],correct:0},{question:"¿Qué es el modo Locrio?",options:["VII grado de Mayor","VI grado de Mayor","V grado de Mayor","IV grado de Mayor"],correct:0},{question:"¿Qué tensión evitar en acorde Mayor?",options:["11","9","13","7"],correct:0},{question:"¿Qué tensión evitar en acorde menor?",options:["9","11","13","b13"],correct:2},{question:"¿Qué es un turnaround?",options:["Progresión que vuelve al I","Progresión modal","Cadencia perfecta","Modulación"],correct:0},{question:"¿Qué es el II-V-I?",options:["Progresión fundamental jazz","Cadencia modal","Intercambio modal","Dominante secundario"],correct:0},{question:"¿Qué escala tiene #11?",options:["Lidia","Jónica","Dórica","Mixolidia"],correct:0},{question:"¿Qué escala tiene b13?",options:["Dórica","Mixolidia","Eólica","Lidia"],correct:2},{question:"¿Qué acorde tiene tritono?",options:["Dominante","Mayor","Menor","Aumentado"],correct:0},{question:"¿Qué intervalo es el tritono?",options:["4ª aumentada/5ª disminuida","3ª Mayor","5ª Justa","6ª Mayor"],correct:0},{question:"¿Qué es un acorde shell voicing?",options:["1-3-7","1-3-5","1-5-7","3-5-7"],correct:0},{question:"¿Qué es un voicing drop 2?",options:["Bajar 2ª voz una octava","Bajar 3ª voz","Bajar todas","Subir todas"],correct:0},{question:"¿Qué es un voicing drop 3?",options:["Bajar 3ª voz una octava","Bajar 2ª voz","Bajar todas","Subir todas"],correct:0},{question:"¿Qué es la escala bebop dominante?",options:["Mixolidia + 7M","Mixolidia + 6","Dórica + 7M","Lidia + 7M"],correct:0},{question:"¿Qué es una blue note?",options:["b3, b5, b7 en pentatónica","3M, 5J, 7M","2, 4, 6","1, 3, 5"],correct:0},{question:"¿Qué es el rearmonización?",options:["Cambiar acordes manteniendo melodía","Cambiar melodía","Cambiar ritmo","Cambiar tempo"],correct:0},{question:"¿Qué es la escala disminuida?",options:["Tono-semitono alternados","Solo tonos","Solo semitonos","Tres semitonos"],correct:0},{question:"¿Cuántas notas tiene la escala disminuida?",options:["6","7","8","9"],correct:2},{question:"¿Qué es la escala de tonos enteros?",options:["Solo tonos","Solo semitonos","Tono-semitono","Semitono-tono"],correct:0},{question:"¿Cuántas notas tiene la escala de tonos?",options:["5","6","7","8"],correct:1},{question:"¿Qué acorde usa escala de tonos?",options:["Aumentado","Mayor","Menor","Disminuido"],correct:0},{question:"¿Qué es un voicing cerrado?",options:["Notas en menos de octava","Notas separadas","Solo fundamentales","Solo séptimas"],correct:0},{question:"¿Qué es un voicing abierto?",options:["Notas en más de octava","Notas juntas","Solo tríadas","Solo séptimas"],correct:0},{question:"¿Qué es el comping?",options:["Acompañamiento rítmico-armónico","Melodía","Solo","Bajo"],correct:0},{question:"¿Qué es el walking bass?",options:["Bajo que camina por grados","Bajo estático","Bajo en octavas","Bajo pedal"],correct:0},{question:"¿Qué es una pedal point?",options:["Nota sostenida en bajo","Nota aguda","Acorde","Escala"],correct:0},{question:"¿Qué es el contrary motion?",options:["Voces en direcciones opuestas","Voces paralelas","Voces oblicuas","Voces unísono"],correct:0},{question:"¿Qué es el parallel motion?",options:["Voces en misma dirección","Voces opuestas","Voces oblicuas","Voces libres"],correct:0},{question:"¿Qué es el oblique motion?",options:["Una voz quieta, otra se mueve","Ambas se mueven","Ambas quietas","Movimiento libre"],correct:0},{question:"¿Qué son las avoid notes?",options:["Notas a evitar en tensiones","Notas principales","Notas de paso","Notas cromáticas"],correct:0},{question:"¿Qué es la resolución deceptiva?",options:["V-VI en vez de V-I","V-I normal","I-V","IV-I"],correct:0},{question:"¿Qué es un ii-V-I menor?",options:["IIm7b5-V7-Im7","IIm7-V7-Imaj7","II-V-I","IIm-V-Im"],correct:0},{question:"¿Qué escala usa IIm7b5 en menor?",options:["Locria","Dórica","Frigia","Eólica"],correct:0},{question:"¿Qué es el tritone substitution en práctica?",options:["Reemplazar V7 por bII7","Reemplazar I","Reemplazar IV","Reemplazar VI"],correct:0},{question:"¿Qué tensiones tiene un acorde Maj7?",options:["9, #11, 13","b9, 11, b13","9, 11, 13","b9, #11, b13"],correct:0},{question:"¿Qué tensiones tiene un acorde m7?",options:["9, 11","b9, 11","9, #11","b9, #11"],correct:0},{question:"¿Qué tensiones tiene un acorde 7?",options:["9, 13 o alteradas","Solo 9","Solo 13","Ninguna"],correct:0},{question:"¿Qué es la línea cliche?",options:["Movimiento cromático interno","Línea melódica","Bajo","Voz superior"],correct:0},{question:"¿Qué es un turnaround de jazz?",options:["I-VI-II-V","I-IV-V-I","I-V-IV-I","I-II-III-IV"],correct:0},{question:"¿Qué es el backdoor progression?",options:["IVm7-bVII7-Imaj7","II-V-I","I-IV-V","I-VI-II-V"],correct:0},{question:"¿Qué es el rhythm changes?",options:["Progresión basada en I Got Rhythm","Cambio de compás","Cambio de tempo","Progresión blues"],correct:0},{question:"¿Cuántos compases tiene el blues?",options:["8","12","16","24"],correct:1},{question:"¿Qué es un acorde alt?",options:["7 con todas las alteraciones","Acorde normal","Acorde mayor","Acorde menor"],correct:0},{question:"¿Qué notas tiene C7alt?",options:["C-E-Gb-Bb-Db-Eb","C-E-G-Bb","C-Eb-G-Bb","C-E-G#-Bb"],correct:0},{question:"¿Qué es el modal interchange en jazz?",options:["Préstamo de paralela menor","Cambio de modo","Modulación","Transposición"],correct:0},{question:"¿Qué es un acorde híbrido?",options:["Dos estructuras combinadas","Acorde simple","Acorde de séptima","Acorde suspendido"],correct:0},{question:"¿Qué es la politonalidad?",options:["Dos tonalidades simultáneas","Una tonalidad","Sin tonalidad","Tonalidad ambigua"],correct:0},{question:"¿Qué es la atonalidad?",options:["Sin centro tonal","Con centro tonal","Dos centros","Tres centros"],correct:0},{question:"¿Qué es la bitonalidad?",options:["Dos tonalidades a la vez","Una tonalidad","Sin tonalidad","Tres tonalidades"],correct:0},{question:"¿Qué es el cluster?",options:["Notas adyacentes simultáneas","Acorde normal","Escala","Arpegio"],correct:0},{question:"¿Qué es el quartal harmony?",options:["Acordes por cuartas","Acordes por terceras","Acordes por quintas","Acordes por segundas"],correct:0},{question:"¿Qué es el quintal harmony?",options:["Acordes por quintas","Acordes por cuartas","Acordes por terceras","Acordes por segundas"],correct:0},{question:"¿Qué es el secundal harmony?",options:["Acordes por segundas","Acordes por terceras","Acordes por cuartas","Acordes por quintas"],correct:0},{question:"¿Qué es un acorde m(maj7)?",options:["Menor con séptima mayor","Menor con séptima menor","Mayor con séptima","Disminuido"],correct:0},{question:"¿Qué escala usa m(maj7)?",options:["Menor melódica","Menor armónica","Menor natural","Mayor"],correct:0},{question:"¿Qué es la escala menor armónica?",options:["Menor natural con 7M","Menor natural","Menor melódica","Mayor"],correct:0},{question:"¿Qué es la escala menor melódica?",options:["Menor con 6M y 7M","Menor natural","Menor armónica","Mayor"],correct:0},{question:"¿Qué modo sale del V de menor armónica?",options:["Frigio dominante","Mixolidio","Dórico","Locrio"],correct:0},{question:"¿Qué es el modo Frigio dominante?",options:["V de menor armónica","V de mayor","III de mayor","VII de mayor"],correct:0},{question:"¿Qué característica tiene Frigio dominante?",options:["b2 y b13","2M y 13M","Solo b2","Solo b13"],correct:0},{question:"¿Qué es el acorde V7b9?",options:["Dominante con novena bemol","Dominante normal","Mayor séptima","Menor séptima"],correct:0},{question:"¿En qué contexto se usa V7b9?",options:["Resolución a menor","Resolución a mayor","No resuelve","Modal"],correct:0},{question:"¿Qué es el voice leading?",options:["Conducción de voces","Melodía","Armonía","Ritmo"],correct:0},{question:"¿Qué es una substitución?",options:["Reemplazar acorde manteniendo función","Cambiar todo","Eliminar acorde","Añadir acorde"],correct:0},{question:"¿Qué es el extended chord?",options:["Acorde con 9ª, 11ª o 13ª","Acorde básico","Tríada","Acorde de séptima simple"],correct:0},{question:"¿Qué es la nota de paso?",options:["Conecta dos notas del acorde","Nota del acorde","Nota fundamental","Nota extraña"],correct:0},{question:"¿Qué es la nota de adorno?",options:["Nota melódica no armónica","Nota del acorde","Fundamental","Tercera"],correct:0},{question:"¿Qué es el retardo?",options:["Nota que resuelve después","Nota inmediata","Nota anticipada","Nota simultánea"],correct:0},{question:"¿Qué es la anticipación?",options:["Nota del siguiente acorde antes","Nota retrasada","Nota simultánea","Nota de paso"],correct:0},{question:"¿Qué es la escapada?",options:["Sale por grado, vuelve por salto","Nota de paso","Retardo","Anticipación"],correct:0},{question:"¿Qué es la cambiata?",options:["Patrón melódico específico","Acorde","Escala","Modo"],correct:0},{question:"¿Qué es el lower neighbor?",options:["Nota inferior que vuelve","Nota superior","Nota cromática","Nota diatónica"],correct:0},{question:"¿Qué es el upper neighbor?",options:["Nota superior que vuelve","Nota inferior","Nota cromática","Nota de paso"],correct:0},{question:"¿Qué es el doble neighbor?",options:["Ornamento superior e inferior","Solo superior","Solo inferior","Nota de paso"],correct:0},{question:"¿Qué es el pedal tone?",options:["Nota sostenida bajo acordes","Nota que cambia","Melodía","Bajo caminante"],correct:0},{question:"¿Qué es el common tone?",options:["Nota compartida entre acordes","Nota única","Nota fundamental","Nota extraña"],correct:0},{question:"¿Qué es el chromatic motion?",options:["Movimiento por semitonos","Movimiento diatónico","Movimiento por saltos","Sin movimiento"],correct:0},{question:"¿Qué es el diatonic motion?",options:["Movimiento dentro de escala","Movimiento cromático","Movimiento libre","Sin movimiento"],correct:0},{question:"¿Qué es una 6/4 cadencial?",options:["I en 2ª inversión antes de V","I normal","V en inversión","IV en inversión"],correct:0},{question:"¿Qué es una cadencia andaluza?",options:["VI-V-IV-III en menor","I-IV-V-I","II-V-I","I-VI-II-V"],correct:0},{question:"¿Qué es el modo andaluz?",options:["Frigio con tercera mayor","Frigio normal","Dórico","Eólico"],correct:0},{question:"¿Qué es el acorde power chord?",options:["Solo fundamental y quinta","Tríada completa","Acorde de séptima","Acorde extendido"],correct:0},{question:"¿Por qué power chord funciona distorsionado?",options:["Sin tercera, evita disonancias","Con tercera","Tiene séptima","Es completo"],correct:0}];
+        
+        let level='basico',curr=0,sc=0,sel=[],ctx;document.querySelectorAll('.difficulty-btn').forEach(b=>b.addEventListener('click',function(){level=this.dataset.level;document.querySelectorAll('.difficulty-btn').forEach(x=>x.classList.remove('active'));this.classList.add('active')}));document.querySelector('.start-btn').addEventListener('click',()=>{document.getElementById('startScreen').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');init()});document.querySelector('.restart-btn').addEventListener('click',()=>{document.getElementById('result').classList.add('hidden');document.getElementById('startScreen').classList.remove('hidden')});document.getElementById('nextBtn').addEventListener('click',()=>{curr++;curr<sel.length?load():end()});function init(){const q=level==='basico'?QB:QA;sel=[...q].sort(()=>Math.random()-0.5).slice(0,10);curr=0;sc=0;document.getElementById('score').textContent=sc;document.getElementById('total').textContent=10;document.getElementById('totalQuestions').textContent=10;load()}function load(){const q=sel[curr];document.getElementById('current').textContent=curr+1;document.getElementById('question').textContent=q.question;const o=document.getElementById('options');o.innerHTML='';q.options.forEach((t,i)=>{const b=document.createElement('button');b.className='option';b.textContent=t;b.addEventListener('click',()=>ans(i));o.appendChild(b)});document.getElementById('nextBtn').style.display='none'}function ans(i){const q=sel[curr];document.querySelectorAll('.option').forEach((b,idx)=>{b.classList.add('disabled');if(idx===q.correct)b.classList.add('correct');if(idx===i&&idx!==q.correct)b.classList.add('incorrect')});if(i===q.correct){sc++;document.getElementById('score').textContent=sc;snd(1)}else snd(0);document.getElementById('nextBtn').style.display='block'}function snd(t){ctx=new (window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);if(t){o.frequency.setValueAtTime(523.25,ctx.currentTime);o.frequency.setValueAtTime(659.25,ctx.currentTime+0.1);o.frequency.setValueAtTime(783.99,ctx.currentTime+0.2);g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.4);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.4)}else{o.frequency.setValueAtTime(200,ctx.currentTime);o.frequency.setValueAtTime(150,ctx.currentTime+0.15);g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.3)}}function end(){document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');const p=(sc/10)*100;let m=p===100?'¡Perfecto! 🎉 ¡Dominas la armonía!':p>=80?'¡Excelente! 🌟 Muy buen conocimiento':p>=60?'¡Bien! 👍 Buen trabajo':'¡Sigue practicando! 📚 Puedes mejorar';document.getElementById('finalScore').innerHTML=`${m}<br><br>Puntuación: ${sc}/10 (${p.toFixed(0)}%)`}
+    </script>
+
+<script>
+// Progress bar sync — hooks into existing load() via MutationObserver on #current
+(function(){
+  const obs = new MutationObserver(() => {
+    const cur = parseInt(document.getElementById('current').textContent, 10);
+    const tot = parseInt(document.getElementById('totalQuestions').textContent, 10);
+    document.getElementById('progressBar').style.width = ((cur / tot) * 100) + '%';
+  });
+  obs.observe(document.getElementById('current'), { childList: true, characterData: true, subtree: true });
+})();
+</script>
+</body>
+</html>

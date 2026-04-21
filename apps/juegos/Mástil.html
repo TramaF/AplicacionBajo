@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Diapasón – Juego de Notas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Tokens ── */
+:root{
+  --bg-deep:#0f1117;
+  --bg-card:#181b24;
+  --bg-card-hover:#1e2230;
+  --bg-input:#141720;
+  --accent:#c9a84c;
+  --accent-dim:rgba(201,168,76,0.15);
+  --accent-glow:rgba(201,168,76,0.35);
+  --text-primary:#ecedf0;
+  --text-secondary:#7a7f8e;
+  --text-muted:#4f5462;
+  --green:#5eead4;
+  --green-dim:rgba(94,234,212,0.12);
+  --red:#fb7185;
+  --red-dim:rgba(251,113,133,0.12);
+  --blue:#60a5fa;
+  --blue-dim:rgba(96,165,250,0.12);
+  --radius:14px;
+  --radius-sm:10px;
+  --radius-lg:20px;
+}
+
+/* ── Reset ── */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+/* ── Body + ambient glow ── */
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg-deep);
+  color:var(--text-primary);
+  min-height:100vh;
+  overflow:hidden;
+  touch-action:manipulation;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%,rgba(201,168,76,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 100%,rgba(94,234,212,0.04) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Header ── */
+.header{
+  text-align:center;
+  padding:10px 12px;
+  position:relative;z-index:1;
+  flex-shrink:0;
+}
+.creator{
+  font-size:0.62em;
+  color:var(--text-muted);
+  font-weight:500;
+  letter-spacing:0.8px;
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+.score{
+  font-family:'Playfair Display',serif;
+  font-size:1.05em;
+  font-weight:600;
+  color:var(--text-primary);
+}
+.score span{color:var(--accent);font-weight:700}
+
+/* ── Phase indicator ── */
+.phase-indicator{
+  font-family:'Playfair Display',serif;
+  font-size:0.78em;
+  font-weight:600;
+  color:var(--green);
+  margin-top:3px;
+  letter-spacing:0.4px;
+  animation:phaseGlow 2s infinite;
+}
+@keyframes phaseGlow{
+  0%,100%{text-shadow:0 0 8px rgba(94,234,212,0.5)}
+  50%{text-shadow:0 0 16px rgba(94,234,212,0.8),0 0 24px rgba(94,234,212,0.3)}
+}
+
+/* ── Skip picks ── */
+.skip-counter{position:absolute;top:10px;left:12px;display:flex;gap:6px;z-index:100}
+.pick{
+  width:22px;height:22px;
+  background:linear-gradient(135deg,var(--accent),#e8c85a,var(--accent));
+  border:2px solid rgba(201,168,76,0.5);
+  border-radius:50% 50% 50% 0;
+  transform:rotate(45deg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:bold;
+  color:var(--bg-deep);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  transition:all .3s ease;
+}
+.pick.used{
+  background:linear-gradient(135deg,#3a3d44,#4a4d54,#3a3d44);
+  border-color:rgba(255,255,255,0.1);
+  opacity:.35;
+}
+.pick.active{animation:pickGlow .5s ease}
+@keyframes pickGlow{
+  0%,100%{transform:rotate(45deg) scale(1)}
+  50%{transform:rotate(45deg) scale(1.3);box-shadow:0 0 14px var(--accent-glow)}
+}
+
+/* ── Skip button (fixed) ── */
+.skip-btn-top{
+  position:fixed;top:105px;right:12px;
+  padding:9px 18px;
+  font-size:0.76em;font-weight:600;
+  font-family:'DM Sans',sans-serif;
+  background:var(--accent-dim);
+  border:1px solid rgba(201,168,76,0.4);
+  border-radius:var(--radius-sm);
+  color:var(--accent);
+  cursor:pointer;z-index:100;
+  letter-spacing:0.3px;
+  transition:all .2s cubic-bezier(0.22,1,0.36,1);
+  overflow:hidden;
+}
+.skip-btn-top::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .2s}
+.skip-btn-top:hover{border-color:rgba(201,168,76,0.6);box-shadow:0 0 14px var(--accent-glow);background:rgba(201,168,76,0.22)}
+.skip-btn-top:hover::after{background:rgba(255,255,255,0.04)}
+.skip-btn-top:active{transform:translateY(1px)}
+.skip-btn-top:disabled{background:var(--bg-input);border-color:rgba(255,255,255,0.07);color:var(--text-muted);cursor:not-allowed;opacity:.4;box-shadow:none}
+
+/* ── Fullscreen button ── */
+.fullscreen-btn{
+  position:absolute;top:10px;right:12px;
+  width:30px;height:30px;
+  background:var(--bg-card-hover);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;transition:all .2s;
+}
+.fullscreen-btn:hover{border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.08)}
+.fullscreen-btn:active{transform:scale(0.95)}
+.fullscreen-btn svg{width:17px;height:17px;fill:var(--text-secondary)}
+
+/* ── Fretboard wrapper ── */
+.fretboard-wrapper{
+  display:flex;justify-content:center;
+  padding:18px 18px 90px;
+  flex:1;align-items:center;
+  position:relative;z-index:1;
+}
+
+/* ── Fretboard ── */
+.fretboard{
+  position:relative;
+  width:100%;max-width:850px;height:180px;
+  background:linear-gradient(to right,#3b2a1a,#4a3525,#5a4030);
+  border:2px solid rgba(255,255,255,0.06);
+  border-radius:var(--radius-sm);
+  box-shadow:0 8px 28px rgba(0,0,0,.55);
+}
+
+/* ── Strings ── */
+.string{position:absolute;left:0;right:0;transform:translateY(-50%);z-index:1}
+
+/* ── Frets ── */
+.fret{position:absolute;top:0;bottom:0;width:2px;background:linear-gradient(to right,#7a7a7a,#aaa,#7a7a7a);z-index:2}
+
+/* ── Nut ── */
+.nut{position:absolute;top:0;bottom:0;width:7px;background:linear-gradient(to right,#d8d0c8,#c0b8b0);z-index:3}
+
+/* ── String labels ── */
+.string-label{
+  position:absolute;left:-38px;
+  transform:translateY(-50%);
+  background:var(--bg-card);
+  border:1px solid rgba(255,255,255,0.08);
+  color:var(--accent);
+  padding:3px 7px;
+  border-radius:6px;
+  font-weight:600;font-size:0.74em;
+  letter-spacing:0.3px;
+}
+
+/* ── Target note dot ── */
+.note-dot{
+  position:absolute;width:28px;height:28px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#fff9c4,#ffd54f,#ffb300);
+  border:3px solid rgba(201,168,76,0.7);
+  transform:translate(-50%,-50%);
+  animation:pulse 1s infinite;
+  z-index:10;
+  box-shadow:0 0 14px var(--accent-glow);
+}
+@keyframes pulse{
+  0%,100%{transform:translate(-50%,-50%) scale(1)}
+  50%{transform:translate(-50%,-50%) scale(1.15)}
+}
+
+/* ── Fret inlays ── */
+.fret-inlay{
+  position:absolute;width:11px;height:11px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.15),rgba(255,255,255,0.04));
+  border:1px solid rgba(255,255,255,0.08);
+  transform:translate(-50%,-50%);z-index:0;
+}
+
+/* ── Pac-Man (all variants — logic identical to original) ── */
+.pacman-on-string{position:absolute;width:24px;height:24px;transform:translate(-50%,-50%);z-index:15;transition:left .1s linear,top .1s linear}
+.pacman-on-string::before,.pacman-on-string::after{content:'';position:absolute;width:0;height:0;border:12px solid #ff0;border-radius:50%}
+.pacman-on-string::before{border-right-color:transparent;border-bottom-color:transparent;animation:topJaw .4s infinite}
+.pacman-on-string::after{border-left-color:transparent;border-top-color:transparent;animation:bottomJaw .4s infinite}
+.pacman-on-string.danger::before,.pacman-on-string.danger::after{border-color:#f44}
+.pacman-on-string.danger::before{animation:topJawFast .2s infinite,dangerPulse .5s infinite}
+.pacman-on-string.danger::after{border-left-color:transparent;border-top-color:transparent;animation:bottomJawFast .2s infinite,dangerPulse .5s infinite}
+.pacman-on-string.from-right::before{border-left-color:transparent;border-bottom-color:transparent;border-right-color:#ff0;animation:topJawReverse .4s infinite}
+.pacman-on-string.from-right::after{border-right-color:transparent;border-top-color:transparent;border-left-color:#ff0;animation:bottomJawReverse .4s infinite}
+.pacman-on-string.from-right.danger::before{border-left-color:transparent;border-bottom-color:transparent;border-right-color:#f44;animation:topJawFastReverse .2s infinite,dangerPulse .5s infinite}
+.pacman-on-string.from-right.danger::after{border-right-color:transparent;border-top-color:transparent;border-left-color:#f44;animation:bottomJawFastReverse .2s infinite,dangerPulse .5s infinite}
+
+/* ── Pac-Man dot trail ── */
+.string-dots-container{position:absolute;display:flex;align-items:center;justify-content:space-evenly;z-index:14;height:20px}
+.string-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 6px var(--accent-glow);transition:opacity .2s}
+.string-dot.eaten{opacity:0}
+
+/* ── Pac-Man keyframes (verbatim) ── */
+@keyframes topJaw{0%,100%{transform:rotate(0)}50%{transform:rotate(-20deg)}}
+@keyframes bottomJaw{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
+@keyframes topJawFast{0%,100%{transform:rotate(0)}50%{transform:rotate(-30deg)}}
+@keyframes bottomJawFast{0%,100%{transform:rotate(0)}50%{transform:rotate(30deg)}}
+@keyframes topJawReverse{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
+@keyframes bottomJawReverse{0%,100%{transform:rotate(0)}50%{transform:rotate(-20deg)}}
+@keyframes topJawFastReverse{0%,100%{transform:rotate(0)}50%{transform:rotate(30deg)}}
+@keyframes bottomJawFastReverse{0%,100%{transform:rotate(0)}50%{transform:rotate(-30deg)}}
+@keyframes dangerPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
+
+/* ── Note buttons (bottom bar) ── */
+.buttons{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg-card);
+  border-top:1px solid rgba(255,255,255,0.06);
+  padding:10px 8px max(14px, env(safe-area-inset-bottom)) 8px;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:6px;
+  box-shadow:0 -4px 20px rgba(0,0,0,.35);
+  z-index:50;
+}
+.buttons button{
+  padding:12px 4px;
+  font-size:0.82em;font-weight:600;
+  font-family:'DM Sans',sans-serif;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--radius-sm);
+  background:var(--bg-card-hover);
+  color:var(--text-primary);
+  cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  letter-spacing:0.3px;
+  transition:all .15s cubic-bezier(0.22,1,0.36,1);
+  position:relative;
+}
+.buttons button::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .15s}
+.buttons button:hover{border-color:rgba(201,168,76,0.3);box-shadow:0 0 10px var(--accent-glow)}
+.buttons button:hover::after{background:rgba(255,255,255,0.04)}
+.buttons button:active{transform:translateY(1px)}
+
+/* ── Modals ── */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:20px;
+}
+.modal-content{
+  background:var(--bg-card);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--radius-lg);
+  padding:28px 22px;
+  text-align:center;
+  max-width:500px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 16px 48px rgba(0,0,0,.5);
+}
+.modal-content h2{
+  font-family:'Playfair Display',serif;
+  color:var(--accent);
+  margin-bottom:14px;
+  font-size:1.45em;font-weight:600;
+  letter-spacing:0.3px;
+}
+.modal-content p{
+  color:var(--text-secondary);
+  font-size:0.88em;font-weight:300;
+  line-height:1.6;margin-bottom:6px;
+}
+
+/* ── Rules list ── */
+.rules-list{
+  text-align:left;margin:16px 0;
+  line-height:1.9;list-style:none;padding:0;
+}
+.rules-list li{margin-bottom:7px;font-size:0.84em;color:var(--text-secondary);font-weight:400}
+.rules-list strong{color:var(--accent);font-weight:600}
+
+/* ── Modal button (gold CTA) ── */
+.modal-button{
+  margin-top:18px;padding:11px 30px;
+  font-size:0.88em;font-weight:500;
+  font-family:'DM Sans',sans-serif;
+  border:1px solid rgba(201,168,76,0.35);
+  border-radius:var(--radius-sm);
+  background:var(--accent-dim);
+  color:var(--accent);cursor:pointer;
+  letter-spacing:0.3px;
+  transition:all .2s cubic-bezier(0.22,1,0.36,1);
+  position:relative;overflow:hidden;
+}
+.modal-button::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .2s}
+.modal-button:hover{border-color:rgba(201,168,76,0.6);box-shadow:0 0 18px var(--accent-glow);background:rgba(201,168,76,0.22)}
+.modal-button:hover::after{background:rgba(255,255,255,0.04)}
+.modal-button:active{transform:translateY(1px)}
+
+/* ── Game-over final-score line ── */
+.final-score-line{
+  font-family:'Playfair Display',serif;
+  font-size:1.6em;font-weight:700;
+  color:var(--accent);
+  margin:16px 0 4px;
+  line-height:1.2;
+}
+.final-score-line span{font-size:1.3em}
+
+/* ── Game-over toggle ── */
+.game-over{display:none}
+.game-over.show{display:flex}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg-deep)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="skip-counter" id="skipCounter"></div>
+<button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">
+<svg viewBox="0 0 24 24">
+<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+</svg>
+</button>
+<div class="header">
+<div class="creator">By R.Raíndo</div>
+<div class="score">Puntuación: <span id="score">0</span></div>
+<div class="phase-indicator" id="phaseIndicator">Fase 1</div>
+</div>
+<button class="skip-btn-top" id="skipBtnTop" onclick="skipNote()" style="display:none">Saltar</button>
+<div class="fretboard-wrapper">
+<div class="fretboard" id="fretboard"></div>
+</div>
+<div class="buttons" id="buttons"></div>
+
+<div class="modal-overlay" id="rulesModal">
+<div class="modal-content">
+<h2>🎸 Reglas del Juego 🎸</h2>
+<ul class="rules-list">
+<li>🎯 <strong>Objetivo:</strong> Identifica la nota en el diapasón antes de que Pac-Man la alcance</li>
+<li>⏱️ <strong>Tiempo:</strong> 20 segundos por pregunta</li>
+<li>⚡ <strong>Bonus:</strong> +2s si respondes en 2s</li>
+<li>📉 <strong>Dificultad:</strong> Cada 3 aciertos -1s de tiempo</li>
+<li>🎸 <strong>Expansión:</strong> Cada 15 aciertos +2 trastes</li>
+<li>🎮 <strong>Fases:</strong> Nueva fase cada 15 aciertos</li>
+<li>🎵 <strong>Comodines:</strong> 3 saltos disponibles</li>
+<li>🎁 <strong>Extra:</strong> Cada 10 aciertos +1 comodín</li>
+<li>⚠️ <strong>Alarma:</strong> Pac-Man rojo últimos 6s</li>
+<li>❌ <strong>Game Over:</strong> Error o Pac-Man alcanza la nota</li>
+</ul>
+<button class="modal-button" onclick="startGame()">¡Comenzar!</button>
+</div></div>
+
+<div class="modal-overlay game-over" id="gameOver">
+<div class="modal-content">
+<h2>Fin del juego</h2>
+<p>¡Pac-Man se lo comió todo!</p>
+<div class="final-score-line">Puntuación: <span id="finalScore"></span></div>
+<button class="modal-button" onclick="restart()">Nueva Partida</button>
+</div></div>
+
+<script>
+const NUM_STRINGS = 6;
+const ALMOND_CORRECTION = 8;
+const INITIAL_TIME = 20;
+const REDUCTION_TIME = 1;
+const MIN_TIME = 4;
+const BONUS_REWARD = 2;
+const RESPONSE_TIME = 2;
+const NUM_DOTS = 15;
+const ALERT_TIME = 6;
+
+let numFrets = 5;
+let score = 0;
+let correctNote = null;
+let currentPosition = null;
+let timeLeft = INITIAL_TIME;
+let timerInterval = null;
+let totalAllowedTime = INITIAL_TIME;
+let skipsAvailable = 3;
+let skipsUsed = 0;
+let clickSoundPlaying = false;
+let pendingBonusTime = 0; // Bonus que se aplica en la siguiente nota
+let noteStartTime = 0;
+let gameStarted = false;
+let audioContext = null;
+let currentPhase = 1;
+
+// Variables para Pac-Man en el diapasón
+let pacmanProgress = 0;
+let pacmanStartX = 0;
+let pacmanEndX = 0;
+let pacmanY = 0;
+let dotsEaten = 0;
+let wakaSoundInterval = null;
+let beepSoundInterval = null;
+let pacmanFromRight = false; // Nueva variable para saber la dirección
+
+const noteIndex = {
+  "Do": 0, "Do#": 1, "Re": 2, "Re#": 3, "Mi": 4, "Fa": 5,
+  "Fa#": 6, "Sol": 7, "Sol#": 8, "La": 9, "La#": 10, "Si": 11
+};
+
+const indexNote = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
+
+const strings = [
+  { name: "MI", semitone: 4 },
+  { name: "SI", semitone: 11 },
+  { name: "SOL", semitone: 7 },
+  { name: "RE", semitone: 2 },
+  { name: "LA", semitone: 9 },
+  { name: "MI", semitone: 4 }
+];
+
+const notes = indexNote;
+
+function calculateNoteAtPosition(stringIndex, fretNumber) {
+    const stringData = strings[stringIndex];
+    const openStringSemitone = stringData.semitone;
+    const resultSemitone = (openStringSemitone + fretNumber) % 12;
+    const resultNote = indexNote[resultSemitone];
+    return resultNote;
+}
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new AudioContext();
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+    }
+}
+
+function playNote(noteName) {
+    initAudio();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    const frequencies = {
+        'Do': 261.63, 'Do#': 277.18, 'Re': 293.66, 'Re#': 311.13,
+        'Mi': 329.63, 'Fa': 349.23, 'Fa#': 369.99, 'Sol': 392.00,
+        'Sol#': 415.30, 'La': 440.00, 'La#': 466.16, 'Si': 493.88
+    };
+    
+    oscillator.frequency.value = frequencies[noteName] || 440;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 1);
+}
+
+// Sonido de Pac-Man más suave y agradable (más agudo)
+function playWakaSound() {
+    if (!audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(500, audioContext.currentTime + 0.08);
+    
+    // Volumen más bajo y suave
+    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.08);
+}
+
+// Sonido de alerta más suave
+function playBeepSound() {
+    if (!audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 880;
+    
+    // Volumen más bajo
+    gainNode.gain.setValueAtTime(0.12, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.12);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.12);
+}
+
+function playErrorSound() {
+    initAudio();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.5);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+function initFretboard() {
+    const fretboard = document.getElementById('fretboard');
+    fretboard.innerHTML = '';
+    
+    const height = fretboard.clientHeight;
+    const width = fretboard.clientWidth;
+    
+    const stringHeight = height / NUM_STRINGS;
+    
+    for (let i = 0; i < NUM_STRINGS; i++) {
+        const stringDiv = document.createElement('div');
+        stringDiv.className = 'string';
+        const thickness = 1 + (NUM_STRINGS - i - 1) * 0.5;
+        stringDiv.style.height = thickness + 'px';
+        stringDiv.style.background = `linear-gradient(to right, #c0c0c0, #e8e8e8, #c0c0c0)`;
+        stringDiv.style.top = ((i + 0.5) * stringHeight) + 'px';
+        fretboard.appendChild(stringDiv);
+        
+        const label = document.createElement('div');
+        label.className = 'string-label';
+        label.textContent = strings[i].name;
+        label.style.top = ((i + 0.5) * stringHeight) + 'px';
+        fretboard.appendChild(label);
+    }
+    
+    const nut = document.createElement('div');
+    nut.className = 'nut';
+    nut.style.left = '0px';
+    fretboard.appendChild(nut);
+    
+    const fretWidth = (width - ALMOND_CORRECTION) / numFrets;
+    
+    for (let i = 1; i <= numFrets; i++) {
+        const fret = document.createElement('div');
+        fret.className = 'fret';
+        fret.style.left = (ALMOND_CORRECTION + i * fretWidth) + 'px';
+        fretboard.appendChild(fret);
+    }
+    
+    const inlayFrets = [3, 5, 7, 9];
+    inlayFrets.forEach(fretNum => {
+        if (fretNum <= numFrets) {
+            const x = ALMOND_CORRECTION + (fretNum - 0.5) * fretWidth;
+            const y = height / 2;
+            
+            const inlay = document.createElement('div');
+            inlay.className = 'fret-inlay';
+            inlay.style.left = x + 'px';
+            inlay.style.top = y + 'px';
+            fretboard.appendChild(inlay);
+        }
+    });
+    
+    if (numFrets >= 12) {
+        const x = ALMOND_CORRECTION + (12 - 0.5) * fretWidth;
+        const y1 = height * 0.33;
+        const y2 = height * 0.67;
+        
+        const inlay1 = document.createElement('div');
+        inlay1.className = 'fret-inlay';
+        inlay1.style.left = x + 'px';
+        inlay1.style.top = y1 + 'px';
+        fretboard.appendChild(inlay1);
+        
+        const inlay2 = document.createElement('div');
+        inlay2.className = 'fret-inlay';
+        inlay2.style.left = x + 'px';
+        inlay2.style.top = y2 + 'px';
+        fretboard.appendChild(inlay2);
+    }
+}
+
+function checkFretExpansion() {
+    if (score > 0 && score % 15 === 0) {
+        numFrets += 2;
+        removePacmanFromString();
+        initFretboard();
+        currentPhase++;
+        updatePhaseIndicator();
+    }
+}
+
+function updatePhaseIndicator() {
+    const indicator = document.getElementById('phaseIndicator');
+    indicator.textContent = `Fase ${currentPhase}`;
+}
+
+function updateSkipCounter() {
+    const container = document.getElementById('skipCounter');
+    container.innerHTML = '';
+    
+    for (let i = 0; i < 3; i++) {
+        const pick = document.createElement('div');
+        pick.className = 'pick';
+        if (i < skipsUsed) {
+            pick.classList.add('used');
+        }
+        container.appendChild(pick);
+    }
+}
+
+function checkSkipReward() {
+    if (score > 0 && score % 10 === 0) {
+        if (skipsUsed > 0) {
+            skipsUsed--;
+            skipsAvailable++;
+            updateSkipCounter();
+            
+            // Habilitar botón superior
+            const skipBtnTop = document.getElementById('skipBtnTop');
+            if (skipBtnTop) {
+                skipBtnTop.disabled = false;
+            }
+            
+            const picks = document.querySelectorAll('.pick');
+            if (picks[skipsUsed]) {
+                picks[skipsUsed].classList.remove('used');
+                picks[skipsUsed].classList.add('active');
+                setTimeout(() => {
+                    picks[skipsUsed].classList.remove('active');
+                }, 500);
+            }
+        }
+    }
+}
+
+function skipNote() {
+    if (!gameStarted || skipsAvailable <= 0) return;
+    
+    skipsAvailable--;
+    skipsUsed++;
+    updateSkipCounter();
+    
+    // Actualizar estado del botón superior
+    const skipBtnTop = document.getElementById('skipBtnTop');
+    if (skipsAvailable <= 0) {
+        skipBtnTop.disabled = true;
+    }
+    
+    stopTimer();
+    
+    const oldDot = document.getElementById('currentNote');
+    if (oldDot) oldDot.remove();
+    
+    removePacmanFromString();
+    
+    setTimeout(nextNote, 500);
+}
+
+function startTimer() {
+    initAudio();
+    
+    const reducedSeconds = Math.floor(score / 3) * REDUCTION_TIME;
+    totalAllowedTime = Math.max(INITIAL_TIME - reducedSeconds, MIN_TIME) + pendingBonusTime;
+    pendingBonusTime = 0; // Se consumió el bonus
+    timeLeft = totalAllowedTime;
+    noteStartTime = Date.now();
+    pacmanProgress = 0;
+    dotsEaten = 0;
+    
+    if (wakaSoundInterval) {
+        clearInterval(wakaSoundInterval);
+        wakaSoundInterval = null;
+    }
+    if (beepSoundInterval) {
+        clearInterval(beepSoundInterval);
+        beepSoundInterval = null;
+    }
+    
+    // Sonido waka cada 400ms (más espaciado)
+    wakaSoundInterval = setInterval(() => {
+        playWakaSound();
+    }, 400);
+    
+    const startTime = Date.now();
+    const totalDuration = totalAllowedTime * 1000;
+    
+    timerInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = totalDuration - elapsed;
+        timeLeft = Math.max(0, remaining / 1000);
+        
+        updatePacmanOnString();
+        
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            if (wakaSoundInterval) {
+                clearInterval(wakaSoundInterval);
+                wakaSoundInterval = null;
+            }
+            if (beepSoundInterval) {
+                clearInterval(beepSoundInterval);
+                beepSoundInterval = null;
+            }
+            gameOver();
+        } else if (remaining <= ALERT_TIME * 1000 && !beepSoundInterval) {
+            // Cambiar a sonido de alerta pero NO remover el pac-man
+            if (wakaSoundInterval) {
+                clearInterval(wakaSoundInterval);
+                wakaSoundInterval = null;
+            }
+            beepSoundInterval = setInterval(() => {
+                playBeepSound();
+            }, 300);
+            
+            // Agregar clase danger al pac-man existente
+            const pacman = document.getElementById('pacmanOnString');
+            if (pacman) {
+                pacman.classList.add('danger');
+            }
+        }
+    }, 50);
+}
+
+function updatePacmanOnString() {
+    const pacman = document.getElementById('pacmanOnString');
+    if (!pacman) return;
+    
+    const progress = 1 - (timeLeft / totalAllowedTime);
+    
+    let newX;
+    if (pacmanFromRight) {
+        newX = pacmanStartX - (pacmanStartX - pacmanEndX) * progress;
+    } else {
+        newX = pacmanStartX + (pacmanEndX - pacmanStartX) * progress;
+    }
+    
+    pacman.style.left = newX + 'px';
+    
+    const dotsContainer = document.getElementById('stringDotsContainer');
+    if (dotsContainer) {
+        const dots = dotsContainer.querySelectorAll('.string-dot');
+        const newDotsEaten = Math.floor(progress * NUM_DOTS);
+        
+        if (pacmanFromRight) {
+            // Cuando viene desde la derecha, comer desde el final hacia el principio
+            for (let i = NUM_DOTS - 1; i >= NUM_DOTS - newDotsEaten; i--) {
+                if (dots[i] && !dots[i].classList.contains('eaten')) {
+                    dots[i].classList.add('eaten');
+                }
+            }
+        } else {
+            // Cuando viene desde la izquierda, comer desde el principio hacia el final
+            for (let i = dotsEaten; i < newDotsEaten; i++) {
+                if (dots[i]) {
+                    dots[i].classList.add('eaten');
+                }
+            }
+        }
+        
+        dotsEaten = newDotsEaten;
+    }
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    if (wakaSoundInterval) {
+        clearInterval(wakaSoundInterval);
+        wakaSoundInterval = null;
+    }
+    if (beepSoundInterval) {
+        clearInterval(beepSoundInterval);
+        beepSoundInterval = null;
+    }
+}
+
+function removePacmanFromString() {
+    const pacman = document.getElementById('pacmanOnString');
+    if (pacman) pacman.remove();
+    
+    const dotsContainer = document.getElementById('stringDotsContainer');
+    if (dotsContainer) dotsContainer.remove();
+}
+
+function createPacmanOnString(noteX, noteY, stringNum) {
+    removePacmanFromString();
+    
+    const fretboard = document.getElementById('fretboard');
+    const width = fretboard.clientWidth;
+    const fretWidth = (width - ALMOND_CORRECTION) / numFrets;
+    
+    // Determinar posición inicial (2 trastes antes o desde la derecha)
+    const startFretOffset = 2 * fretWidth;
+    let startX = noteX - startFretOffset;
+    
+    // Si se sale por la izquierda, venir desde la derecha
+    if (startX < ALMOND_CORRECTION) {
+        startX = width - 10; // Desde el borde derecho
+        pacmanFromRight = true;
+    } else {
+        pacmanFromRight = false;
+    }
+    
+    pacmanStartX = startX;
+    pacmanEndX = noteX;
+    pacmanY = noteY;
+    
+    // Crear Pac-Man
+    const pacman = document.createElement('div');
+    pacman.className = 'pacman-on-string';
+    if (pacmanFromRight) {
+        pacman.classList.add('from-right');
+    }
+    pacman.id = 'pacmanOnString';
+    pacman.style.left = startX + 'px';
+    pacman.style.top = noteY + 'px';
+    fretboard.appendChild(pacman);
+    
+    // Crear línea de puntos
+    const dotsContainer = document.createElement('div');
+    dotsContainer.className = 'string-dots-container';
+    dotsContainer.id = 'stringDotsContainer';
+    
+    if (pacmanFromRight) {
+        dotsContainer.style.left = noteX + 'px';
+        dotsContainer.style.width = (startX - noteX) + 'px';
+    } else {
+        dotsContainer.style.left = startX + 'px';
+        dotsContainer.style.width = (noteX - startX) + 'px';
+    }
+    
+    dotsContainer.style.top = (noteY - 10) + 'px';
+    
+    for (let i = 0; i < NUM_DOTS; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'string-dot';
+        dotsContainer.appendChild(dot);
+    }
+    
+    fretboard.appendChild(dotsContainer);
+}
+
+function nextNote() {
+    const oldDot = document.getElementById('currentNote');
+    if (oldDot) oldDot.remove();
+    
+    removePacmanFromString();
+    
+    const stringNum = Math.floor(Math.random() * NUM_STRINGS);
+    const fretNum = Math.floor(Math.random() * numFrets) + 1; // Frets 1..numFrets (excluye fret 0 para evitar posición imposible)
+    
+    currentPosition = {
+        string: stringNum,
+        fret: fretNum
+    };
+    
+    correctNote = calculateNoteAtPosition(stringNum, fretNum);
+    
+    const fretboard = document.getElementById('fretboard');
+    const height = fretboard.clientHeight;
+    const width = fretboard.clientWidth;
+    const stringHeight = height / NUM_STRINGS;
+    const fretWidth = (width - ALMOND_CORRECTION) / numFrets;
+    
+    const y = (stringNum + 0.5) * stringHeight;
+    let x;
+    
+    if (fretNum === 0) {
+        x = ALMOND_CORRECTION * 0.5;
+    } else {
+        x = ALMOND_CORRECTION + (fretNum - 0.5) * fretWidth;
+    }
+    
+    const dot = document.createElement('div');
+    dot.className = 'note-dot';
+    dot.id = 'currentNote';
+    dot.style.left = x + 'px';
+    dot.style.top = y + 'px';
+    fretboard.appendChild(dot);
+    
+    // Crear Pac-Man en la misma cuerda
+    createPacmanOnString(x, y, stringNum);
+    
+    startTimer();
+}
+
+function checkAnswer(selectedNote) {
+    if (!gameStarted) return;
+    
+    if (selectedNote === correctNote) {
+        const elapsedTime = (Date.now() - noteStartTime) / 1000;
+        
+        if (elapsedTime <= RESPONSE_TIME) {
+            pendingBonusTime += BONUS_REWARD; // Se aplica en la siguiente nota
+        }
+        
+        playNote(correctNote);
+        score++;
+        document.getElementById('score').textContent = score;
+        
+        checkSkipReward();
+        checkFretExpansion();
+        
+        stopTimer();
+        
+        const oldDot = document.getElementById('currentNote');
+        if (oldDot) oldDot.remove();
+        
+        setTimeout(nextNote, 500);
+    } else {
+        playErrorSound();
+        stopTimer();
+        gameOver();
+    }
+}
+
+function gameOver() {
+    stopTimer();
+    gameStarted = false;
+    document.getElementById('finalScore').textContent = score;
+    document.getElementById('gameOver').classList.add('show');
+}
+
+function startGameFunc() {
+    document.getElementById('rulesModal').style.display = 'none';
+    gameStarted = true;
+    
+    initFretboard();
+    updateSkipCounter();
+    updatePhaseIndicator();
+    
+    const buttonsDiv = document.getElementById('buttons');
+    buttonsDiv.innerHTML = '';
+    
+    notes.forEach(note => {
+        const btn = document.createElement('button');
+        btn.textContent = note;
+        btn.onclick = () => checkAnswer(note);
+        buttonsDiv.appendChild(btn);
+    });
+    
+    // Mostrar el botón saltar superior
+    const skipBtnTop = document.getElementById('skipBtnTop');
+    skipBtnTop.style.display = 'block';
+    
+    nextNote();
+}
+
+function restartGame() {
+    score = 0;
+    numFrets = 5;
+    totalAllowedTime = INITIAL_TIME;
+    skipsAvailable = 3;
+    skipsUsed = 0;
+    pendingBonusTime = 0;
+    currentPhase = 1;
+    
+    document.getElementById('score').textContent = '0';
+    document.getElementById('gameOver').classList.remove('show');
+    
+    // Resetear estado del botón Saltar
+    const skipBtnTop = document.getElementById('skipBtnTop');
+    if (skipBtnTop) {
+        skipBtnTop.disabled = false;
+    }
+    
+    startGameFunc();
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log('Error al activar pantalla completa:', err);
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
+
+window.startGame = startGameFunc;
+window.restart = restartGame;
+window.toggleFullscreen = toggleFullscreen;
+</script>
+</body>
+</html>

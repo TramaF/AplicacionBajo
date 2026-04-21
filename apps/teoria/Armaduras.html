@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Adivina la Armadura Musical</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f1117;
+            --bg-card: #181b24;
+            --bg-card-hover: #1e2230;
+            --bg-input: #141720;
+            --accent: #c9a84c;
+            --accent-dim: rgba(201,168,76,0.15);
+            --accent-glow: rgba(201,168,76,0.35);
+            --text-primary: #ecedf0;
+            --text-secondary: #7a7f8e;
+            --text-muted: #4f5462;
+            --green: #5eead4;
+            --green-dim: rgba(94,234,212,0.12);
+            --red: #fb7185;
+            --red-dim: rgba(251,113,133,0.12);
+            --blue: #60a5fa;
+            --blue-dim: rgba(96,165,250,0.12);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            background: var(--bg-deep);
+            height: 100vh;
+            padding: 8px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            color: var(--text-primary);
+        }
+
+        /* ambient glow */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 20% 100%, rgba(94,234,212,0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Header ── */
+        .header {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.7em;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+        }
+
+        .author {
+            text-align: center;
+            font-size: 0.75em;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-top: 4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* ── Main card ── */
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius-lg);
+            padding: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Screens ── */
+        .screen {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Welcome / name screen ── */
+        .name-input-form {
+            text-align: center;
+            padding: 48px 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .name-input-form h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--accent);
+            margin-bottom: 32px;
+            font-size: 1.6em;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 12px 32px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
+            min-height: 44px;
+            min-width: 44px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            letter-spacing: 0.4px;
+        }
+        .btn:hover {
+            background: rgba(201,168,76,0.22);
+            border-color: rgba(201,168,76,0.45);
+            box-shadow: 0 0 16px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+
+        /* ── Score & question label ── */
+        .score-display {
+            text-align: right;
+            color: var(--text-muted);
+            font-size: 0.82em;
+            font-weight: 500;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .question-number {
+            color: var(--accent);
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-bottom: 6px;
+            text-align: center;
+            letter-spacing: 0.4px;
+        }
+
+        /* ── Staff (SVG) ── */
+        .staff-container {
+            width: 100%;
+            margin: 6px auto;
+            display: flex;
+            justify-content: center;
+            flex-shrink: 0;
+            background: var(--bg-input);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius);
+            padding: 8px 4px;
+        }
+
+        #staffSvg {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            min-height: 180px;
+        }
+
+        /* ── Feedback ── */
+        .feedback {
+            text-align: center;
+            font-size: 0.95em;
+            font-weight: 600;
+            min-height: 24px;
+            margin: 10px 0;
+            letter-spacing: 0.3px;
+        }
+        .feedback.correct { color: var(--green); }
+        .feedback.incorrect { color: var(--red); }
+
+        /* ── Controls ── */
+        .controls {
+            width: 100%;
+            padding: 4px 0;
+        }
+
+        /* note buttons row */
+        .note-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .note-btn {
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-card-hover);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.22,1,0.36,1);
+            min-width: 44px;
+            min-height: 40px;
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+        .note-btn::before {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .note-btn:hover {
+            border-color: rgba(201,168,76,0.3);
+            background: var(--bg-input);
+        }
+        .note-btn:hover::before { opacity: 1; }
+        .note-btn:active { transform: translateY(1px); }
+
+        .note-btn.selected {
+            background: var(--accent-dim);
+            border-color: rgba(201,168,76,0.4);
+            color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .note-btn.selected::before { opacity: 1; }
+
+        /* accidental buttons row */
+        .accidental-selector {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .accidental-btn {
+            padding: 6px 18px;
+            font-size: 17px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-card-hover);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.22,1,0.36,1);
+            min-width: 50px;
+            min-height: 40px;
+            letter-spacing: 0.2px;
+        }
+        .accidental-btn:hover {
+            border-color: rgba(96,165,250,0.3);
+            background: var(--bg-input);
+        }
+        .accidental-btn:active { transform: translateY(1px); }
+
+        .accidental-btn.selected {
+            background: var(--blue-dim);
+            border-color: rgba(96,165,250,0.4);
+            color: var(--blue);
+            box-shadow: 0 0 10px rgba(96,165,250,0.2);
+        }
+
+        /* manual text input row */
+        .manual-input {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .manual-input input {
+            padding: 9px 12px;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            max-width: 180px;
+            margin-right: 6px;
+            outline: none;
+            transition: border-color 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .manual-input input::placeholder { color: var(--text-muted); }
+        .manual-input input:focus { border-color: rgba(201,168,76,0.4); }
+
+        /* ── Results screen ── */
+        .results-screen h2,
+        #resultsScreen h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .final-score {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6em;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--accent);
+            letter-spacing: 0.3px;
+        }
+
+        .results-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .result-item {
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card-hover);
+            border: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9em;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .result-item.correct {
+            background: var(--green-dim);
+            border-color: rgba(94,234,212,0.2);
+        }
+        .result-item.incorrect {
+            background: var(--red-dim);
+            border-color: rgba(251,113,133,0.2);
+        }
+
+        .result-answer {
+            font-size: 0.88em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-weight: 300;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.4em; }
+            .note-btn {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 Adivina la Armadura Musical</h1>
+        <div class="author">R. Raíndo</div>
+    </div>
+    
+    <div class="container">
+        <div id="nameScreen" class="screen active">
+            <div class="name-input-form">
+                <h2>¡Bienvenido!</h2>
+                <button class="btn" id="startBtn">Comenzar Juego</button>
+            </div>
+        </div>
+        
+        <div id="gameScreen" class="screen">
+            <div class="score-display" id="scoreDisplay"></div>
+            <div class="question-number" id="questionNumber"></div>
+            <div class="staff-container">
+                <svg id="staffSvg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet"></svg>
+            </div>
+            <div class="feedback" id="feedback"></div>
+            <div class="controls">
+                <div class="note-selector" id="noteSelector">
+                    <button class="note-btn" data-note="Do">Do</button>
+                    <button class="note-btn" data-note="Re">Re</button>
+                    <button class="note-btn" data-note="Mi">Mi</button>
+                    <button class="note-btn" data-note="Fa">Fa</button>
+                    <button class="note-btn" data-note="Sol">Sol</button>
+                    <button class="note-btn" data-note="La">La</button>
+                    <button class="note-btn" data-note="Si">Si</button>
+                </div>
+                <div class="accidental-selector" id="accidentalSelector">
+                    <button class="accidental-btn selected" data-acc="none">Sin</button>
+                    <button class="accidental-btn" data-acc="sharp">♯</button>
+                    <button class="accidental-btn" data-acc="flat">♭</button>
+                </div>
+                <div style="text-align: center; margin-top: 8px;">
+                    <button class="btn" id="submitBtn">Enviar Respuesta</button>
+                </div>
+                <div class="manual-input">
+                    <input type="text" id="manualInput" placeholder="o escribe: Sol mayor">
+                    <button class="btn" id="manualBtn">OK</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="resultsScreen" class="screen">
+            <h2>¡Juego Terminado!</h2>
+            <div class="final-score" id="finalScore"></div>
+            <div class="results-list" id="resultsList"></div>
+            <div style="text-align: center;">
+                <button class="btn" id="resetBtn">Jugar de Nuevo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DESKTOP_Y_ADJUST = -2;
+        
+        const SHARP_ORDER = ['F', 'C', 'G', 'D', 'A', 'E', 'B'];
+        const FLAT_ORDER = ['B', 'E', 'A', 'D', 'G', 'C', 'F'];
+        
+        const NOTE_POSITIONS = {
+            'C4': 160, 'D4': 152, 'E4': 144, 'F4': 136, 'G4': 128, 'A4': 120,
+            'B4': 112, 'C5': 104, 'D5': 96, 'E5': 88, 'F5': 80, 'G5': 72
+        };
+        
+        const ACCIDENTAL_TO_NOTE = {
+            'F#': 'F5', 'C#': 'C5', 'G#': 'G5', 'D#': 'D5', 'A#': 'A4', 'E#': 'E5', 'B#': 'B4',
+            'Bb': 'B4', 'Eb': 'E5', 'Ab': 'A4', 'Db': 'D5', 'Gb': 'G4', 'Cb': 'C5', 'Fb': 'F4'
+        };
+        
+        const KEY_SIGNATURES = [
+            { name: 'Do mayor', sharps: 0, flats: 0, relative: 'La menor' },
+            { name: 'Sol mayor', sharps: 1, flats: 0, relative: 'Mi menor' },
+            { name: 'Re mayor', sharps: 2, flats: 0, relative: 'Si menor' },
+            { name: 'La mayor', sharps: 3, flats: 0, relative: 'Fa♯ menor' },
+            { name: 'Mi mayor', sharps: 4, flats: 0, relative: 'Do♯ menor' },
+            { name: 'Si mayor', sharps: 5, flats: 0, relative: 'Sol♯ menor' },
+            { name: 'Fa♯ mayor', sharps: 6, flats: 0, relative: 'Re♯ menor' },
+            { name: 'Do♯ mayor', sharps: 7, flats: 0, relative: 'La♯ menor' },
+            { name: 'Fa mayor', sharps: 0, flats: 1, relative: 'Re menor' },
+            { name: 'Si♭ mayor', sharps: 0, flats: 2, relative: 'Sol menor' },
+            { name: 'Mi♭ mayor', sharps: 0, flats: 3, relative: 'Do menor' },
+            { name: 'La♭ mayor', sharps: 0, flats: 4, relative: 'Fa menor' },
+            { name: 'Re♭ mayor', sharps: 0, flats: 5, relative: 'Si♭ menor' },
+            { name: 'Sol♭ mayor', sharps: 0, flats: 6, relative: 'Mi♭ menor' },
+            { name: 'Do♭ mayor', sharps: 0, flats: 7, relative: 'La♭ menor' }
+        ];
+        
+        const game = {
+            playerName: 'Jugador',
+            currentQuestion: 0,
+            score: 0,
+            selectedNote: null,
+            selectedAccidental: 'none',
+            questionKeys: [],
+            results: [],
+            isDesktop: false
+        };
+        
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+        
+        function playCorrectSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = 523.25;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.5);
+            
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.frequency.value = 659.25;
+            osc2.type = 'sine';
+            gain2.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc2.start(audioCtx.currentTime);
+            osc2.stop(audioCtx.currentTime + 0.5);
+        }
+        
+        function playIncorrectSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = 200;
+            osc.type = 'sawtooth';
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+        
+        function detectEnvironment() {
+            const dpr = window.devicePixelRatio || 1;
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            const hasTouch = 'ontouchstart' in window;
+            game.isDesktop = !isMobile && !hasTouch && dpr >= 1.5;
+        }
+        
+        function drawStaff(keySignature, targetSvg) {
+            const svg = targetSvg || document.getElementById('staffSvg');
+            svg.innerHTML = '';
+            
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const staffY = 80;
+            const lineSpacing = 16;
+            
+            for (let i = 0; i < 5; i++) {
+                const line = document.createElementNS(svgNS, 'line');
+                line.setAttribute('x1', '60');
+                line.setAttribute('y1', staffY + (i * lineSpacing));
+                line.setAttribute('x2', '380');
+                line.setAttribute('y2', staffY + (i * lineSpacing));
+                line.setAttribute('stroke', '#ffffff');
+                line.setAttribute('stroke-width', '2');
+                svg.appendChild(line);
+            }
+            
+            const clef = document.createElementNS(svgNS, 'text');
+            clef.textContent = '𝄞';
+            clef.setAttribute('x', '65');
+            clef.setAttribute('y', '148');
+            clef.setAttribute('font-size', '110');
+            clef.setAttribute('font-family', 'serif');
+            clef.setAttribute('fill', '#ffffff');
+            svg.appendChild(clef);
+            
+            const startX = 165;
+            const spacing = 20;
+            const adjustY = game.isDesktop ? DESKTOP_Y_ADJUST : 0;
+            
+            if (keySignature.sharps > 0) {
+                for (let i = 0; i < keySignature.sharps; i++) {
+                    const noteName = SHARP_ORDER[i];
+                    const position = ACCIDENTAL_TO_NOTE[noteName + '#'];
+                    const y = NOTE_POSITIONS[position] + adjustY;
+                    
+                    const sharp = document.createElementNS(svgNS, 'text');
+                    sharp.textContent = '♯';
+                    sharp.setAttribute('x', startX + (i * spacing));
+                    sharp.setAttribute('y', y + 12);
+                    sharp.setAttribute('font-size', '36');
+                    sharp.setAttribute('font-family', 'serif');
+                    sharp.setAttribute('fill', '#ffffff');
+                    sharp.setAttribute('font-weight', 'bold');
+                    svg.appendChild(sharp);
+                }
+            } else if (keySignature.flats > 0) {
+                for (let i = 0; i < keySignature.flats; i++) {
+                    const noteName = FLAT_ORDER[i];
+                    const position = ACCIDENTAL_TO_NOTE[noteName + 'b'];
+                    const y = NOTE_POSITIONS[position] + adjustY;
+                    
+                    const flat = document.createElementNS(svgNS, 'text');
+                    flat.textContent = '♭';
+                    flat.setAttribute('x', startX + (i * spacing));
+                    flat.setAttribute('y', y + 8);
+                    flat.setAttribute('font-size', '32');
+                    flat.setAttribute('font-family', 'serif');
+                    flat.setAttribute('fill', '#ffffff');
+                    flat.setAttribute('font-weight', 'bold');
+                    svg.appendChild(flat);
+                }
+            }
+        }
+        
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+        
+        function startGame() {
+            initAudio();
+            game.questionKeys = [...KEY_SIGNATURES].sort(() => Math.random() - 0.5).slice(0, 10);
+            game.currentQuestion = 0;
+            game.score = 0;
+            game.results = [];
+            showScreen('gameScreen');
+            nextQuestion();
+        }
+        
+        function nextQuestion() {
+            game.currentQuestion++;
+            game.selectedNote = null;
+            game.selectedAccidental = 'none';
+            
+            document.querySelectorAll('.note-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.accidental-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector('[data-acc="none"]').classList.add('selected');
+            document.getElementById('manualInput').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            if (game.currentQuestion > 10) {
+                showResults();
+                return;
+            }
+            
+            const key = game.questionKeys[game.currentQuestion - 1];
+            document.getElementById('questionNumber').textContent = `Pregunta ${game.currentQuestion} de 10`;
+            document.getElementById('scoreDisplay').textContent = `Puntuación: ${game.score}/10`;
+            drawStaff(key);
+        }
+        
+        function selectNote(note) {
+            game.selectedNote = note;
+            document.querySelectorAll('.note-btn').forEach(btn => {
+                if (btn.dataset.note === note) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+        
+        function selectAccidental(type) {
+            game.selectedAccidental = type;
+            document.querySelectorAll('.accidental-btn').forEach(btn => {
+                if (btn.dataset.acc === type) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+        
+        function buildAnswer(note, accidental) {
+            let answer = note;
+            if (accidental === 'sharp') answer += '♯';
+            if (accidental === 'flat') answer += '♭';
+            return answer + ' mayor';
+        }
+        
+        function normalizeAnswer(answer) {
+            return answer.toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/♯/g, '#')
+                .replace(/♭/g, 'b')
+                .replace(/sostenido/g, '#')
+                .replace(/bemol/g, 'b');
+        }
+        
+        function checkAnswer(userAnswer) {
+            const correctKey = game.questionKeys[game.currentQuestion - 1];
+            const correct = normalizeAnswer(userAnswer) === normalizeAnswer(correctKey.name);
+            
+            const feedback = document.getElementById('feedback');
+            if (correct) {
+                game.score++;
+                feedback.textContent = '✓ ¡Correcto!';
+                feedback.className = 'feedback correct';
+                playCorrectSound();
+            } else {
+                feedback.textContent = `✗ Incorrecto. Era: ${correctKey.name}`;
+                feedback.className = 'feedback incorrect';
+                playIncorrectSound();
+            }
+            
+            game.results.push({
+                question: `Pregunta ${game.currentQuestion}`,
+                correct: correct,
+                userAnswer: userAnswer,
+                correctAnswer: correctKey.name,
+                relative: correctKey.relative
+            });
+            
+            setTimeout(nextQuestion, 2000);
+        }
+        
+        function submitAnswer() {
+            if (!game.selectedNote) {
+                alert('Por favor selecciona una nota');
+                return;
+            }
+            const userAnswer = buildAnswer(game.selectedNote, game.selectedAccidental);
+            checkAnswer(userAnswer);
+        }
+        
+        function submitManual() {
+            const input = document.getElementById('manualInput').value.trim();
+            if (!input) {
+                alert('Por favor escribe una respuesta');
+                return;
+            }
+            checkAnswer(input);
+        }
+        
+        function showResults() {
+            showScreen('resultsScreen');
+            document.getElementById('finalScore').textContent = `Puntuación Final: ${game.score}/10`;
+            
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+            
+            game.results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = `result-item ${result.correct ? 'correct' : 'incorrect'}`;
+                item.innerHTML = `
+                    <strong>${result.question}</strong>: ${result.correct ? '✓ Correcto' : '✗ Incorrecto'}
+                    <div class="result-answer">
+                        Tu respuesta: ${result.userAnswer}<br>
+                        Correcta: ${result.correctAnswer} (relativo menor: ${result.relative})
+                    </div>
+                `;
+                resultsList.appendChild(item);
+            });
+        }
+        
+        function resetGame() {
+            showScreen('nameScreen');
+        }
+        
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('submitBtn').addEventListener('click', submitAnswer);
+        document.getElementById('manualBtn').addEventListener('click', submitManual);
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        
+        document.getElementById('noteSelector').addEventListener('click', function(e) {
+            if (e.target.classList.contains('note-btn')) {
+                selectNote(e.target.dataset.note);
+            }
+        });
+        
+        document.getElementById('accidentalSelector').addEventListener('click', function(e) {
+            if (e.target.classList.contains('accidental-btn')) {
+                selectAccidental(e.target.dataset.acc);
+            }
+        });
+        
+        document.getElementById('manualInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') submitManual();
+        });
+        
+        detectEnvironment();
+        
+        window.addEventListener('resize', function() {
+            detectEnvironment();
+            if (game.currentQuestion > 0 && game.currentQuestion <= 10) {
+                drawStaff(game.questionKeys[game.currentQuestion - 1]);
+            }
+        });
+        
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                detectEnvironment();
+                if (game.currentQuestion > 0 && game.currentQuestion <= 10) {
+                    drawStaff(game.questionKeys[game.currentQuestion - 1]);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
