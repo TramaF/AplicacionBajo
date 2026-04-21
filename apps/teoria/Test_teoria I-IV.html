@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Teoría Musical</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f1117;
+            --bg-card: #181b24;
+            --bg-card-hover: #1e2230;
+            --bg-input: #141720;
+            --accent: #c9a84c;
+            --accent-dim: rgba(201,168,76,0.15);
+            --accent-glow: rgba(201,168,76,0.35);
+            --text-primary: #ecedf0;
+            --text-secondary: #7a7f8e;
+            --text-muted: #4f5462;
+            --green: #5eead4;
+            --green-dim: rgba(94,234,212,0.12);
+            --red: #fb7185;
+            --radius: 14px;
+            --radius-sm: 10px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            background: var(--bg-deep);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 20% 100%, rgba(94,234,212,0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .pantalla {
+            display: none;
+        }
+
+        .pantalla.activa {
+            display: block;
+        }
+
+        .nivel-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-sm);
+            font-size: 18px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nivel-btn:hover {
+            background: rgba(201,168,76,0.22);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .progreso {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .barra {
+            width: 100%;
+            height: 30px;
+            background: var(--bg-input);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .barra-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), #2dd4bf);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-deep);
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .pregunta {
+            font-size: 22px;
+            margin: 30px 0;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .opcion {
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--bg-input);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        .opcion:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+
+        .opcion.correcta {
+            background: rgba(94,234,212,0.2);
+            color: var(--green);
+            border-color: var(--green);
+        }
+
+        .opcion.incorrecta {
+            background: rgba(251,113,133,0.2);
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .opcion.deshabilitada {
+            pointer-events: none;
+        }
+
+        .explicacion {
+            display: none;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--accent-dim);
+            border-left: 4px solid var(--accent);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+        }
+
+        .explicacion.mostrar {
+            display: block;
+        }
+
+        .btn {
+            display: none;
+            padding: 15px 30px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: all 0.3s;
+        }
+
+        .btn.mostrar {
+            display: block;
+        }
+
+        .btn:hover {
+            background: rgba(201,168,76,0.22);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .resultado {
+            text-align: center;
+        }
+
+        .nota {
+            font-family: 'Playfair Display', serif;
+            font-size: 60px;
+            color: var(--accent);
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        .mensaje {
+            font-size: 24px;
+            margin: 20px 0;
+            color: var(--text-secondary);
+        }
+
+        .estadisticas {
+            background: var(--bg-input);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            margin: 20px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Test de Teoría Musical</h1>
+
+        <div id="inicio" class="pantalla activa">
+            <p style="text-align: center; margin-bottom: 20px; font-size: 18px;">Selecciona tu nivel:</p>
+            <button class="nivel-btn" onclick="iniciarTest(1)">1º Curso</button>
+            <button class="nivel-btn" onclick="iniciarTest(2)">2º Curso</button>
+            <button class="nivel-btn" onclick="iniciarTest(3)">3º Curso</button>
+            <button class="nivel-btn" onclick="iniciarTest(4)">4º Curso</button>
+        </div>
+
+        <div id="test" class="pantalla">
+            <div class="progreso">
+                Pregunta <span id="numPregunta">1</span> de <span id="totalPreguntas">10</span>
+            </div>
+            <div class="barra">
+                <div id="barraFill" class="barra-fill">0%</div>
+            </div>
+            <div id="pregunta" class="pregunta"></div>
+            <div id="opciones"></div>
+            <div id="explicacion" class="explicacion"></div>
+            <button id="btnSiguiente" class="btn" onclick="siguientePregunta()">Siguiente →</button>
+        </div>
+
+        <div id="resultados" class="pantalla">
+            <div class="resultado">
+                <h2>🎉 ¡Test Completado!</h2>
+                <div id="nota" class="nota"></div>
+                <div id="mensaje" class="mensaje"></div>
+                <div class="estadisticas">
+                    <div id="stats"></div>
+                </div>
+                <button class="btn mostrar" onclick="volverInicio()">← Volver al Inicio</button>
+                <button class="btn mostrar" onclick="repetirTest()">🔄 Repetir Test</button>
+            </div>
+        </div>
+
+        <div class="footer">by R. Raíndo</div>
+    </div>
+
+    <script>
+        let nivelActual = 1;
+        let preguntaActual = 0;
+        let preguntasTest = [];
+        let respuestas = [];
+
+        // Crear contexto de audio para los sonidos
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Función para reproducir sonido de acierto
+        function reproducirAcierto() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // Do
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // Mi
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // Sol
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.4);
+        }
+
+        // Función para reproducir sonido de error
+        function reproducirError() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        const preguntas = {
+            1: [
+                { q: "¿Cuántos tiempos vale una blanca?", o: ["1", "2", "3", "4"], c: 1, e: "La blanca vale 2 tiempos." },
+                { q: "¿Qué distingue un violín de un piano?", o: ["Altura", "Duración", "Timbre", "Intensidad"], c: 2, e: "El timbre distingue los instrumentos." },
+                { q: "¿Cuántas líneas tiene un pentagrama?", o: ["4", "5", "6", "7"], c: 1, e: "El pentagrama tiene 5 líneas." },
+                { q: "¿Cuántos tiempos tiene 3/4?", o: ["2", "3", "4", "6"], c: 1, e: "3/4 tiene 3 tiempos por compás." },
+                { q: "¿Qué figura vale 1 tiempo?", o: ["Redonda", "Blanca", "Negra", "Corchea"], c: 2, e: "La negra vale 1 tiempo." },
+                { q: "¿Cuántas corcheas equivalen a una negra?", o: ["1", "2", "3", "4"], c: 1, e: "2 corcheas = 1 negra." },
+                { q: "¿Qué sube la nota medio tono?", o: ["Bemol", "Sostenido", "Becuadro", "Puntillo"], c: 1, e: "El sostenido sube medio tono." },
+                { q: "¿Cuántas notas musicales hay?", o: ["5", "6", "7", "8"], c: 2, e: "Hay 7 notas: Do, Re, Mi, Fa, Sol, La, Si." },
+                { q: "¿Qué determina si es grave o agudo?", o: ["Altura", "Duración", "Timbre", "Intensidad"], c: 0, e: "La altura determina grave o agudo." },
+                { q: "¿Cuántos tiempos vale una redonda?", o: ["1", "2", "3", "4"], c: 3, e: "La redonda vale 4 tiempos." },
+                { q: "¿Cuántos espacios tiene un pentagrama?", o: ["3", "4", "5", "6"], c: 1, e: "El pentagrama tiene 4 espacios." },
+                { q: "¿Qué silencio dura 2 tiempos?", o: ["Silencio de redonda", "Silencio de blanca", "Silencio de negra", "Silencio de corchea"], c: 1, e: "El silencio de blanca dura 2 tiempos." },
+                { q: "¿Qué hace un puntillo?", o: ["Duplica el valor", "Suma la mitad del valor", "Resta la mitad", "No cambia nada"], c: 1, e: "El puntillo añade la mitad del valor de la figura." },
+                { q: "¿Qué significa forte?", o: ["Muy suave", "Suave", "Fuerte", "Muy fuerte"], c: 2, e: "Forte significa fuerte." },
+                { q: "¿Cómo se llama la clave más común?", o: ["Clave de Fa", "Clave de Do", "Clave de Sol", "Clave alta"], c: 2, e: "La clave de Sol es la más común." },
+                { q: "¿Qué figura vale medio tiempo?", o: ["Negra", "Corchea", "Blanca", "Semicorchea"], c: 1, e: "La corchea vale medio tiempo." },
+                { q: "¿Cuántas negras hay en 4/4?", o: ["2", "3", "4", "8"], c: 2, e: "En 4/4 caben 4 negras." },
+                { q: "¿Qué es un crescendo?", o: ["Ir más rápido", "Ir más lento", "Subir volumen", "Bajar volumen"], c: 2, e: "Crescendo significa aumentar el volumen." },
+                { q: "¿Nota en la 2ª línea clave Sol?", o: ["Mi", "Sol", "Si", "Re"], c: 1, e: "En clave de Sol, la 2ª línea es Sol." },
+                { q: "¿Qué cancela alteraciones?", o: ["Puntillo", "Ligadura", "Becuadro", "Calderón"], c: 2, e: "El becuadro cancela alteraciones." },
+                { q: "¿Qué significa mezzo forte?", o: ["Muy fuerte", "Medio fuerte", "Medio suave", "Muy suave"], c: 1, e: "Mezzo forte significa medio fuerte." },
+                { q: "¿Cuántos tiempos tiene 2/4?", o: ["1", "2", "3", "4"], c: 1, e: "2/4 tiene 2 tiempos por compás." },
+                { q: "¿Nota en 1er espacio clave Sol?", o: ["Do", "Mi", "Fa", "La"], c: 2, e: "El primer espacio en clave Sol es Fa." },
+                { q: "¿Semicorcheas en una negra?", o: ["2", "3", "4", "8"], c: 2, e: "4 semicorcheas = 1 negra." },
+                { q: "¿Qué es un diminuendo?", o: ["Más rápido", "Más lento", "Subir volumen", "Bajar volumen"], c: 3, e: "Diminuendo significa bajar volumen." },
+                { q: "¿Dónde está el Do central?", o: ["Línea adicional inferior", "Primera línea", "Segunda línea", "Tercer espacio"], c: 0, e: "Do central en línea adicional inferior." },
+                { q: "¿Tiempos blanca con puntillo?", o: ["2", "3", "4", "6"], c: 1, e: "Blanca con puntillo = 3 tiempos." },
+                { q: "¿Qué es una ligadura?", o: ["Une notas diferentes", "Une notas iguales", "Separa notas", "Cambia tono"], c: 1, e: "Ligadura une notas iguales." },
+                { q: "¿Qué significa pianissimo?", o: ["Muy fuerte", "Fuerte", "Suave", "Muy suave"], c: 3, e: "Pianissimo es muy suave." },
+                { q: "¿Primera línea en clave Sol?", o: ["Do", "Re", "Mi", "Fa"], c: 2, e: "Primera línea en clave Sol es Mi." }
+            ],
+            2: [
+                { q: "¿Qué baja la nota medio tono?", o: ["Sostenido", "Bemol", "Becuadro", "Doble sostenido"], c: 1, e: "El bemol baja medio tono." },
+                { q: "¿Qué escala es alegre?", o: ["Menor", "Mayor", "Cromática", "Pentatónica"], c: 1, e: "La escala mayor es alegre." },
+                { q: "¿Intervalo entre Do y Mi?", o: ["Segunda", "Tercera", "Cuarta", "Quinta"], c: 1, e: "Do-Mi es una tercera." },
+                { q: "¿Semitonos en una octava?", o: ["10", "11", "12", "13"], c: 2, e: "Una octava tiene 12 semitonos." },
+                { q: "¿Qué compás es compuesto?", o: ["2/4", "3/4", "6/8", "4/4"], c: 2, e: "6/8 es compuesto." },
+                { q: "¿Qué significa Allegro?", o: ["Muy lento", "Lento", "Moderado", "Rápido"], c: 3, e: "Allegro significa rápido." },
+                { q: "¿Sostenidos en Sol Mayor?", o: ["0", "1", "2", "3"], c: 1, e: "Sol Mayor tiene 1 sostenido." },
+                { q: "¿Qué indica pp?", o: ["Muy fuerte", "Fuerte", "Suave", "Muy suave"], c: 3, e: "pp significa muy suave." },
+                { q: "¿Relativa menor de Do Mayor?", o: ["Re menor", "Mi menor", "La menor", "Si menor"], c: 2, e: "La menor es relativa de Do Mayor." },
+                { q: "¿Intervalo Do y Sol?", o: ["Tercera", "Cuarta", "Quinta", "Sexta"], c: 2, e: "Do-Sol es una quinta." },
+                { q: "¿Semitonos tercera menor?", o: ["2", "3", "4", "5"], c: 1, e: "Tercera menor tiene 3 semitonos." },
+                { q: "¿Qué significa Andante?", o: ["Muy lento", "Tranquilo", "Rápido", "Muy rápido"], c: 1, e: "Andante significa tranquilo." },
+                { q: "¿Bemoles en Fa Mayor?", o: ["0", "1", "2", "3"], c: 1, e: "Fa Mayor tiene 1 bemol." },
+                { q: "¿Intervalo Do y Fa?", o: ["Segunda", "Tercera", "Cuarta", "Quinta"], c: 2, e: "Do-Fa es una cuarta." },
+                { q: "¿Tiempos en 4/4?", o: ["2", "3", "4", "6"], c: 2, e: "4/4 tiene 4 tiempos." },
+                { q: "¿Qué significa ff?", o: ["Muy suave", "Suave", "Fuerte", "Muy fuerte"], c: 3, e: "ff significa muy fuerte." },
+                { q: "¿Relativa menor Sol Mayor?", o: ["Re menor", "Mi menor", "La menor", "Si menor"], c: 1, e: "Mi menor es relativa de Sol Mayor." },
+                { q: "¿Semitonos segunda mayor?", o: ["1", "2", "3", "4"], c: 1, e: "Segunda mayor tiene 2 semitonos." },
+                { q: "¿Qué significa Adagio?", o: ["Muy lento", "Lento", "Moderado", "Rápido"], c: 1, e: "Adagio significa lento." },
+                { q: "¿Intervalo Mi y La?", o: ["Tercera", "Cuarta", "Quinta", "Sexta"], c: 1, e: "Mi-La es una cuarta." },
+                { q: "¿Sostenidos Re Mayor?", o: ["1", "2", "3", "4"], c: 1, e: "Re Mayor tiene 2 sostenidos." },
+                { q: "¿Qué indica mf?", o: ["Muy suave", "Medio suave", "Medio fuerte", "Muy fuerte"], c: 2, e: "mf significa medio fuerte." },
+                { q: "¿Semitonos cuarta justa?", o: ["4", "5", "6", "7"], c: 1, e: "Cuarta justa tiene 5 semitonos." },
+                { q: "¿Qué significa Presto?", o: ["Lento", "Moderado", "Rápido", "Muy rápido"], c: 3, e: "Presto significa muy rápido." },
+                { q: "¿Tiempos en 3/8?", o: ["2", "3", "4", "6"], c: 1, e: "3/8 tiene 3 tiempos." },
+                { q: "¿Intervalo Re y Si?", o: ["Quinta", "Sexta", "Séptima", "Octava"], c: 1, e: "Re-Si es una sexta." },
+                { q: "¿Qué es un tresillo?", o: ["2 en 3 tiempos", "3 en 2 tiempos", "3 en 4 tiempos", "4 en 3 tiempos"], c: 1, e: "Tresillo divide en 3 lo que serían 2." },
+                { q: "¿Qué significa ritardando?", o: ["Más rápido", "Más lento", "Más fuerte", "Más suave"], c: 1, e: "Ritardando significa ralentizar." },
+                { q: "¿Bemoles en Si bemol Mayor?", o: ["1", "2", "3", "4"], c: 1, e: "Si bemol Mayor tiene 2 bemoles." },
+                { q: "¿Intervalo Fa y Re?", o: ["Quinta", "Sexta", "Séptima", "Octava"], c: 1, e: "Fa-Re es una sexta." }
+            ],
+            3: [
+                { q: "¿Sostenidos Re Mayor?", o: ["1", "2", "3", "4"], c: 1, e: "Re Mayor tiene 2 sostenidos." },
+                { q: "¿Notas acorde Do Mayor?", o: ["Do-Mi-Sol", "Do-Re-Mi", "Do-Fa-La", "Do-Mi-La"], c: 0, e: "Do Mayor = Do-Mi-Sol." },
+                { q: "¿V grado de Do Mayor?", o: ["Fa", "Sol", "La", "Si"], c: 1, e: "V grado de Do es Sol." },
+                { q: "¿Intervalo Mi y Si?", o: ["Cuarta", "Quinta justa", "Quinta dim", "Quinta aum"], c: 1, e: "Mi-Si es quinta justa." },
+                { q: "¿Bemoles Mi bemol Mayor?", o: ["1", "2", "3", "4"], c: 2, e: "Mi bemol Mayor tiene 3 bemoles." },
+                { q: "¿Qué significa DC al Fine?", o: ["Terminar", "Volver al inicio", "Ir al signo", "Repetir"], c: 1, e: "DC al Fine = volver al inicio." },
+                { q: "¿Semitonos tercera mayor?", o: ["2", "3", "4", "5"], c: 2, e: "Tercera mayor tiene 4 semitonos." },
+                { q: "¿Subdominante Sol Mayor?", o: ["Do", "Re", "Mi", "La"], c: 0, e: "Subdominante de Sol es Do." },
+                { q: "¿Qué es cadencia perfecta?", o: ["I-IV", "IV-I", "V-I", "I-V"], c: 2, e: "Cadencia perfecta es V-I." },
+                { q: "¿Sostenidos La Mayor?", o: ["1", "2", "3", "4"], c: 2, e: "La Mayor tiene 3 sostenidos." },
+                { q: "¿Notas acorde Sol Mayor?", o: ["Sol-Si-Re", "Sol-La-Si", "Sol-Do-Mi", "Sol-Si-Mi"], c: 0, e: "Sol Mayor = Sol-Si-Re." },
+                { q: "¿IV grado Sol Mayor?", o: ["Do", "Re", "Mi", "Fa"], c: 0, e: "IV grado de Sol es Do." },
+                { q: "¿Semitonos quinta justa?", o: ["5", "6", "7", "8"], c: 2, e: "Quinta justa tiene 7 semitonos." },
+                { q: "¿Relativa menor Re Mayor?", o: ["Do menor", "Si menor", "La menor", "Mi menor"], c: 1, e: "Si menor es relativa de Re Mayor." },
+                { q: "¿Qué es una apoyatura?", o: ["Nota principal", "Nota de adorno", "Acorde", "Silencio"], c: 1, e: "Apoyatura es nota de adorno." },
+                { q: "¿Bemoles Re bemol Mayor?", o: ["3", "4", "5", "6"], c: 2, e: "Re bemol Mayor tiene 5 bemoles." },
+                { q: "¿Intervalo Do y La?", o: ["Quinta", "Sexta", "Séptima", "Octava"], c: 1, e: "Do-La es una sexta." },
+                { q: "¿Qué significa DS al Coda?", o: ["Volver inicio", "Ir al signo y Coda", "Terminar", "Repetir"], c: 1, e: "DS al Coda = ir al signo y Coda." },
+                { q: "¿Notas acorde Re menor?", o: ["Re-Fa-La", "Re-Fa#-La", "Re-Mi-La", "Re-Fa-Si"], c: 0, e: "Re menor = Re-Fa-La." },
+                { q: "¿Semitonos sexta menor?", o: ["7", "8", "9", "10"], c: 1, e: "Sexta menor tiene 8 semitonos." },
+                { q: "¿III grado Do Mayor?", o: ["Re", "Mi", "Fa", "Sol"], c: 1, e: "III grado de Do es Mi." },
+                { q: "¿Qué es un mordente?", o: ["Nota principal", "Ornamento", "Acorde", "Silencio"], c: 1, e: "Mordente es un ornamento." },
+                { q: "¿Sostenidos Mi Mayor?", o: ["2", "3", "4", "5"], c: 2, e: "Mi Mayor tiene 4 sostenidos." },
+                { q: "¿Qué es cadencia plagal?", o: ["V-I", "IV-I", "I-V", "I-IV"], c: 1, e: "Cadencia plagal es IV-I." },
+                { q: "¿Intervalo Sol y Re?", o: ["Cuarta", "Quinta", "Sexta", "Séptima"], c: 1, e: "Sol-Re es una quinta." },
+                { q: "¿Notas acorde Fa Mayor?", o: ["Fa-La-Do", "Fa-Sol-Do", "Fa-La-Re", "Fa-Si-Re"], c: 0, e: "Fa Mayor = Fa-La-Do." },
+                { q: "¿Bemoles La bemol Mayor?", o: ["2", "3", "4", "5"], c: 2, e: "La bemol Mayor tiene 4 bemoles." },
+                { q: "¿VI grado Do Mayor?", o: ["Fa", "Sol", "La", "Si"], c: 2, e: "VI grado de Do es La." },
+                { q: "¿Qué es cadencia rota?", o: ["V-I", "V-VI", "IV-I", "I-V"], c: 1, e: "Cadencia rota es V-VI." },
+                { q: "¿Semitonos séptima mayor?", o: ["9", "10", "11", "12"], c: 2, e: "Séptima mayor tiene 11 semitonos." }
+            ],
+            4: [
+                { q: "¿Sostenidos Mi Mayor?", o: ["2", "3", "4", "5"], c: 2, e: "Mi Mayor tiene 4 sostenidos." },
+                { q: "¿Notas La menor?", o: ["La-Do-Mi", "La-Do#-Mi", "La-Do-Sol", "La-Re-Mi"], c: 0, e: "La menor = La-Do-Mi." },
+                { q: "¿Tipo acorde Si-Re-Fa?", o: ["Mayor", "Menor", "Disminuido", "Aumentado"], c: 2, e: "Si-Re-Fa es disminuido." },
+                { q: "¿Bemoles La bemol Mayor?", o: ["2", "3", "4", "5"], c: 2, e: "La bemol Mayor tiene 4 bemoles." },
+                { q: "¿Qué es modulación?", o: ["Cambio tempo", "Cambio tonalidad", "Cambio compás", "Cambio dinámica"], c: 1, e: "Modulación es cambio de tonalidad." },
+                { q: "¿VII grado escala mayor?", o: ["Tónica", "Dominante", "Sensible", "Mediante"], c: 2, e: "VII grado es sensible." },
+                { q: "¿Semitonos sexta mayor?", o: ["7", "8", "9", "10"], c: 2, e: "Sexta mayor tiene 9 semitonos." },
+                { q: "¿Sostenidos Si Mayor?", o: ["3", "4", "5", "6"], c: 2, e: "Si Mayor tiene 5 sostenidos." },
+                { q: "¿Qué es V7?", o: ["Séptima dominante", "Séptima mayor", "Séptima menor", "Séptima tónica"], c: 0, e: "V7 es séptima de dominante." },
+                { q: "¿Semitonos séptima menor?", o: ["9", "10", "11", "12"], c: 1, e: "Séptima menor tiene 10 semitonos." },
+                { q: "¿Notas acorde Mi menor?", o: ["Mi-Sol-Si", "Mi-Sol#-Si", "Mi-Fa-Si", "Mi-Sol-Do"], c: 0, e: "Mi menor = Mi-Sol-Si." },
+                { q: "¿Sostenidos Fa# Mayor?", o: ["4", "5", "6", "7"], c: 2, e: "Fa# Mayor tiene 6 sostenidos." },
+                { q: "¿Qué es acorde aumentado?", o: ["Tónica+3m+5J", "Tónica+3M+5J", "Tónica+3M+5aum", "Tónica+3m+5dim"], c: 2, e: "Aumentado tiene 5ª aumentada." },
+                { q: "¿Relativa menor Mi Mayor?", o: ["Re# menor", "Do# menor", "Fa# menor", "Sol# menor"], c: 1, e: "Do# menor es relativa de Mi Mayor." },
+                { q: "¿Bemoles Sol bemol Mayor?", o: ["4", "5", "6", "7"], c: 2, e: "Sol bemol Mayor tiene 6 bemoles." },
+                { q: "¿Qué es dominante secundaria?", o: ["V de V", "IV de V", "V de IV", "I de V"], c: 0, e: "Dominante secundaria es V/V." },
+                { q: "¿II grado Re Mayor?", o: ["Mi", "Fa#", "Sol", "La"], c: 0, e: "II grado de Re Mayor es Mi." },
+                { q: "¿Semitonos novena mayor?", o: ["12", "13", "14", "15"], c: 2, e: "Novena mayor tiene 14 semitonos." },
+                { q: "¿Escala con 7 sostenidos?", o: ["Fa# Mayor", "Do# Mayor", "Sol# Mayor", "Re# Mayor"], c: 1, e: "Do# Mayor tiene 7 sostenidos." },
+                { q: "¿Notas acorde Si Mayor?", o: ["Si-Re-Fa#", "Si-Re#-Fa#", "Si-Do#-Mi", "Si-Re#-Sol"], c: 1, e: "Si Mayor = Si-Re#-Fa#." },
+                { q: "¿Qué es cadencia andaluza?", o: ["I-V-I", "I-VII-VI-V", "IV-I", "V-I"], c: 1, e: "Cadencia andaluza es I-VII-VI-V." },
+                { q: "¿Bemoles Do bemol Mayor?", o: ["5", "6", "7", "8"], c: 2, e: "Do bemol Mayor tiene 7 bemoles." },
+                { q: "¿Qué es acorde napolitano?", o: ["II grado", "II bemol en 1ª inv", "VI grado", "IV grado"], c: 1, e: "Napolitano es II bemol en 1ª inversión." },
+                { q: "¿Intervalo Fa# y Do#?", o: ["Cuarta", "Quinta", "Sexta", "Séptima"], c: 1, e: "Fa#-Do# es quinta justa." },
+                { q: "¿Mediante de La Mayor?", o: ["Si", "Do#", "Re", "Mi"], c: 1, e: "III grado de La es Do#." },
+                { q: "¿Qué es escala frigia?", o: ["3º modo mayor", "3º modo menor", "5º modo", "7º modo"], c: 1, e: "Frigia es tercer modo." },
+                { q: "¿Semitonos quinta disminuida?", o: ["5", "6", "7", "8"], c: 1, e: "Quinta disminuida tiene 6 semitonos." },
+                { q: "¿Subtónica Do Mayor?", o: ["La", "Si", "Re", "Fa"], c: 1, e: "VII grado de Do es Si." },
+                { q: "¿Notas acorde Fa# menor?", o: ["Fa#-La-Do#", "Fa#-La#-Do#", "Fa#-Sol-Do#", "Fa#-La-Re"], c: 0, e: "Fa# menor = Fa#-La-Do#." },
+                { q: "¿Qué es pedal armónico?", o: ["Nota sostenida", "Acorde sostenido", "Melodía repetida", "Bajo cromático"], c: 0, e: "Pedal es nota sostenida." },
+                { q: "¿Escala con 5 bemoles?", o: ["Mi bemol Mayor", "Re bemol Mayor", "La bemol Mayor", "Si bemol Mayor"], c: 1, e: "Re bemol Mayor tiene 5 bemoles." }
+            ]
+        };
+
+        function iniciarTest(nivel) {
+            nivelActual = nivel;
+            preguntaActual = 0;
+            respuestas = [];
+            
+            const todas = [...preguntas[nivel]];
+            preguntasTest = todas.sort(() => Math.random() - 0.5).slice(0, 10);
+            
+            document.getElementById('inicio').classList.remove('activa');
+            document.getElementById('test').classList.add('activa');
+            document.getElementById('totalPreguntas').textContent = preguntasTest.length;
+            
+            mostrarPregunta();
+        }
+
+        function mostrarPregunta() {
+            const p = preguntasTest[preguntaActual];
+            
+            document.getElementById('numPregunta').textContent = preguntaActual + 1;
+            const porcentaje = ((preguntaActual + 1) / preguntasTest.length) * 100;
+            document.getElementById('barraFill').style.width = porcentaje + '%';
+            document.getElementById('barraFill').textContent = Math.round(porcentaje) + '%';
+            
+            document.getElementById('pregunta').textContent = p.q;
+            
+            const opcionesDiv = document.getElementById('opciones');
+            opcionesDiv.innerHTML = '';
+            p.o.forEach((opcion, index) => {
+                const div = document.createElement('div');
+                div.className = 'opcion';
+                div.textContent = String.fromCharCode(65 + index) + '. ' + opcion;
+                div.onclick = () => seleccionar(index);
+                opcionesDiv.appendChild(div);
+            });
+            
+            document.getElementById('explicacion').classList.remove('mostrar');
+            document.getElementById('btnSiguiente').classList.remove('mostrar');
+        }
+
+        function seleccionar(index) {
+            const p = preguntasTest[preguntaActual];
+            const opciones = document.querySelectorAll('.opcion');
+            
+            opciones.forEach(o => o.classList.add('deshabilitada'));
+            
+            opciones[p.c].classList.add('correcta');
+            if (index !== p.c) {
+                opciones[index].classList.add('incorrecta');
+                reproducirError();
+            } else {
+                reproducirAcierto();
+            }
+            
+            respuestas.push(index === p.c);
+            
+            document.getElementById('explicacion').textContent = p.e;
+            document.getElementById('explicacion').classList.add('mostrar');
+            document.getElementById('btnSiguiente').classList.add('mostrar');
+        }
+
+        function siguientePregunta() {
+            preguntaActual++;
+            
+            if (preguntaActual < preguntasTest.length) {
+                mostrarPregunta();
+            } else {
+                mostrarResultados();
+            }
+        }
+
+        function mostrarResultados() {
+            const correctas = respuestas.filter(r => r).length;
+            const nota = (correctas / respuestas.length) * 10;
+            
+            let mensaje = '';
+            if (nota >= 9) mensaje = '¡Excelente! 🌟';
+            else if (nota >= 7) mensaje = '¡Muy bien! 👍';
+            else if (nota >= 5) mensaje = 'Aprobado 📚';
+            else mensaje = '¡Ánimo! 💪';
+            
+            document.getElementById('nota').textContent = nota.toFixed(1);
+            document.getElementById('mensaje').textContent = mensaje;
+            document.getElementById('stats').innerHTML = `
+                Correctas: ${correctas} / ${respuestas.length}<br>
+                Nivel: ${nivelActual}º Curso
+            `;
+            
+            document.getElementById('test').classList.remove('activa');
+            document.getElementById('resultados').classList.add('activa');
+        }
+
+        function volverInicio() {
+            document.getElementById('resultados').classList.remove('activa');
+            document.getElementById('inicio').classList.add('activa');
+        }
+
+        function repetirTest() {
+            iniciarTest(nivelActual);
+            document.getElementById('resultados').classList.remove('activa');
+        }
+    </script>
+</body>
+</html>
